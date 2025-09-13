@@ -1,10 +1,9 @@
 'use client';
 
-import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, ArrowRight, Stethoscope, Clock, Shield, Mail, Bot } from 'lucide-react';
+import { FileText, Stethoscope, Clock, Shield, Mail, Bot } from 'lucide-react';
 
 export default function Home() {
   const router = useRouter();

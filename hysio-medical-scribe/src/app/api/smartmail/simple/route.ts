@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SimpleEmailRequest, SimpleEmailResponse } from '@/lib/types/smartmail-simple';
-import { getTemplate } from '@/lib/smartmail/simple-templates';
 
 export async function POST(request: NextRequest): Promise<NextResponse<SimpleEmailResponse>> {
   try {
