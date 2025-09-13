@@ -1,20 +1,7 @@
-// SmartMail component exports
-export { SmartMailInterface } from './smartmail-interface';
-export { RecipientSelector } from './recipient-selector';
-export { ContextDefinition } from './context-definition';
-export { DocumentUpload } from './document-upload';
-export { SmartMailHistory } from './smartmail-history';
-export { EmailExport } from './email-export';
-export { EmailReviewEditor } from './email-review-editor';
-export { SmartMailLoadingState, EmailContentSkeleton, WorkflowProgress } from './loading-states';
+// Simple exports - no complex orchestration
+export { SmartMailSimple as default } from './smartmail-simple';
+export { SmartMailSimple } from './smartmail-simple';
 
-// Re-export types for convenience
-export type {
-  EmailGenerationRequest,
-  EmailGenerationResponse,
-  EmailTemplate,
-  RecipientType,
-  CommunicationContext,
-  DocumentContext,
-  EmailSuggestion
-} from '@/lib/types/smartmail';
+// Legacy compatibility - redirect old complex imports to new simple component
+export { SmartMailSimple as SmartMailInterface } from './smartmail-simple';
+export { SmartMailSimple as SmartMailIntegration } from './smartmail-simple';

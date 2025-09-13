@@ -1,10 +1,11 @@
 import * as React from 'react';
-import { cn } from '@/utils';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { DocumentUploader } from '@/components/ui/document-uploader';
 import { Calendar, User, FileText, AlertTriangle } from 'lucide-react';
 import { PatientInfo } from '@/lib/types';
 
@@ -42,6 +43,10 @@ const PatientInfoForm: React.FC<PatientInfoFormProps> = ({
   const [errors, setErrors] = React.useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
+  // Document context state
+  const [documentContext, setDocumentContext] = React.useState<string>('');
+  const [documentFilename, setDocumentFilename] = React.useState<string>('');
+
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
@@ -76,11 +81,17 @@ const PatientInfoForm: React.FC<PatientInfoFormProps> = ({
 
   const handleInputChange = (field: keyof PatientInfo, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    
+
     // Clear error when user starts typing
     if (errors[field as keyof FormErrors]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
     }
+  };
+
+  // Handle document upload from DocumentUploader component
+  const handleDocumentUpload = (documentText: string, filename: string) => {
+    setDocumentContext(documentText);
+    setDocumentFilename(filename);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -113,14 +124,6 @@ const PatientInfoForm: React.FC<PatientInfoFormProps> = ({
     }
   };
 
-  const getAge = (birthYear: string): number | null => {
-    if (!birthYear) return null;
-    const year = parseInt(birthYear);
-    if (isNaN(year)) return null;
-    return new Date().getFullYear() - year;
-  };
-
-  const age = getAge(formData.birthYear);
 
   return (
     <div className={cn('min-h-screen bg-hysio-cream/30 w-full py-6', className)}>
@@ -265,6 +268,26 @@ const PatientInfoForm: React.FC<PatientInfoFormProps> = ({
                     <AlertTriangle size={14} />
                     {errors.chiefComplaint}
                   </p>
+                )}
+              </div>
+
+              {/* Document Upload Section */}
+              <div className="space-y-2 pt-2">
+                <Label className="text-hysio-deep-green text-sm">
+                  Context Document (optioneel)
+                </Label>
+                <DocumentUploader
+                  onUploadComplete={handleDocumentUpload}
+                  disabled={disabled || isSubmitting}
+                  className="mb-2"
+                />
+                <p className="text-xs text-hysio-deep-green-900/60">
+                  Upload verwijsbrieven, vorige verslagen of andere relevante documenten voor context
+                </p>
+                {documentContext && documentFilename && (
+                  <div className="text-xs text-green-600 bg-green-50 border border-green-200 rounded-md p-2">
+                    ✓ Document &apos;{documentFilename}&apos; succesvol geüpload en verwerkt
+                  </div>
                 )}
               </div>
             </div>

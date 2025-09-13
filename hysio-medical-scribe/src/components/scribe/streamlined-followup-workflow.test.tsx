@@ -499,7 +499,7 @@ describe('StreamlinedFollowupWorkflow', () => {
   describe('Component State Management', () => {
     it('should manage loading states correctly', async () => {
       const user = userEvent.setup();
-      let resolveApiCall: (value: any) => void;
+      let resolveApiCall: (value: unknown) => void;
       
       (apiModule.apiCall as jest.Mock).mockImplementation(() => 
         new Promise(resolve => { resolveApiCall = resolve; })

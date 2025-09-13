@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Button } from './button';
-import { cn } from '@/utils';
-import { copyToClipboard } from '@/utils';
+import { cn } from '@/lib/utils';
+import { copyToClipboard } from '@/lib/utils';
 import { Check, Copy } from 'lucide-react';
 
 export interface CopyToClipboardProps {

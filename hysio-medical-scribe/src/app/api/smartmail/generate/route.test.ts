@@ -78,9 +78,9 @@ describe('/api/smartmail/generate', () => {
         expect(data.template?.subject).toContain('Diabetes');
       });
 
-      test('should generate email for specialist with formal tone', async () => {
+      test('should generate email for huisarts with formal tone', async () => {
         const request = createValidRequest({
-          recipient: { category: 'specialist', formality: 'formal', language: 'nl' },
+          recipient: { category: 'huisarts', formality: 'formal', language: 'nl' },
           context: { objective: 'referral', subject: 'Patiënt verwijzing', background: 'Verdere diagnostiek vereist' }
         });
 
@@ -89,7 +89,7 @@ describe('/api/smartmail/generate', () => {
 
         expect(response.status).toBe(200);
         expect(data.success).toBe(true);
-        expect(data.template?.metadata.recipientCategory).toBe('specialist');
+        expect(data.template?.metadata.recipientCategory).toBe('huisarts');
         expect(data.template?.metadata.formalityLevel).toBe('formal');
       });
 
@@ -326,9 +326,9 @@ describe('/api/smartmail/generate', () => {
         );
       });
 
-      test('should suggest formality adjustment for specialist with non-formal tone', async () => {
+      test('should suggest formality adjustment for huisarts with non-formal tone', async () => {
         const request = createValidRequest({
-          recipient: { category: 'specialist', formality: 'empathetic', language: 'nl' }
+          recipient: { category: 'huisarts', formality: 'empathetic', language: 'nl' }
         });
 
         const response = await POST(createMockRequest(request));
@@ -539,7 +539,7 @@ describe('/api/smartmail/generate', () => {
         supportedLanguages: ['nl', 'en'],
         supportedRecipients: [
           'colleague',
-          'specialist', 
+          'huisarts', 
           'patient',
           'family',
           'referring_physician',
@@ -564,7 +564,7 @@ describe('/api/smartmail/generate', () => {
     test('should handle complete workflow with multiple recipients', async () => {
       const recipients = [
         { category: 'patient', formality: 'empathetic', language: 'nl' },
-        { category: 'specialist', formality: 'formal', language: 'nl' },
+        { category: 'huisarts', formality: 'formal', language: 'nl' },
         { category: 'colleague', formality: 'professional', language: 'nl' }
       ] as const;
 

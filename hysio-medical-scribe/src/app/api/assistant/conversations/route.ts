@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
-    const { conversationId, title, userId = 'default-user' } = body;
+    const { conversationId, title } = body;
     
     if (!conversationId) {
       return NextResponse.json(

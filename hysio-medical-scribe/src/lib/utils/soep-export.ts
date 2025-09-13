@@ -11,6 +11,11 @@ export interface SOEPExportData {
   soepData: SOEPStructure;
   createdAt?: string;
   updatedAt?: string;
+  uploadedDocuments?: Array<{
+    filename: string;
+    text: string;
+    type: string;
+  }>;
 }
 
 export class SOEPExporter {
@@ -27,12 +32,14 @@ export class SOEPExporter {
       const filename = this.generateFilename(data.patientInfo, format);
       
       switch (format) {
+        case 'text':
         case 'txt':
           return this.exportAsText(content, filename);
         case 'html':
           return this.exportAsHTML(content, filename, data);
         case 'pdf':
           return await this.exportAsPDF(content, filename, data);
+        case 'word':
         case 'docx':
           return await this.exportAsDocx(content, filename, data);
         default:
@@ -53,7 +60,7 @@ export class SOEPExporter {
    * Generate structured SOEP content
    */
   private static generateSOEPContent(data: SOEPExportData): string {
-    const { patientInfo, soepData } = data;
+    const { patientInfo, soepData, uploadedDocuments } = data;
     
     const getAge = (birthYear: string): number => {
       return new Date().getFullYear() - parseInt(birthYear);
@@ -73,7 +80,15 @@ Leeftijd: ${age} jaar
 Geslacht: ${patientInfo.gender}
 Hoofdklacht: ${patientInfo.chiefComplaint}
 
+${uploadedDocuments && uploadedDocuments.length > 0 ? `
 ═══════════════════════════════════════
+CONTEXT DOCUMENTEN
+═══════════════════════════════════════
+
+Geüploade bijlagen gebruikt voor consultvoorbereiding:
+${uploadedDocuments.map(doc => `• ${doc.filename} (${doc.type.includes('pdf') ? 'PDF' : 'Word'})`).join('\n')}
+
+` : ''}═══════════════════════════════════════
 SOEP STRUCTUUR
 ═══════════════════════════════════════
 
@@ -110,6 +125,7 @@ DOCUMENTATIE INFORMATIE
 Gegenereerd: ${timestamp}
 Door: Hysio Medical Scribe
 Versie: SOEP Vervolgconsult
+${uploadedDocuments && uploadedDocuments.length > 0 ? `Context: ${uploadedDocuments.length} bijlage(n) meegenomen` : ''}
 
 DISCLAIMER:
 Deze documentatie is gegenereerd door AI en moet worden geverifieerd
@@ -123,7 +139,19 @@ patiëntenzorg of administratieve doeleinden.`;
   private static generateFilename(patientInfo: PatientInfo, format: ExportFormat): string {
     const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
     const initials = patientInfo.initials.replace(/[^a-zA-Z0-9]/g, '_');
-    return `SOEP_${initials}_${date}.${format}`;
+    
+    // Map format names to file extensions
+    const formatMap: Record<string, string> = {
+      'text': 'txt',
+      'txt': 'txt',
+      'html': 'html',
+      'pdf': 'pdf',
+      'word': 'docx',
+      'docx': 'docx'
+    };
+    
+    const extension = formatMap[format] || format;
+    return `SOEP_${initials}_${date}.${extension}`;
   }
 
   /**
@@ -228,6 +256,18 @@ patiëntenzorg of administratieve doeleinden.`;
         <p><strong>Hoofdklacht:</strong> ${data.patientInfo.chiefComplaint}</p>
     </div>
 
+    ${data.uploadedDocuments && data.uploadedDocuments.length > 0 ? `
+    <div class="patient-info">
+        <h3>Context Documenten</h3>
+        <p><strong>Geüploade bijlagen gebruikt voor consultvoorbereiding:</strong></p>
+        <ul>
+            ${data.uploadedDocuments.map(doc => `
+                <li>📄 ${doc.filename} <span style="color: #666; font-size: 0.9em;">(${doc.type.includes('pdf') ? 'PDF' : 'Word'})</span></li>
+            `).join('')}
+        </ul>
+    </div>
+    ` : ''}
+
     ${data.soepData.redFlags && data.soepData.redFlags.length > 0 ? `
     <div class="red-flags">
         <h3>🚩 Rode Vlagen</h3>
@@ -274,36 +314,345 @@ patiëntenzorg of administratieve doeleinden.`;
   }
 
   /**
-   * Export as PDF (placeholder - requires proper PDF library)
+   * Export as PDF using jsPDF
    */
   private static async exportAsPDF(content: string, filename: string, data: SOEPExportData): Promise<ExportResult> {
-    // For now, return HTML version with PDF mime type
-    // In production, you would use a library like jsPDF or Puppeteer
-    console.warn('PDF export not fully implemented - returning HTML content');
-    
-    const htmlResult = this.exportAsHTML(content, filename, data);
-    
-    return {
-      ...htmlResult,
-      filename: filename.replace('.pdf', '.html'),
-      mimeType: 'text/html' // Should be 'application/pdf' when properly implemented
-    };
+    try {
+      const { jsPDF } = await import('jspdf');
+      
+      const doc = new jsPDF();
+      
+      // Set font
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      
+      // Title
+      doc.text('SOEP DOCUMENTATIE', 20, 30);
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Fysiotherapie Vervolgconsult', 20, 40);
+      
+      let yPosition = 60;
+      
+      // Patient info
+      doc.setFont('helvetica', 'bold');
+      doc.text('Patiëntgegevens:', 20, yPosition);
+      yPosition += 10;
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Initialen: ${data.patientInfo.initials}`, 20, yPosition);
+      yPosition += 10;
+      doc.text(`Leeftijd: ${new Date().getFullYear() - parseInt(data.patientInfo.birthYear)} jaar`, 20, yPosition);
+      yPosition += 10;
+      doc.text(`Geslacht: ${data.patientInfo.gender}`, 20, yPosition);
+      yPosition += 10;
+      doc.text(`Hoofdklacht: ${data.patientInfo.chiefComplaint}`, 20, yPosition);
+      yPosition += 20;
+      
+      // Uploaded documents
+      if (data.uploadedDocuments && data.uploadedDocuments.length > 0) {
+        doc.setFont('helvetica', 'bold');
+        doc.text('Context Documenten:', 20, yPosition);
+        yPosition += 10;
+        doc.setFont('helvetica', 'normal');
+        data.uploadedDocuments.forEach(doc_item => {
+          doc.text(`• ${doc_item.filename} (${doc_item.type.includes('pdf') ? 'PDF' : 'Word'})`, 25, yPosition);
+          yPosition += 8;
+        });
+        yPosition += 10;
+      }
+      
+      // SOEP sections
+      const sections = [
+        { title: 'Subjectief (S)', content: data.soepData.subjective },
+        { title: 'Objectief (O)', content: data.soepData.objective },
+        { title: 'Evaluatie (E)', content: data.soepData.evaluation },
+        { title: 'Plan (P)', content: data.soepData.plan }
+      ];
+      
+      sections.forEach(section => {
+        if (yPosition > 250) {
+          doc.addPage();
+          yPosition = 30;
+        }
+        
+        doc.setFont('helvetica', 'bold');
+        doc.text(section.title, 20, yPosition);
+        yPosition += 10;
+        
+        doc.setFont('helvetica', 'normal');
+        const content = section.content || 'Geen informatie beschikbaar';
+        const lines = doc.splitTextToSize(content, 170);
+        
+        lines.forEach((line: string) => {
+          if (yPosition > 280) {
+            doc.addPage();
+            yPosition = 30;
+          }
+          doc.text(line, 20, yPosition);
+          yPosition += 6;
+        });
+        yPosition += 10;
+      });
+      
+      // Red flags
+      if (data.soepData.redFlags && data.soepData.redFlags.length > 0) {
+        if (yPosition > 250) {
+          doc.addPage();
+          yPosition = 30;
+        }
+        
+        doc.setFont('helvetica', 'bold');
+        doc.text('🚩 Rode Vlagen', 20, yPosition);
+        yPosition += 10;
+        
+        doc.setFont('helvetica', 'normal');
+        data.soepData.redFlags.forEach(flag => {
+          if (yPosition > 280) {
+            doc.addPage();
+            yPosition = 30;
+          }
+          doc.text(`• ${flag}`, 25, yPosition);
+          yPosition += 8;
+        });
+      }
+      
+      const pdfOutput = doc.output();
+      
+      return {
+        success: true,
+        data: pdfOutput,
+        filename: filename.replace('.pdf', '.pdf'),
+        mimeType: 'application/pdf'
+      };
+    } catch (error) {
+      console.error('PDF generation failed:', error);
+      return {
+        success: false,
+        filename: '',
+        mimeType: '',
+        error: 'PDF generation failed'
+      };
+    }
   }
 
   /**
-   * Export as DOCX (placeholder - requires proper DOCX library)
+   * Export as DOCX using docx library
    */
   private static async exportAsDocx(content: string, filename: string, data: SOEPExportData): Promise<ExportResult> {
-    // For now, return text version
-    // In production, you would use a library like docx or officegen
-    console.warn('DOCX export not fully implemented - returning text content');
-    
-    return {
-      success: true,
-      data: content,
-      filename: filename.replace('.docx', '.txt'),
-      mimeType: 'text/plain' // Should be 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    };
+    try {
+      const { Document, Packer, Paragraph, TextRun, HeadingLevel } = await import('docx');
+      
+      const children = [];
+      
+      // Title
+      children.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: "SOEP DOCUMENTATIE",
+              bold: true,
+              size: 32,
+            }),
+          ],
+          heading: HeadingLevel.TITLE,
+        }),
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: "Fysiotherapie Vervolgconsult",
+              italics: true,
+              size: 24,
+            }),
+          ],
+        }),
+        new Paragraph({ children: [] }) // Empty line
+      );
+      
+      // Patient info
+      children.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: "Patiëntgegevens",
+              bold: true,
+              size: 28,
+            }),
+          ],
+          heading: HeadingLevel.HEADING_2,
+        }),
+        new Paragraph({
+          children: [
+            new TextRun({ text: `Initialen: ${data.patientInfo.initials}` }),
+          ],
+        }),
+        new Paragraph({
+          children: [
+            new TextRun({ text: `Leeftijd: ${new Date().getFullYear() - parseInt(data.patientInfo.birthYear)} jaar` }),
+          ],
+        }),
+        new Paragraph({
+          children: [
+            new TextRun({ text: `Geslacht: ${data.patientInfo.gender}` }),
+          ],
+        }),
+        new Paragraph({
+          children: [
+            new TextRun({ text: `Hoofdklacht: ${data.patientInfo.chiefComplaint}` }),
+          ],
+        }),
+        new Paragraph({ children: [] }) // Empty line
+      );
+      
+      // Uploaded documents
+      if (data.uploadedDocuments && data.uploadedDocuments.length > 0) {
+        children.push(
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: "Context Documenten",
+                bold: true,
+                size: 28,
+              }),
+            ],
+            heading: HeadingLevel.HEADING_2,
+          }),
+          new Paragraph({
+            children: [
+              new TextRun({ text: "Geüploade bijlagen gebruikt voor consultvoorbereiding:" }),
+            ],
+          })
+        );
+        
+        data.uploadedDocuments.forEach(doc => {
+          children.push(
+            new Paragraph({
+              children: [
+                new TextRun({ text: `• ${doc.filename} (${doc.type.includes('pdf') ? 'PDF' : 'Word'})` }),
+              ],
+            })
+          );
+        });
+        
+        children.push(new Paragraph({ children: [] })); // Empty line
+      }
+      
+      // SOEP sections
+      const sections = [
+        { title: 'Subjectief (S)', content: data.soepData.subjective },
+        { title: 'Objectief (O)', content: data.soepData.objective },
+        { title: 'Evaluatie (E)', content: data.soepData.evaluation },
+        { title: 'Plan (P)', content: data.soepData.plan }
+      ];
+      
+      sections.forEach(section => {
+        children.push(
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: section.title,
+                bold: true,
+                size: 28,
+              }),
+            ],
+            heading: HeadingLevel.HEADING_2,
+          })
+        );
+        
+        const content = section.content || 'Geen informatie beschikbaar';
+        const lines = content.split('\n');
+        
+        lines.forEach(line => {
+          children.push(
+            new Paragraph({
+              children: [new TextRun({ text: line })],
+            })
+          );
+        });
+        
+        children.push(new Paragraph({ children: [] })); // Empty line
+      });
+      
+      // Red flags
+      if (data.soepData.redFlags && data.soepData.redFlags.length > 0) {
+        children.push(
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: "🚩 Rode Vlagen",
+                bold: true,
+                size: 28,
+              }),
+            ],
+            heading: HeadingLevel.HEADING_2,
+          })
+        );
+        
+        data.soepData.redFlags.forEach(flag => {
+          children.push(
+            new Paragraph({
+              children: [new TextRun({ text: `• ${flag}` })],
+            })
+          );
+        });
+        
+        children.push(new Paragraph({ children: [] })); // Empty line
+      }
+      
+      // Footer
+      children.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: "Documentatie Informatie",
+              bold: true,
+              size: 28,
+            }),
+          ],
+          heading: HeadingLevel.HEADING_2,
+        }),
+        new Paragraph({
+          children: [
+            new TextRun({ text: `Gegenereerd: ${data.createdAt || new Date().toLocaleString('nl-NL')}` }),
+          ],
+        }),
+        new Paragraph({
+          children: [
+            new TextRun({ text: "Door: Hysio Medical Scribe" }),
+          ],
+        }),
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: "DISCLAIMER: Deze documentatie is gegenereerd door AI en moet worden geverifieerd door een bevoegd fysiotherapeut.",
+              italics: true,
+            }),
+          ],
+        })
+      );
+      
+      const doc = new Document({
+        sections: [{
+          children,
+        }],
+      });
+      
+      const buffer = await Packer.toBuffer(doc);
+      
+      return {
+        success: true,
+        data: buffer,
+        filename: filename.replace('.docx', '.docx'),
+        mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      };
+    } catch (error) {
+      console.error('DOCX generation failed:', error);
+      return {
+        success: false,
+        filename: '',
+        mimeType: '',
+        error: 'DOCX generation failed'
+      };
+    }
   }
 
   /**

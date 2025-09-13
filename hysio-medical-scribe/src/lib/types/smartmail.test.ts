@@ -42,7 +42,7 @@ describe('SmartMail Type Guards', () => {
   describe('isValidRecipientCategory', () => {
     test('should return true for valid recipient categories', () => {
       expect(isValidRecipientCategory('colleague')).toBe(true);
-      expect(isValidRecipientCategory('specialist')).toBe(true);
+      expect(isValidRecipientCategory('huisarts')).toBe(true);
       expect(isValidRecipientCategory('patient')).toBe(true);
       expect(isValidRecipientCategory('family')).toBe(true);
       expect(isValidRecipientCategory('referring_physician')).toBe(true);
@@ -107,7 +107,7 @@ describe('SmartMail Validation Functions', () => {
   describe('validateRecipientType', () => {
     test('should validate valid recipient type', () => {
       const validRecipient: RecipientType = {
-        category: 'specialist',
+        category: 'huisarts',
         formality: 'formal',
         language: 'nl',
         specialty: 'orthopedic',
@@ -121,7 +121,7 @@ describe('SmartMail Validation Functions', () => {
 
     test('should reject recipient type with missing required fields', () => {
       const invalidRecipient = {
-        category: 'specialist'
+        category: 'huisarts'
         // missing formality and language
       };
 
@@ -147,10 +147,10 @@ describe('SmartMail Validation Functions', () => {
 
     test('should provide warnings for missing context', () => {
       const recipient = {
-        category: 'specialist',
+        category: 'huisarts',
         formality: 'formal',
         language: 'nl'
-        // missing specialty for specialist
+        // missing specialty for huisarts
       };
 
       const result = validateRecipientType(recipient);
@@ -160,7 +160,7 @@ describe('SmartMail Validation Functions', () => {
 
     test('should validate field length limits', () => {
       const recipient = {
-        category: 'specialist',
+        category: 'huisarts',
         formality: 'formal',
         language: 'nl',
         specialty: 'a'.repeat(VALIDATION_LIMITS.SPECIALTY_MAX_LENGTH + 1)
@@ -355,14 +355,14 @@ describe('SmartMail Validation Functions', () => {
     test('should validate complete valid request', () => {
       const validRequest: EmailGenerationRequest = {
         recipient: {
-          category: 'specialist',
+          category: 'huisarts',
           formality: 'formal',
           language: 'nl'
         },
         context: {
           objective: 'referral',
           subject: 'Patient referral',
-          background: 'Patient with chronic knee pain requiring specialist evaluation.'
+          background: 'Patient with chronic knee pain requiring huisarts evaluation.'
         },
         documents: [],
         userId: 'user123',
@@ -378,14 +378,14 @@ describe('SmartMail Validation Functions', () => {
     test('should validate request with documents', () => {
       const requestWithDocs: EmailGenerationRequest = {
         recipient: {
-          category: 'specialist',
+          category: 'huisarts',
           formality: 'formal',
           language: 'nl'
         },
         context: {
           objective: 'referral',
           subject: 'Patient referral',
-          background: 'Patient with chronic knee pain requiring specialist evaluation.'
+          background: 'Patient with chronic knee pain requiring huisarts evaluation.'
         },
         documents: [{
           filename: 'test.pdf',
@@ -406,7 +406,7 @@ describe('SmartMail Validation Functions', () => {
     test('should reject request with missing required fields', () => {
       const invalidRequest = {
         recipient: {
-          category: 'specialist',
+          category: 'huisarts',
           formality: 'formal',
           language: 'nl'
         }
@@ -447,7 +447,7 @@ describe('SmartMail Enum Utilities', () => {
     test('should return all enum values as array', () => {
       const values = getEnumValues(EnumRecipientCategory);
       expect(values).toContain('colleague');
-      expect(values).toContain('specialist');
+      expect(values).toContain('huisarts');
       expect(values).toContain('patient');
       expect(values.length).toBeGreaterThan(0);
     });
@@ -530,8 +530,8 @@ describe('SmartMail Type Interface Compliance', () => {
       language: 'nl'
     };
 
-    const specialistRecipient: RecipientType = {
-      category: 'specialist',
+    const huisartsRecipient: RecipientType = {
+      category: 'huisarts',
       formality: 'formal',
       language: 'en',
       specialty: 'orthopedic',
@@ -546,14 +546,14 @@ describe('SmartMail Type Interface Compliance', () => {
     };
 
     expect(colleagueRecipient.category).toBe('colleague');
-    expect(specialistRecipient.specialty).toBe('orthopedic');
+    expect(huisartsRecipient.specialty).toBe('orthopedic');
     expect(familyRecipient.relationship).toBe('spouse');
   });
 
   test('CommunicationContext should support all required scenarios', () => {
     const referralContext: CommunicationContext = {
       objective: 'referral',
-      subject: 'Referral for knee specialist',
+      subject: 'Referral for knee huisarts',
       background: 'Patient with chronic knee pain',
       patientAge: 45,
       patientGender: 'vrouw',

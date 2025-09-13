@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn } from '@/utils';
+import { cn } from '@/lib/utils';
 import { Navigation, type NavigationProps } from './navigation';
 
 export interface DashboardLayoutProps extends React.HTMLAttributes<HTMLDivElement> {

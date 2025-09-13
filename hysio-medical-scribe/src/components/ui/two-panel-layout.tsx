@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn } from '@/utils';
+import { cn } from '@/lib/utils';
 
 export interface TwoPanelLayoutProps extends React.HTMLAttributes<HTMLDivElement> {
   leftPanel: React.ReactNode;

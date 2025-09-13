@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn } from '@/utils';
+import { cn } from '@/lib/utils';
 import { AssistantMessage } from '@/lib/types/assistant';
 import { User, Bot, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -25,7 +25,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, className }) => 
 
   const formatContent = (content: string) => {
     // Basic markdown-like formatting
-    let formatted = content
+    const formatted = content
       // Bold text
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       // Italic text  

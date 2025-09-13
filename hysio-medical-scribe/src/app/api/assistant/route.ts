@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     
     // Add conversation history
     if (conversationHistory.length > 0) {
-      conversationHistory.forEach((msg: any) => {
+      conversationHistory.forEach((msg: { role: string; content: string }) => {
         if (msg.role === 'user' || msg.role === 'assistant') {
           messages.push({
             role: msg.role,
@@ -51,15 +51,12 @@ export async function POST(request: NextRequest) {
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          let fullContent = '';
-          
           const streamResponse = await generateContentStreamWithOpenAI(
             HYSIO_ASSISTANT_SYSTEM_PROMPT,
             messages.map(m => `${m.role}: ${m.content}`).join('\n\n'),
             {
               ...ASSISTANT_MODEL_CONFIG,
               onChunk: (chunk: string) => {
-                fullContent += chunk;
                 // Send chunk to client
                 const data = JSON.stringify({ 
                   success: true, 
@@ -69,8 +66,6 @@ export async function POST(request: NextRequest) {
                 controller.enqueue(encoder.encode(`data: ${data}\n\n`));
               },
               onComplete: (content: string) => {
-                fullContent = content;
-                
                 // Check if response requires clinical disclaimer
                 const needsDisclaimer = requiresDisclaimer(content);
                 let finalContent = content;

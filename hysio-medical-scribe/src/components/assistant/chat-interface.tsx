@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn } from '@/utils';
+import { cn } from '@/lib/utils';
 import { MessageBubble } from './message-bubble';
 import { AssistantMessage } from '@/lib/types/assistant';
 import { EXAMPLE_QUESTIONS } from '@/lib/assistant/system-prompt';

@@ -7,12 +7,8 @@ module.exports = {
   ],
   theme: {
     extend: {
-      colors: {
-        'hysio-deep-green': '#2c7a5b',
-        'hysio-deep-green-900': '#1a4937',
-        'hysio-mint': '#84cc9e',
-        'hysio-cream': '#f7f5f0',
-      },
+      // Colors are now defined in globals.css using Tailwind v4 @theme syntax
+      // This maintains compatibility while using the proper Hysio brand colors
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic':

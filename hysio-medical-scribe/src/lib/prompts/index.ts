@@ -69,15 +69,28 @@ Maak een gestructureerde voorbereiding met:
 
 1. **Werkhypothese**: De meest waarschijnlijke voorlopige diagnose
 2. **Differentiaaldiagnoses**: 2-3 alternatieve verklaringen 
-3. **Anamnese vragen**: Gerichte vragen volgens LOFTIG framework:
-   - L: Locatie van de klacht
-   - O: Ontstaan en oorzaak
-   - F: Frequentie van de klacht
-   - T: Tijdsverloop en duur
-   - I: Intensiteit van de pijn
-   - G: Gewijzigd door activiteiten/rust
 
-4. **Rode vlag screening**: DTF-specifieke vragen voor de betreffende regio om ernstige pathologie uit te sluiten
+3. **Algemene Consultvragen**: Basis intake vragen voor elke fysiotherapie anamnese:
+   - Wat is uw hoofdklacht en wat hoopt u te bereiken met fysiotherapie?
+   - Hoe beïnvloeden deze klachten uw dagelijkse activiteiten?
+   - Welke verwachtingen heeft u van de behandeling?
+   - Welke behandelingen heeft u al eerder gehad voor deze klachten?
+
+4. **Specifieke Anamnese vragen**: Gerichte vragen volgens LOFTIG framework:
+   - L: Locatie van de klacht - waar precies voelt u de klacht?
+   - O: Ontstaan en oorzaak - hoe en wanneer zijn de klachten ontstaan?
+   - F: Frequentie van de klacht - hoe vaak heeft u last?
+   - T: Tijdsverloop en duur - hoe lang heeft u al klachten?
+   - I: Intensiteit van de pijn - hoe erg is de pijn op een schaal van 0-10?
+   - G: Gewijzigd door activiteiten/rust - wat maakt het beter of slechter?
+
+5. **Functionele Impact vragen**:
+   - Welke bewegingen of activiteiten worden beperkt?
+   - Hoe zijn uw slaap en werk beïnvloed?
+   - Welke sport/hobby activiteiten kunt u niet meer doen?
+   - Hoe is uw algemene conditie en fitheid?
+
+6. **Rode vlag screening**: DTF-specifieke vragen voor de betreffende regio om ernstige pathologie uit te sluiten
 
 Houd rekening met Nederlandse fysiotherapie richtlijnen (KNGF) en gebruik professionele terminologie.
 

@@ -1,10 +1,11 @@
 import * as React from 'react';
-import { cn } from '@/utils';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { InputPanel } from '@/components/ui/input-panel';
+import { SOEPResultView } from '@/components/ui/soep-result-view';
+import { ConsultInputPanel } from '@/components/ui/consult-input-panel';
 import { CopyToClipboard } from '@/components/ui/copy-to-clipboard';
-import { 
-  FileText, 
+import { DocumentUploader } from '@/components/ui/document-uploader';
+import {
   Lightbulb
 } from 'lucide-react';
 import { PatientInfo, SOEPStructure, AudioRecording } from '@/lib/types';
@@ -69,17 +70,28 @@ const StreamlinedFollowupWorkflow: React.FC<StreamlinedFollowupWorkflowProps> = 
   const [sessionPreparation, setSessionPreparation] = React.useState<string>('');
   const [consultRecording, setConsultRecording] = React.useState<AudioRecording | null>(null);
   const [consultNotes, setConsultNotes] = React.useState<string>('');
-  
+  const [soepResults, setSoepResults] = React.useState<SOEPStructure | null>(null);
+
+  // Document upload state
+  const [documentContext, setDocumentContext] = React.useState<string>('');
+  const [documentFilename, setDocumentFilename] = React.useState<string>('');
+
   // Loading states
   const [isGeneratingPreparation, setIsGeneratingPreparation] = React.useState(false);
   const [isProcessingSOEP, setIsProcessingSOEP] = React.useState(false);
+
+  // Handle document upload from DocumentUploader component
+  const handleDocumentUpload = (documentText: string, filename: string) => {
+    setDocumentContext(documentText);
+    setDocumentFilename(filename);
+  };
 
   // Generate session preparation
   const handleGeneratePreparation = async () => {
     setIsGeneratingPreparation(true);
     try {
-      const systemPrompt = `Je bent een ervaren fysiotherapeut die vervolgconsult voorbereidingen maakt. Je taak is om praktische guidance te genereren voor een vervolgconsult, NIET om een SOEP-structuur te maken. Focus op wat de therapeut moet weten en doen tijdens het vervolgconsult.`;
-      
+      const systemPrompt = `Je bent een ervaren fysiotherapeut die algemene vervolgconsult guidance geeft. Geef ALLEEN algemene, evidence-based tips en aandachtspunten voor vervolgconsulten bij deze hoofdklacht. Verzin GEEN specifieke patiëntgegevens, testresultaten of behandeldetails die je niet weet. Houd je aan algemene richtlijnen en best practices.${documentContext ? '\n\nJe hebt toegang tot een context document dat extra informatie kan bevatten.' : ''}`;
+
       const getAgeFromBirthYear = (birthYear: string): number => {
         const currentYear = new Date().getFullYear();
         return currentYear - parseInt(birthYear);
@@ -87,32 +99,46 @@ const StreamlinedFollowupWorkflow: React.FC<StreamlinedFollowupWorkflowProps> = 
 
       const age = getAgeFromBirthYear(patientInfo.birthYear);
 
-      const userPrompt = `Patiënt: ${patientInfo.initials}, ${age} jaar, ${patientInfo.gender}
-Hoofdklacht: ${patientInfo.chiefComplaint}
+      let userPrompt = `Hoofdklacht: ${patientInfo.chiefComplaint}
+Leeftijd: ${age} jaar
+Geslacht: ${patientInfo.gender}`;
 
-Genereer een logische vervolgconsult voorbereiding met de volgende structuur:
+      // Add document context if available
+      if (documentContext) {
+        userPrompt += `\n\n${documentContext}`;
+      }
 
-**Focus & Evaluatie**
-- Wat was het behandelplan van vorige keer?
-- Welke doelen werden gesteld en moeten worden geëvalueerd?
-- Welke verbeterpunten werden verwacht?
+      userPrompt += `
 
-**Subjectieve Vragen**
-- Specifieke vragen over de huidige status praesens
-- Vragen over vooruitgang sinds vorige sessie
-- Vragen over VAS/NPRS veranderingen
-- Vragen over functionele verbeteringen
-- Vragen over moeilijkheden met huisoefeningen
-- Vragen over pijn of klachten
+Geef algemene, evidence-based guidance voor vervolgconsulten bij deze hoofdklacht:
 
-**Objectieve Aandachtspunten**
-- Welke metingen of tests herhalen voor vergelijking?
-- Welke ROM-metingen opnieuw uitvoeren?
-- Welke functionele testen herdoen?
-- Welke fysiotherapeutische observaties maken?
-- Welke nieuwe onderzoeken overwegen?
+**Algemene Aandachtspunten**
+- Typische vragen over vooruitgang sinds vorige sessie
+- Standaard evaluatiepunten bij deze klacht
+- Algemene compliance controle
 
-Houd het praktisch, specifiek en gericht op deze hoofdklacht. Gebruik Nederlandse fysiotherapie terminologie.`;
+**Subjectieve Evaluatie**
+- Gebruikelijke vragen over pijnverloop bij deze klacht
+- Standaard functionele vragen
+- Algemene vragen over dagelijkse activiteiten
+- Typische vragen over slaap en werk bij deze klacht
+
+**Objectieve Metingen**
+- Welke standaard metingen zijn relevant bij deze klacht
+- Gebruikelijke ROM-metingen voor dit probleem
+- Standaard functionele testen
+- Algemene observatiepunten
+
+**Best Practices**
+- Waarschuwingssignalen waar elke fysiotherapeut op moet letten
+- Wanneer doorverwijzing overwegen
+- Algemene behandelopties bij deze klacht
+
+BELANGRIJK: 
+- Gebruik GEEN specifieke getallen, meetwaarden of behandelresultaten
+- Verzin GEEN concrete patiëntdetails
+- Geef alleen algemene, professionele guidance
+- Gebruik Nederlandse fysiotherapie terminologie`;
 
       const response = await apiCall(API_ENDPOINTS.GENERATE_CONTENT, {
         method: 'POST',
@@ -260,6 +286,9 @@ Antwoord in het Nederlands, professioneel gestructureerd.`;
       if (response.success && response.data?.content) {
         const soepStructure: SOEPStructure = parseSOEPText(response.data.content);
         
+        // Set the results for display
+        setSoepResults(soepStructure);
+        
         // Navigate directly to summary page with results
         onComplete(soepStructure, sessionPreparation);
       } else {
@@ -286,6 +315,7 @@ AI-verwerking niet beschikbaar. Vul handmatig behandelplan in.
         };
         
         console.error('API call failed, using fallback SOEP:', response.error);
+        setSoepResults(fallbackSOEP);
         onComplete(fallbackSOEP, sessionPreparation);
       }
     } catch (error) {
@@ -315,6 +345,7 @@ Technische fout: Kan behandelplan niet automatisch genereren.
 *BELANGRIJK: Er is een technische fout opgetreden. Vul alle SOEP-secties handmatig in voordat u het rapport afrondt.*`
       };
       
+      setSoepResults(errorSOEP);
       onComplete(errorSOEP, sessionPreparation);
     } finally {
       setIsProcessingSOEP(false);
@@ -324,52 +355,63 @@ Technische fout: Kan behandelplan niet automatisch genereren.
 
   return (
     <div className={cn('w-full min-h-screen bg-hysio-cream/30', className)}>
-      {/* Global Header */}
-      <div className="bg-white border-b border-hysio-mint/20 p-6 mb-6">
-        <div className="w-full px-6">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-2xl font-semibold text-hysio-deep-green">
-                Vervolgconsult Workflow
-              </h1>
-              <p className="text-sm text-hysio-deep-green-900/70">
-                {patientInfo.initials} ({patientInfo.birthYear}) - {patientInfo.chiefComplaint}
-              </p>
-            </div>
-            <Button
-              variant="ghost"
-              onClick={onBack}
-              disabled={disabled}
-            >
-              Terug naar patiënt info
-            </Button>
-          </div>
-        </div>
-      </div>
+      {/* Container with padding */}
+      <div className="p-4 sm:p-8">
+        {/* Title */}
+        <h2 className="text-2xl font-bold text-[#003728] mb-6">
+          Vervolgconsult
+        </h2>
 
-      {/* Two-Panel Layout */}
-      <div className="w-full max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-8">
-        {/* Left Panel - Guidance (Sessie Voorbereiding) */}
-        <div className="space-y-6">
-          <div className="bg-hysio-mint/10 border-2 border-hysio-mint/30 rounded-xl p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Lightbulb size={20} className="text-hysio-deep-green" />
-              <h2 className="text-xl font-semibold text-hysio-deep-green">Sessie Voorbereiding</h2>
-            </div>
-            
-            {sessionPreparation ? (
-              <div className="space-y-4">
-                <div className="flex justify-end">
-                  <CopyToClipboard text={sessionPreparation} size="sm" />
-                </div>
-                <div className="bg-white p-4 rounded-lg border border-hysio-mint/20 shadow-sm">
-                  <pre className="whitespace-pre-wrap font-inter text-sm leading-relaxed text-gray-800 max-h-96 overflow-y-auto">
-                    {sessionPreparation}
-                  </pre>
-                </div>
+        {/* Two-Column Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Left Panel: SOEP Result View */}
+          <SOEPResultView 
+            soepData={soepResults}
+            isLoading={isProcessingSOEP}
+            onEdit={() => {
+              // TODO: Implement edit functionality
+              console.log('Edit SOEP clicked');
+            }}
+          />
+
+          {/* Right Panel: Input Methods */}
+          <ConsultInputPanel
+            onRecordingComplete={handleConsultRecording}
+            onManualNotesChange={setConsultNotes}
+            onProcessClick={handleProcessSOEP}
+            manualNotes={consultNotes}
+            disabled={disabled}
+            isProcessing={isProcessingSOEP}
+            recording={consultRecording}
+            canProcess={!!consultRecording || !!consultNotes.trim()}
+          />
+        </div>
+
+        {/* Session Preparation - Optional Collapsible Section */}
+        {!sessionPreparation && (
+          <div className="mt-8">
+            <div className="bg-hysio-mint/10 border-2 border-hysio-mint/30 rounded-xl p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Lightbulb size={20} className="text-hysio-deep-green" />
+                <h3 className="text-lg font-semibold text-hysio-deep-green">Sessie Voorbereiding</h3>
               </div>
-            ) : (
-              <div className="text-center py-8">
+              
+              {/* Document Upload Section */}
+              <div className="mb-6">
+                <label className="text-sm font-medium text-hysio-deep-green block mb-3">
+                  Context Document (optioneel)
+                </label>
+                <DocumentUploader
+                  onUploadComplete={handleDocumentUpload}
+                  disabled={disabled}
+                  className="mb-2"
+                />
+                <p className="text-xs text-hysio-deep-green-900/60">
+                  Upload verwijsbrieven, vorige verslagen of andere relevante documenten om betere tips te krijgen
+                </p>
+              </div>
+              
+              <div className="text-center py-4">
                 <Button
                   onClick={handleGeneratePreparation}
                   disabled={isGeneratingPreparation}
@@ -384,37 +426,52 @@ Technische fout: Kan behandelplan niet automatisch genereren.
                   ) : (
                     <>
                       <Lightbulb size={18} className="mr-2" />
-                      Genereer Sessie Voorbereiding
+                      Genereer Algemene Tips
                     </>
                   )}
                 </Button>
                 <p className="text-sm text-hysio-deep-green-900/70 mt-3">
-                  Klik om een gepersonaliseerde voorbereiding te genereren voor dit vervolgconsult
+                  {documentContext && documentFilename
+                    ? `Krijg context-bewuste tips op basis van het geüploade document: ${documentFilename}`
+                    : "Krijg algemene evidence-based tips voor vervolgconsulten bij deze hoofdklacht"
+                  }
                 </p>
               </div>
-            )}
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Right Panel - User Input */}
-        <div className="space-y-6">
-          {/* Enhanced Input Panel with better styling */}
-          <InputPanel
-            phase="examination"
-            onRecordingComplete={handleConsultRecording}
-            onManualNotesChange={setConsultNotes}
-            onProcessClick={handleProcessSOEP}
-            processButtonLabel="Verwerk in SOEP"
-            manualNotes={consultNotes}
+        {sessionPreparation && (
+          <div className="mt-8">
+            <div className="bg-hysio-mint/10 border-2 border-hysio-mint/30 rounded-xl p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Lightbulb size={20} className="text-hysio-deep-green" />
+                <h3 className="text-lg font-semibold text-hysio-deep-green">Algemene Tips voor Vervolgconsult</h3>
+                <div className="ml-auto">
+                  <CopyToClipboard text={sessionPreparation} size="sm" />
+                </div>
+              </div>
+              
+              <div className="bg-white p-4 rounded-lg border border-hysio-mint/20 shadow-sm">
+                <pre className="whitespace-pre-wrap font-inter text-sm leading-relaxed text-gray-800 max-h-64 overflow-y-auto">
+                  {sessionPreparation}
+                </pre>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Back button */}
+        <div className="mt-8 flex justify-start">
+          <Button
+            variant="ghost"
+            onClick={onBack}
             disabled={disabled}
-            isProcessing={isProcessingSOEP}
-            recording={consultRecording}
-            showProcessButton={true}
-            hasProcessed={false}
-          />
+          >
+            ← Terug naar patiënt info
+          </Button>
         </div>
       </div>
-      
     </div>
   );
 };

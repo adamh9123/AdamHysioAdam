@@ -153,10 +153,10 @@ function generateContextualSuggestions(
     });
   }
   
-  if (recipient.category === 'specialist' && recipient.formality !== 'formal') {
+  if (recipient.category === 'huisarts' && recipient.formality !== 'formal') {
     suggestions.push({
       type: 'formality_adjustment',
-      message: 'Consider using formal tone for specialist communication',
+      message: 'Consider using formal tone for huisarts communication',
       severity: 'info',
       actionable: true,
       suggestedAction: 'Switch to formal formality level'
@@ -359,7 +359,7 @@ export async function GET() {
       health: 'GET /api/smartmail/generate'
     },
     supportedLanguages: ['nl', 'en'],
-    supportedRecipients: ['colleague', 'specialist', 'patient', 'family', 'referring_physician', 'support_staff'],
+    supportedRecipients: ['colleague', 'huisarts', 'patient', 'family', 'referring_physician', 'support_staff'],
     supportedObjectives: [
       'referral', 
       'follow_up', 

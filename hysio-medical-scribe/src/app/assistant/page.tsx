@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { cn } from '@/utils';
+import { cn } from '@/lib/utils';
 import { ChatInterface } from '@/components/assistant/chat-interface';
 import { ConversationSidebar } from '@/components/assistant/conversation-sidebar';
 import { useAssistantChat } from '@/hooks/useAssistantChat';

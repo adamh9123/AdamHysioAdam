@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn } from '@/utils';
+import { cn } from '@/lib/utils';
 import { AudioRecorder } from '@/components/ui/audio-recorder';
 import { AssistantIntegration } from '@/components/assistant/assistant-integration';
 import { Button } from '@/components/ui/button';

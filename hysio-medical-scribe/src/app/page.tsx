@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, ArrowRight, Stethoscope, Clock, Shield } from 'lucide-react';
+import { FileText, ArrowRight, Stethoscope, Clock, Shield, Mail, Bot } from 'lucide-react';
 
 export default function Home() {
   const router = useRouter();
@@ -65,35 +65,61 @@ export default function Home() {
           </Card>
         </div>
 
-        {/* CTA Section */}
+        {/* CTA Section - All Hysio AI Agents */}
         <Card className="border-2 border-hysio-mint/30 bg-hysio-mint/5">
           <CardContent className="text-center py-12">
-            <h2 className="text-2xl font-semibold text-hysio-deep-green mb-4">
-              Klaar om te beginnen?
+            <h2 className="text-3xl font-semibold text-hysio-deep-green mb-4">
+              Hysio AI Ecosystem
             </h2>
-            <p className="text-hysio-deep-green-900/70 mb-8 max-w-md mx-auto">
-              Start direct met het documenteren van uw patiënten met AI-ondersteuning.
+            <p className="text-hysio-deep-green-900/70 mb-8 max-w-2xl mx-auto">
+              Toegang tot alle AI-ondersteunde modules voor complete fysiotherapie workflow
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
               <Button
                 size="lg"
                 onClick={() => router.push('/scribe')}
-                className="text-lg px-8 py-3"
+                className="text-base px-6 py-4 h-auto flex flex-col gap-2 bg-hysio-deep-green hover:bg-hysio-deep-green/90"
               >
-                Start Medical Scribe
-                <ArrowRight size={20} className="ml-2" />
+                <Stethoscope size={24} />
+                <span>Medical Scribe</span>
+                <span className="text-xs opacity-80">Intake & Consult</span>
               </Button>
-              
+
+              <Button
+                size="lg"
+                onClick={() => router.push('/smartmail-demo')}
+                className="text-base px-6 py-4 h-auto flex flex-col gap-2 bg-hysio-mint hover:bg-hysio-mint/90 text-white"
+              >
+                <Mail size={24} />
+                <span>Hysio SmartMail</span>
+                <span className="text-xs opacity-80">AI Email Generatie</span>
+              </Button>
+
+              <Button
+                size="lg"
+                onClick={() => router.push('/assistant')}
+                className="text-base px-6 py-4 h-auto flex flex-col gap-2 bg-blue-600 hover:bg-blue-700"
+              >
+                <Bot size={24} />
+                <span>Hysio Assistant</span>
+                <span className="text-xs opacity-80">AI Chat & Hulp</span>
+              </Button>
+
               <Button
                 variant="outline"
                 size="lg"
                 onClick={() => router.push('/dashboard')}
-                className="text-lg px-8 py-3"
+                className="text-base px-6 py-4 h-auto flex flex-col gap-2 border-hysio-deep-green text-hysio-deep-green hover:bg-hysio-deep-green hover:text-white"
               >
-                Dashboard
-                <ArrowRight size={20} className="ml-2" />
+                <FileText size={24} />
+                <span>Dashboard</span>
+                <span className="text-xs opacity-60">Overzicht & Analytics</span>
               </Button>
             </div>
+
+            <p className="text-sm text-hysio-deep-green-900/60 mt-6">
+              ✨ Nieuw: SmartMail nu met Ultra Think document-context voor superieure AI emails
+            </p>
           </CardContent>
         </Card>
 

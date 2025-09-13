@@ -17,7 +17,7 @@ const BASE_HEALTHCARE_PROMPT = {
 Belangrijke principes:
 - Gebruik altijd correcte medische terminologie
 - Respecteer patiëntprivacy en vermijd onnodige persoonlijke details
-- Pas de toon aan op de ontvanger (collega, specialist, patiënt, familie)
+- Pas de toon aan op de ontvanger (collega, huisarts, patiënt, familie)
 - Volg Nederlandse zorgstandaarden en richtlijnen
 - Gebruik duidelijke, begrijpelijke taal zonder jargon waar mogelijk
 - Zorg voor een warme maar professionele toon`,
@@ -27,7 +27,7 @@ Belangrijke principes:
 Important principles:
 - Always use correct medical terminology
 - Respect patient privacy and avoid unnecessary personal details
-- Adapt tone to the recipient (colleague, specialist, patient, family)
+- Adapt tone to the recipient (colleague, huisarts, patient, family)
 - Follow healthcare standards and guidelines
 - Use clear, understandable language without jargon where possible
 - Ensure a warm but professional tone`
@@ -51,15 +51,15 @@ const RECIPIENT_PROMPTS = {
 - Practical, actionable advice`
   },
 
-  specialist: {
-    nl: `De ontvanger is een medisch specialist. Gebruik:
+  huisarts: {
+    nl: `De ontvanger is een huisarts. Gebruik:
 - Formele, respectvolle toon
 - Accurate medische terminologie
 - Gestructureerde presentatie van bevindingen
 - Duidelijke vraagstelling of verwijsreden
 - Evidence-based informatie`,
 
-    en: `The recipient is a medical specialist. Use:
+    en: `The recipient is a general practitioner. Use:
 - Formal, respectful tone
 - Accurate medical terminology
 - Structured presentation of findings
@@ -135,17 +135,17 @@ const RECIPIENT_PROMPTS = {
 // Communication objective specific prompts
 const OBJECTIVE_PROMPTS = {
   referral: {
-    nl: `Dit is een verwijzing naar een specialist. Zorg voor:
+    nl: `Dit is een verwijzing naar een huisarts. Zorg voor:
 - Duidelijke beschrijving van de huidige situatie
 - Relevante anamnese en bevindingen
-- Specifieke vraagstelling aan de specialist
+- Specifieke vraagstelling aan de huisarts
 - Urgentie-indicatie indien relevant
 - Professionele verwijsformat`,
 
-    en: `This is a referral to a specialist. Ensure:
+    en: `This is a referral to a huisarts. Ensure:
 - Clear description of current situation
 - Relevant history and findings
-- Specific question to the specialist
+- Specific question to the huisarts
 - Urgency indication if relevant
 - Professional referral format`
   },
@@ -578,10 +578,10 @@ export function getPromptSuggestions(
     nl: {
       colleague_referral: [
         'Denk aan het delen van je klinische redenering',
-        'Specificeer welke input je van de specialist verwacht',
+        'Specificeer welke input je van de huisarts verwacht',
         'Vermeld relevante onderzoeksbevindingen'
       ],
-      specialist_referral: [
+      huisarts_referral: [
         'Gebruik gestructureerde SOEP-indeling',
         'Vermeld specifieke vraagstelling',
         'Geef duidelijke urgentie-indicatie'
@@ -600,10 +600,10 @@ export function getPromptSuggestions(
     en: {
       colleague_referral: [
         'Consider sharing your clinical reasoning',
-        'Specify what input you expect from the specialist',
+        'Specify what input you expect from the huisarts',
         'Mention relevant examination findings'
       ],
-      specialist_referral: [
+      huisarts_referral: [
         'Use structured SOAP format',
         'Mention specific question',
         'Provide clear urgency indication'
@@ -635,8 +635,8 @@ export function validatePromptParameters(
   const missingElements: string[] = [];
   
   // Check recipient requirements
-  if (recipient.category === 'specialist' && !recipient.specialty) {
-    missingElements.push('specialist specialty');
+  if (recipient.category === 'huisarts' && !recipient.specialty) {
+    missingElements.push('huisarts specialty');
   }
   
   if (recipient.category === 'family' && !recipient.relationship) {

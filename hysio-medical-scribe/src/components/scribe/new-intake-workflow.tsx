@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn } from '@/utils';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { TwoPanelLayout } from '@/components/ui/two-panel-layout';
 import { InputPanel } from '@/components/ui/input-panel';
@@ -344,6 +344,18 @@ export const NewIntakeWorkflow: React.FC<NewIntakeWorkflowProps> = ({
     if (initialData.clinicalConclusion) setClinicalConclusion(initialData.clinicalConclusion);
   }, [initialData]);
   
+  // DEBUG: Track all state changes that affect navigation button visibility
+  React.useEffect(() => {
+    console.log('[HYSIO DEBUG] State change detected:', {
+      currentPhase,
+      anamnesisState,
+      examinationState,
+      shouldShowAnamnesisButton: anamnesisState === 'anamnesis-processed' && currentPhase === 'anamnesis',
+      shouldShowExaminationButton: examinationState === 'examination-processed' && currentPhase === 'examination',
+      timestamp: new Date().toISOString()
+    });
+  }, [currentPhase, anamnesisState, examinationState]);
+  
   // Generate intake preparation
   const handleGeneratePreparation = async () => {
     setIsGeneratingPreparation(true);
@@ -356,10 +368,34 @@ export const NewIntakeWorkflow: React.FC<NewIntakeWorkflowProps> = ({
 - Hoofdklacht: ${patientInfo.chiefComplaint}
 
 Genereer een professionele voorbereiding inclusief:
-1. Werkhypothese
-2. Differentiaaldiagnoses
-3. LOFTIG vragen voor anamnese
-4. Aandachtspunten voor rode vlaggen
+
+**1. Werkhypothese**
+- Meest waarschijnlijke voorlopige diagnose
+
+**2. Differentiaaldiagnoses**
+- 2-3 alternatieve verklaringen
+
+**3. Algemene Consultvragen**
+- Wat is uw hoofdklacht en wat hoopt u te bereiken met fysiotherapie?
+- Hoe beïnvloeden deze klachten uw dagelijkse activiteiten?
+- Welke verwachtingen heeft u van de behandeling?
+- Welke behandelingen heeft u al eerder gehad voor deze klachten?
+
+**4. Specifieke LOFTIG vragen voor anamnese**
+- L: Locatie - waar precies voelt u de klacht?
+- O: Ontstaan - hoe en wanneer zijn de klachten ontstaan?
+- F: Frequentie - hoe vaak heeft u last?
+- T: Tijdsverloop - hoe lang heeft u al klachten?
+- I: Intensiteit - hoe erg is de pijn (schaal 0-10)?
+- G: Gewijzigd door - wat maakt het beter of slechter?
+
+**5. Functionele Impact vragen**
+- Welke bewegingen of activiteiten worden beperkt?
+- Hoe zijn uw slaap en werk beïnvloed?
+- Welke sport/hobby activiteiten kunt u niet meer doen?
+
+**6. Aandachtspunten voor rode vlaggen**
+- DTF-specifieke screening vragen voor de betreffende regio
 
 Antwoord in het Nederlands, professioneel maar toegankelijk.`;
 
@@ -467,6 +503,13 @@ Antwoord in het Nederlands, professioneel geformatteerd.`;
         setAnamnesisState('anamnesis-processed');
         // Mark anamnesis phase as completed
         setCompletedPhases(prev => [...prev.filter(p => p !== 'anamnesis'), 'anamnesis']);
+        
+        // DEBUG: Log state changes for navigation button visibility
+        console.log('[HYSIO DEBUG] Anamnesis processing completed:', {
+          anamnesisState: 'anamnesis-processed',
+          currentPhase,
+          willShowButton: currentPhase === 'anamnesis'
+        });
       }
     } catch (error) {
       console.error('Error processing anamnesis:', error);
@@ -856,26 +899,6 @@ Antwoord in het Nederlands, professioneel en evidence-based.`;
               }
             />
             
-            {/* Full-width navigation bar for Anamnesis */}
-            {anamnesisState === 'anamnesis-processed' && (
-              <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-hysio-mint/20 p-6 shadow-lg z-50">
-                <div className="w-full px-6">
-                  <Button
-                    onClick={handleNavigateToExamination}
-                    disabled={disabled}
-                    size="lg"
-                    className="w-full bg-hysio-deep-green hover:bg-hysio-deep-green/90 text-white py-4 text-xl font-semibold"
-                  >
-                    <FileText size={24} className="mr-3" />
-                    Ga naar Onderzoek
-                    <ChevronRight size={24} className="ml-3" />
-                  </Button>
-                  <p className="text-center text-sm text-hysio-deep-green-900/60 mt-2">
-                    Anamnese voltooid - Ga door naar de onderzoeksfase
-                  </p>
-                </div>
-              </div>
-            )}
           </React.Fragment>
         );
         
@@ -988,26 +1011,6 @@ Antwoord in het Nederlands, professioneel en evidence-based.`;
               }
             />
             
-            {/* Full-width navigation bar for Examination */}
-            {examinationState === 'examination-processed' && (
-              <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-hysio-mint/20 p-6 shadow-lg z-50">
-                <div className="w-full px-6">
-                  <Button
-                    onClick={handleNavigateToClinicalConclusion}
-                    disabled={disabled}
-                    size="lg"
-                    className="w-full bg-hysio-deep-green hover:bg-hysio-deep-green/90 text-white py-4 text-xl font-semibold"
-                  >
-                    <CheckCircle size={24} className="mr-3" />
-                    Ga naar Klinische Conclusie
-                    <ChevronRight size={24} className="ml-3" />
-                  </Button>
-                  <p className="text-center text-sm text-hysio-deep-green-900/60 mt-2">
-                    Onderzoek voltooid - Ga door naar de conclusiefase
-                  </p>
-                </div>
-              </div>
-            )}
           </React.Fragment>
         );
         
@@ -1086,6 +1089,25 @@ Antwoord in het Nederlands, professioneel en evidence-based.`;
     }
   };
   
+  // Calculate navigation state
+  const canNavigateToExamination = anamnesisState === 'anamnesis-processed' && currentPhase === 'anamnesis';
+  const canNavigateToConclusion = examinationState === 'examination-processed' && currentPhase === 'examination';
+  const showBottomNavigation = canNavigateToExamination || canNavigateToConclusion;
+
+  // DEBUG: Comprehensive navigation state logging
+  React.useEffect(() => {
+    console.log('[HYSIO NAVIGATION DEBUG] Current navigation state:', {
+      currentPhase,
+      anamnesisState,
+      examinationState,
+      canNavigateToExamination,
+      canNavigateToConclusion,
+      showBottomNavigation,
+      completedPhases,
+      timestamp: new Date().toISOString()
+    });
+  }, [currentPhase, anamnesisState, examinationState, canNavigateToExamination, canNavigateToConclusion, showBottomNavigation, completedPhases]);
+
   return (
     <div className={cn('w-full min-h-screen', className)}>
       {/* Global Stepper Navigation - Always visible */}
@@ -1119,7 +1141,83 @@ Antwoord in het Nederlands, professioneel en evidence-based.`;
         </div>
       </div>
       
-      {renderPhaseContent()}
+      {/* Main content with bottom padding for navigation */}
+      <div className={cn('pb-32', { 'pb-8': !showBottomNavigation })}>
+        {renderPhaseContent()}
+      </div>
+      
+      {/* UNIVERSAL BOTTOM NAVIGATION - Always positioned, conditionally visible */}
+      {showBottomNavigation ? (
+        <div 
+          className="fixed bottom-0 left-0 right-0 bg-white border-t border-hysio-mint/20 shadow-2xl z-[9999]"
+          style={{ 
+            position: 'fixed',
+            zIndex: 9999,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            boxShadow: '0 -10px 25px -3px rgba(0, 0, 0, 0.1), 0 -4px 6px -2px rgba(0, 0, 0, 0.05)'
+          }}
+        >
+          <div className="max-w-6xl mx-auto p-6">
+            {canNavigateToExamination && (
+              <>
+                <Button
+                  onClick={() => {
+                    console.log('[HYSIO DEBUG] Navigation button clicked - Examination');
+                    handleNavigateToExamination();
+                  }}
+                  disabled={disabled}
+                  size="lg"
+                  className="w-full bg-hysio-deep-green hover:bg-hysio-deep-green/90 text-white py-4 text-xl font-semibold mb-3"
+                >
+                  <Stethoscope size={24} className="mr-3" />
+                  Ga naar Onderzoek
+                  <ChevronRight size={24} className="ml-3" />
+                </Button>
+                <p className="text-center text-sm text-hysio-deep-green-900/60">
+                  ✅ Anamnese voltooid - Ga door naar de onderzoeksfase
+                </p>
+              </>
+            )}
+            
+            {canNavigateToConclusion && (
+              <>
+                <Button
+                  onClick={() => {
+                    console.log('[HYSIO DEBUG] Navigation button clicked - Conclusion');
+                    handleNavigateToClinicalConclusion();
+                  }}
+                  disabled={disabled}
+                  size="lg"
+                  className="w-full bg-hysio-deep-green hover:bg-hysio-deep-green/90 text-white py-4 text-xl font-semibold mb-3"
+                >
+                  <CheckCircle size={24} className="mr-3" />
+                  Ga naar Klinische Conclusie
+                  <ChevronRight size={24} className="ml-3" />
+                </Button>
+                <p className="text-center text-sm text-hysio-deep-green-900/60">
+                  ✅ Onderzoek voltooid - Ga door naar de conclusiefase
+                </p>
+              </>
+            )}
+          </div>
+        </div>
+      ) : (
+        /* DEBUG: Show why navigation is not visible */
+        process.env.NODE_ENV === 'development' && (anamnesisState === 'anamnesis-processed' || examinationState === 'examination-processed') && (
+          <div 
+            className="fixed bottom-4 right-4 bg-red-500 text-white p-3 rounded-lg shadow-lg z-[9999] max-w-sm"
+            style={{ fontSize: '12px' }}
+          >
+            <div className="font-bold mb-1">🔍 DEBUG: Navigation Hidden</div>
+            <div>Phase: {currentPhase}</div>
+            <div>Anamnesis: {anamnesisState}</div>
+            <div>Examination: {examinationState}</div>
+            <div>Can Navigate: {canNavigateToExamination ? 'Exam ✓' : ''} {canNavigateToConclusion ? 'Conclusion ✓' : ''}</div>
+          </div>
+        )
+      )}
     </div>
   );
 };

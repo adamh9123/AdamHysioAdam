@@ -7,6 +7,12 @@ import { Label } from '@/components/ui/label';
 import { CopyToClipboard } from '@/components/ui/copy-to-clipboard';
 import { SOEPViewModal } from '@/components/ui/soep-view-modal';
 import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { 
   Copy,
   Edit3,
   Save,
@@ -31,6 +37,11 @@ export interface SOEPResultPageProps {
   onComplete?: (editedSoepData: SOEPStructure) => void;
   className?: string;
   disabled?: boolean;
+  uploadedDocuments?: Array<{
+    filename: string;
+    text: string;
+    type: string;
+  }>;
 }
 
 interface SOEPSection {
@@ -89,6 +100,7 @@ const SOEPResultPage: React.FC<SOEPResultPageProps> = ({
   onComplete,
   className,
   disabled = false,
+  uploadedDocuments = [],
 }) => {
   const [editableSOEP, setEditableSOEP] = React.useState<SOEPStructure>(soepData);
   const [isEditing, setIsEditing] = React.useState(false);
@@ -189,28 +201,38 @@ ${soep.plan}`;
     setHasChanges(true);
   };
 
-  const handleExportSOEP = async () => {
+  const [exportLoading, setExportLoading] = React.useState(false);
+  const [showExportMenu, setShowExportMenu] = React.useState(false);
+
+  const handleExportSOEP = async (format: 'pdf' | 'word' | 'text' | 'html' = 'pdf') => {
+    setExportLoading(true);
     try {
       const { SOEPExporter } = await import('@/lib/utils/soep-export');
       
-      await SOEPExporter.exportAndDownload({
+      const exportData = {
         patientInfo,
         soepData: editableSOEP,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }, 'html'); // Default to HTML, can be made configurable
+        updatedAt: new Date().toISOString(),
+        uploadedDocuments
+      };
+
+      await SOEPExporter.exportAndDownload(exportData, format);
+      setShowExportMenu(false);
       
     } catch (error) {
       console.error('Export failed:', error);
-      // TODO: Show user-friendly error message
+      // TODO: Show user-friendly error toast
+    } finally {
+      setExportLoading(false);
     }
   };
 
   return (
-    <div className={cn('w-full max-w-6xl mx-auto p-6', className)}>
+    <div className={cn('w-full max-w-4xl mx-auto p-6', className)}>
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center gap-4 mb-4">
+        <div className="flex items-center gap-4 mb-6">
           <Button
             variant="ghost"
             size="sm"
@@ -222,12 +244,21 @@ ${soep.plan}`;
             Terug
           </Button>
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-hysio-deep-green">
-              SOEP Documentatie
+            <h1 className="text-3xl font-bold text-hysio-deep-green mb-2">
+              Consult Overzicht
             </h1>
-            <p className="text-hysio-deep-green-900/70">
+            <p className="text-hysio-deep-green-900/70 text-lg">
               {patientInfo.initials}, {getAgeFromBirthYear(patientInfo.birthYear)} jaar - {patientInfo.chiefComplaint}
             </p>
+            <div className="flex items-center gap-4 mt-3 text-sm text-hysio-deep-green-900/60">
+              <span>Consult datum: {new Date().toLocaleDateString('nl-NL')}</span>
+              {uploadedDocuments.length > 0 && (
+                <span className="flex items-center gap-1">
+                  <FileText size={14} />
+                  {uploadedDocuments.length} bijlage{uploadedDocuments.length !== 1 ? 's' : ''}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -268,16 +299,37 @@ ${soep.plan}`;
               Kopiëer Volledige SOEP
             </Button>
             
-            <Button
-              onClick={handleExportSOEP}
-              variant="outline"
-              size="sm"
-              className="gap-2"
-              disabled={disabled}
-            >
-              <Download size={16} />
-              Exporteer SOEP
-            </Button>
+            <DropdownMenu open={showExportMenu} onOpenChange={setShowExportMenu}>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  disabled={disabled || exportLoading}
+                >
+                  <Download size={16} />
+                  {exportLoading ? 'Exporteren...' : 'Exporteer SOEP'}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => handleExportSOEP('pdf')}>
+                  <FileText size={16} className="mr-2" />
+                  Export als PDF
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleExportSOEP('word')}>
+                  <FileText size={16} className="mr-2" />
+                  Export als Word
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleExportSOEP('text')}>
+                  <FileText size={16} className="mr-2" />
+                  Export als Tekst
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleExportSOEP('html')}>
+                  <FileText size={16} className="mr-2" />
+                  Export als HTML
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             
             {!isEditing ? (
               <Button
@@ -333,25 +385,68 @@ ${soep.plan}`;
         </div>
       )}
 
-      {/* SOEP Sections */}
-      <div className="space-y-6">
+      {/* Uploaded Documents Summary */}
+      {uploadedDocuments.length > 0 && (
+        <Card className="mb-8 border-2 border-blue-100 bg-blue-50/50">
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                <FileText size={20} className="text-blue-600" />
+              </div>
+              <div>
+                <CardTitle className="text-blue-800">Context Documenten</CardTitle>
+                <CardDescription>
+                  Geüploade documenten gebruikt voor consultvoorbereiding
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {uploadedDocuments.map((doc, index) => (
+                <div key={index} className="flex items-center gap-3 p-3 bg-white rounded-lg border border-blue-200">
+                  <FileText size={16} className="text-blue-600" />
+                  <span className="text-sm font-medium text-blue-800">{doc.filename}</span>
+                  <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded">
+                    {doc.type.includes('pdf') ? 'PDF' : 'Word'}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Interactive SOEP Blocks */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {soepSections.map((section) => {
           const isCollapsed = collapsedSections.has(section.id);
           const sectionContent = editableSOEP[section.id];
+          const hasContent = sectionContent && typeof sectionContent === 'string' && sectionContent.trim();
           
           return (
-            <Card key={section.id} className={cn('border-2', section.bgColor, 'border-opacity-30')}>
+            <Card 
+              key={section.id} 
+              className={cn(
+                'border-2 cursor-pointer transition-all duration-200 hover:shadow-lg',
+                section.bgColor,
+                'border-opacity-30 hover:border-opacity-50',
+                isCollapsed && 'hover:scale-[1.02]'
+              )}
+              onClick={() => toggleSectionCollapse(section.id)}
+            >
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className={cn(
-                      'w-10 h-10 rounded-full flex items-center justify-center',
-                      section.bgColor
+                      'w-12 h-12 rounded-full flex items-center justify-center shadow-sm',
+                      section.bgColor,
+                      'border border-opacity-20'
                     )}>
-                      <section.icon size={20} className={section.color} />
+                      <section.icon size={24} className={section.color} />
                     </div>
                     <div>
-                      <CardTitle className={cn('text-lg', section.color)}>
+                      <CardTitle className={cn('text-lg font-semibold', section.color)}>
                         {section.title}
                       </CardTitle>
                       <CardDescription className="text-sm">
@@ -360,33 +455,44 @@ ${soep.plan}`;
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                     <Button
                       onClick={() => copySectionContent(section.id)}
                       variant="ghost"
                       size="sm"
                       className="gap-1"
-                      disabled={disabled}
+                      disabled={disabled || !hasContent}
                     >
                       <Copy size={14} />
                       <span className="sr-only">Kopiëer {section.shortTitle}</span>
                     </Button>
-                    <Button
-                      onClick={() => toggleSectionCollapse(section.id)}
-                      variant="ghost"
-                      size="sm"
-                      disabled={disabled}
-                    >
-                      {isCollapsed ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
-                    </Button>
+                    <div className={cn(
+                      'p-1 rounded-full transition-transform',
+                      isCollapsed ? 'rotate-0' : 'rotate-180'
+                    )}>
+                      <ChevronDown size={16} className={section.color} />
+                    </div>
                   </div>
                 </div>
+                
+                {/* Content Preview when collapsed */}
+                {isCollapsed && hasContent && (
+                  <div className="mt-3 p-3 bg-white/80 rounded-lg border border-opacity-20">
+                    <p className="text-sm text-gray-700 overflow-hidden" style={{
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical' as const
+                    }}>
+                      {(sectionContent as string).substring(0, 120)}...
+                    </p>
+                  </div>
+                )}
               </CardHeader>
               
               {!isCollapsed && (
                 <CardContent>
                   {isEditing ? (
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       <Label htmlFor={`edit-${section.id}`} className={cn('font-medium', section.color)}>
                         Bewerk {section.title}
                       </Label>
@@ -394,22 +500,27 @@ ${soep.plan}`;
                         id={`edit-${section.id}`}
                         value={sectionContent as string || ''}
                         onChange={(e) => updateSOEPSection(section.id, e.target.value)}
-                        rows={6}
+                        rows={8}
                         disabled={disabled}
-                        className="resize-none"
+                        className="resize-none border-2 focus:border-opacity-50"
                         placeholder={`Voer ${section.title.toLowerCase()} informatie in...`}
                       />
                     </div>
                   ) : (
-                    <div className="bg-white p-4 rounded-lg border border-gray-200">
-                      {sectionContent && typeof sectionContent === 'string' ? (
+                    <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                      {hasContent ? (
                         <pre className="whitespace-pre-wrap font-inter text-sm leading-relaxed text-gray-800">
                           {sectionContent}
                         </pre>
                       ) : (
-                        <p className="text-gray-500 italic text-sm">
-                          Geen informatie beschikbaar voor {section.title.toLowerCase()}
-                        </p>
+                        <div className="flex items-center justify-center py-8 text-gray-400">
+                          <div className="text-center">
+                            <section.icon size={32} className="mx-auto mb-2 opacity-50" />
+                            <p className="text-sm italic">
+                              Geen informatie beschikbaar voor {section.title.toLowerCase()}
+                            </p>
+                          </div>
+                        </div>
                       )}
                     </div>
                   )}

@@ -7,8 +7,7 @@ import {
   isFileSizeExceeded, 
   splitAudioFile, 
   processAudioSegments, 
-  formatFileSize,
-  MAX_FILE_SIZE 
+  formatFileSize
 } from '@/lib/utils/audio-splitter';
 
 export const runtime = 'nodejs';

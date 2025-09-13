@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn } from '@/utils';
+import { cn } from '@/lib/utils';
 import { ChatInterface } from './chat-interface';
 import { useAssistantChat } from '@/hooks/useAssistantChat';
 import { AssistantIntegrationProps } from '@/lib/types/assistant';

@@ -33,7 +33,7 @@ export const VALIDATION_LIMITS = {
 // Valid enum values
 export const VALID_RECIPIENT_CATEGORIES: RecipientCategory[] = [
   'colleague',
-  'specialist', 
+  'huisarts',
   'patient',
   'family',
   'referring_physician',
@@ -179,12 +179,12 @@ export function validateRecipientType(recipient: any): ValidationResult {
   }
 
   // Context-specific warnings
-  if (recipient?.category === 'specialist' && !recipient?.specialty) {
+  if (recipient?.category === 'huisarts' && !recipient?.specialty) {
     warnings.push({
       field: 'recipient.specialty',
       code: 'MISSING_CONTEXT',
-      message: 'Specialist category would benefit from specifying the specialty area',
-      suggestion: 'Consider adding the medical specialty (e.g., "orthopedic", "neurological")'
+      message: 'Huisarts category would benefit from specifying the practice area',
+      suggestion: 'Consider adding the practice focus (e.g., "general practice", "family medicine")'
     });
   }
 

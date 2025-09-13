@@ -5,6 +5,20 @@ import { generateContentWithOpenAI, generateContentStreamWithOpenAI, type OpenAI
 
 export const runtime = 'nodejs';
 
+// Test function to isolate import issues
+function testImports() {
+  console.log('Testing API route imports...');
+  try {
+    console.log('NextRequest:', typeof NextRequest);
+    console.log('NextResponse:', typeof NextResponse);
+    // console.log('generateContentWithOpenAI:', typeof generateContentWithOpenAI);
+    return true;
+  } catch (error) {
+    console.error('Import test failed:', error);
+    return false;
+  }
+}
+
 interface GenerateRequest {
   systemPrompt: string;
   userPrompt: string;
@@ -124,12 +138,36 @@ export async function POST(request: NextRequest) {
 
 // GET endpoint to check API status
 export async function GET() {
-  return NextResponse.json({
-    success: true,
-    message: 'Content generation API is running',
-    model: 'gpt-4o',
-    provider: 'OpenAI',
-    capabilities: ['text-generation', 'streaming', 'dutch-language-support'],
-    maxPromptLength: '~50,000 characters',
-  });
+  try {
+    console.log('GET /api/generate called');
+    
+    // Test imports first
+    const importTest = testImports();
+    console.log('Import test result:', importTest);
+    
+    // Test environment variables
+    const hasOpenAIKey = !!process.env.OPENAI_API_KEY;
+    console.log('OpenAI API Key configured:', hasOpenAIKey);
+    console.log('OpenAI API Key length:', process.env.OPENAI_API_KEY?.length || 0);
+    
+    return NextResponse.json({
+      success: true,
+      message: 'Content generation API is running',
+      model: 'gpt-4o',
+      provider: 'OpenAI',
+      capabilities: ['text-generation', 'streaming', 'dutch-language-support'],
+      maxPromptLength: '~50,000 characters',
+      importTest,
+      hasOpenAIKey,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('GET /api/generate error:', error);
+    return NextResponse.json({
+      success: false,
+      error: 'GET endpoint failed',
+      details: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    }, { status: 500 });
+  }
 }

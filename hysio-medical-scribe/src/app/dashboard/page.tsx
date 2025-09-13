@@ -35,23 +35,27 @@ export default function DashboardPage() {
     totalBackups: 0,
   });
 
-  // Update sessions and stats
+  // Update sessions and stats only on mount
   React.useEffect(() => {
-    const savedSessions = sessionState.getSavedSessions();
-    setSessions(savedSessions);
-    
-    const totalSessions = savedSessions.length;
-    const completedSessions = savedSessions.filter(s => s.status === 'completed').length;
-    const activeSessions = savedSessions.filter(s => s.status === 'in-progress' || s.status === 'paused').length;
-    const totalBackups = BackupManager.getAllBackups().length;
-    
-    setStats({
-      totalSessions,
-      completedSessions,
-      activeSessions,
-      totalBackups,
-    });
-  }, []);
+    const updateData = () => {
+      const savedSessions = sessionState.getSavedSessions();
+      setSessions(savedSessions);
+      
+      const totalSessions = savedSessions.length;
+      const completedSessions = savedSessions.filter(s => s.status === 'completed').length;
+      const activeSessions = savedSessions.filter(s => s.status === 'in-progress' || s.status === 'paused').length;
+      const totalBackups = BackupManager.getAllBackups().length;
+      
+      setStats({
+        totalSessions,
+        completedSessions,
+        activeSessions,
+        totalBackups,
+      });
+    };
+
+    updateData();
+  }, []); // Remove sessionState dependency to prevent infinite loop
 
   const handleSessionLoad = (sessionId: string) => {
     const success = sessionState.loadSession(sessionId);
@@ -69,9 +73,22 @@ export default function DashboardPage() {
       // Log the deletion for audit purposes
       PrivacyManager.logAuditEvent('delete', 'session', sessionId, 'Session deleted by user');
       
-      // Update local state
-      const updatedSessions = sessions.filter(s => s.id !== sessionId);
+      // Refresh data after deletion
+      const updatedSessions = sessionState.getSavedSessions();
       setSessions(updatedSessions);
+      
+      // Update stats
+      const totalSessions = updatedSessions.length;
+      const completedSessions = updatedSessions.filter(s => s.status === 'completed').length;
+      const activeSessions = updatedSessions.filter(s => s.status === 'in-progress' || s.status === 'paused').length;
+      const totalBackups = BackupManager.getAllBackups().length;
+      
+      setStats({
+        totalSessions,
+        completedSessions,
+        activeSessions,
+        totalBackups,
+      });
       
       alert('Sessie succesvol verwijderd');
     }
@@ -138,6 +155,19 @@ export default function DashboardPage() {
       // Refresh data
       const updatedSessions = sessionState.getSavedSessions();
       setSessions(updatedSessions);
+      
+      // Update stats after cleanup
+      const totalSessions = updatedSessions.length;
+      const completedSessions = updatedSessions.filter(s => s.status === 'completed').length;
+      const activeSessions = updatedSessions.filter(s => s.status === 'in-progress' || s.status === 'paused').length;
+      const totalBackups = BackupManager.getAllBackups().length;
+      
+      setStats({
+        totalSessions,
+        completedSessions,
+        activeSessions,
+        totalBackups,
+      });
     }
   };
 
@@ -148,7 +178,23 @@ export default function DashboardPage() {
       if (recovery.sessions.length > 0) {
         // In a real application, you would present these sessions to the user for selection
         alert(`${recovery.sessions.length} sessies hersteld. Check de sessie lijst.`);
-        setSessions(sessionState.getSavedSessions());
+        
+        // Refresh data after recovery
+        const updatedSessions = sessionState.getSavedSessions();
+        setSessions(updatedSessions);
+        
+        // Update stats after recovery
+        const totalSessions = updatedSessions.length;
+        const completedSessions = updatedSessions.filter(s => s.status === 'completed').length;
+        const activeSessions = updatedSessions.filter(s => s.status === 'in-progress' || s.status === 'paused').length;
+        const totalBackups = BackupManager.getAllBackups().length;
+        
+        setStats({
+          totalSessions,
+          completedSessions,
+          activeSessions,
+          totalBackups,
+        });
       } else {
         alert('Geen herstelbare sessies gevonden.');
       }

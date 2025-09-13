@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn } from '@/utils';
+import { cn } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { CollapsibleSection } from '@/components/ui/collapsible-section';
 import { CopyToClipboard } from '@/components/ui/copy-to-clipboard';

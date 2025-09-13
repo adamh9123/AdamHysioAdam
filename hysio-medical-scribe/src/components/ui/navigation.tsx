@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn } from '@/utils';
+import { cn } from '@/lib/utils';
 import { Button } from './button';
 import { User, Settings, LogOut, Menu, X, Bot } from 'lucide-react';
 import Link from 'next/link';

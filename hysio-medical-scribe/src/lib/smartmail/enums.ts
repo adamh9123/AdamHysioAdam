@@ -6,7 +6,7 @@
  */
 export enum RecipientCategory {
   COLLEAGUE = 'colleague',
-  SPECIALIST = 'specialist',
+  HUISARTS = 'huisarts',
   PATIENT = 'patient',
   FAMILY = 'family',
   REFERRING_PHYSICIAN = 'referring_physician',
@@ -176,7 +176,7 @@ export enum DisclaimerType {
  */
 export enum HealthcareRole {
   PHYSIOTHERAPIST = 'physiotherapist',
-  SPECIALIST = 'specialist',
+  HUISARTS = 'huisarts',
   GENERAL_PRACTITIONER = 'general_practitioner'
 }
 
@@ -226,7 +226,7 @@ export function enumToOptions<T extends Record<string, string | number>>(
 export const DUTCH_LABELS = {
   // Recipient Categories
   [RecipientCategory.COLLEAGUE]: 'Collega',
-  [RecipientCategory.SPECIALIST]: 'Specialist',
+  [RecipientCategory.HUISARTS]: 'Huisarts',
   [RecipientCategory.PATIENT]: 'Patiënt',
   [RecipientCategory.FAMILY]: 'Familie/Mantelzorger',
   [RecipientCategory.REFERRING_PHYSICIAN]: 'Verwijzend Arts',
@@ -266,7 +266,7 @@ export const DUTCH_LABELS = {
 export const ENGLISH_LABELS = {
   // Recipient Categories
   [RecipientCategory.COLLEAGUE]: 'Colleague',
-  [RecipientCategory.SPECIALIST]: 'Specialist',
+  [RecipientCategory.HUISARTS]: 'General Practitioner',
   [RecipientCategory.PATIENT]: 'Patient',
   [RecipientCategory.FAMILY]: 'Family/Caregiver',
   [RecipientCategory.REFERRING_PHYSICIAN]: 'Referring Physician',
