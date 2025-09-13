@@ -7,7 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { DocumentUploader } from '@/components/ui/document-uploader';
-import { Mail, User, Users, UserCheck, FileText } from 'lucide-react';
+import { AudioRecorder } from '@/components/ui/audio-recorder';
+import { Mail, User, Users, UserCheck, FileText, Mic } from 'lucide-react';
 
 export default function SmartMailSimplePage() {
   const [recipientType, setRecipientType] = useState<'patient' | 'colleague' | 'huisarts'>('patient');
@@ -158,12 +159,25 @@ export default function SmartMailSimplePage() {
                 rows={4}
                 className="mt-1"
               />
+
+              {/* Voice Dictation */}
+              <div className="mt-2">
+                <AudioRecorder
+                  onTranscriptionComplete={(transcription) => {
+                    if (transcription.text) {
+                      setContext(prev => prev ? `${prev} ${transcription.text}` : transcription.text);
+                    }
+                  }}
+                  autoTranscribe={true}
+                  className="w-full"
+                />
+              </div>
             </div>
 
             {/* Ultra Think Document Upload */}
             <div>
               <Label className="text-sm font-medium block mb-3">
-                Context Document (optioneel) - Ultra Think AI
+                Upload Bestand
               </Label>
               <DocumentUploader
                 onUploadComplete={handleDocumentUpload}
@@ -171,12 +185,12 @@ export default function SmartMailSimplePage() {
                 className="mb-2"
               />
               <p className="text-xs text-gray-600">
-                Upload verwijsbrieven, vorige verslagen of andere relevante documenten voor context-bewuste AI
+                Voeg een bestand toe voor extra context
               </p>
               {documentContext && documentFilename && (
                 <div className="mt-2 text-xs text-green-600 bg-green-50 border border-green-200 rounded-md p-2 flex items-center gap-2">
                   <FileText className="h-4 w-4" />
-                  <span>✓ Document &apos;{documentFilename}&apos; geladen - AI heeft nu extra context!</span>
+                  <span>✓ Bestand &apos;{documentFilename}&apos; toegevoegd</span>
                 </div>
               )}
             </div>

@@ -74,25 +74,25 @@ export default function Home() {
             <p className="text-hysio-deep-green-900/70 mb-8 max-w-2xl mx-auto">
               Toegang tot alle AI-ondersteunde modules voor complete fysiotherapie workflow
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 max-w-5xl mx-auto">
               <Button
                 size="lg"
                 onClick={() => router.push('/scribe')}
                 className="text-base px-6 py-4 h-auto flex flex-col gap-2 bg-hysio-deep-green hover:bg-hysio-deep-green/90"
               >
                 <Stethoscope size={24} />
-                <span>Medical Scribe</span>
-                <span className="text-xs opacity-80">Intake & Consult</span>
+                <span>Hysio Intake</span>
+                <span className="text-xs opacity-80">Nieuwe Patiënten</span>
               </Button>
 
               <Button
                 size="lg"
-                onClick={() => router.push('/smartmail-demo')}
-                className="text-base px-6 py-4 h-auto flex flex-col gap-2 bg-hysio-mint hover:bg-hysio-mint/90 text-white"
+                onClick={() => router.push('/scribe')}
+                className="text-base px-6 py-4 h-auto flex flex-col gap-2 bg-green-600 hover:bg-green-700"
               >
-                <Mail size={24} />
-                <span>Hysio SmartMail</span>
-                <span className="text-xs opacity-80">AI Email Generatie</span>
+                <Stethoscope size={24} />
+                <span>Hysio Consult</span>
+                <span className="text-xs opacity-80">Vervolgconsulten</span>
               </Button>
 
               <Button
@@ -103,6 +103,16 @@ export default function Home() {
                 <Bot size={24} />
                 <span>Hysio Assistant</span>
                 <span className="text-xs opacity-80">AI Chat & Hulp</span>
+              </Button>
+
+              <Button
+                size="lg"
+                onClick={() => router.push('/smartmail-demo')}
+                className="text-base px-6 py-4 h-auto flex flex-col gap-2 bg-hysio-mint hover:bg-hysio-mint/90 text-white"
+              >
+                <Mail size={24} />
+                <span>Hysio SmartMail</span>
+                <span className="text-xs opacity-80">AI Email Generatie</span>
               </Button>
 
               <Button

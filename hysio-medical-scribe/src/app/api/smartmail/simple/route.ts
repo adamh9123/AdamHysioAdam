@@ -41,7 +41,7 @@ Gegenereerd met Hysio SmartMail (Demo mode - geen OpenAI API key gedetecteerd)`;
 Ontvanger: ${body.recipientType}
 Onderwerp: ${body.subject || 'Update over behandeling'}
 Context: ${body.context}
-Toon: ${body.tone || 'professional'}
+Lengte: ${body.length || 'gemiddeld'}
 
 Gebruik Nederlandse taal en zorg dat de email professioneel maar vriendelijk is. Houd het kort en to-the-point.`;
 

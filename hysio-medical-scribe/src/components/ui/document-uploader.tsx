@@ -125,7 +125,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
               Document verwerken...
             </>
           ) : (
-            'Voeg verwijzing/document toe'
+            'Bestand selecteren'
           )}
         </Button>
       ) : (

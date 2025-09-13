@@ -8,7 +8,7 @@ export interface SimpleEmailRequest {
     age: number;
     chiefComplaint: string;
   };
-  tone: 'professional' | 'friendly';
+  length: 'kort' | 'gemiddeld' | 'lang';
   // Ultra Think Enhancement: Document context for AI
   documentContext?: string;
 }

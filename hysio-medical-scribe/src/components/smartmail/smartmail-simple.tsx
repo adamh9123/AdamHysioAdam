@@ -8,7 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CopyToClipboard } from '@/components/ui/copy-to-clipboard';
 import { DocumentUploader } from '@/components/ui/document-uploader';
-import { Mail, Sparkles, User, Users, UserCheck, FileText } from 'lucide-react';
+import { AudioRecorder } from '@/components/ui/audio-recorder';
+import { Mail, Sparkles, User, Users, UserCheck, FileText, Mic } from 'lucide-react';
 import { SimpleEmailRequest, SimpleEmailResponse } from '@/lib/types/smartmail-simple';
 
 interface SmartMailSimpleProps {
@@ -28,7 +29,7 @@ export const SmartMailSimple: React.FC<SmartMailSimpleProps> = ({
   const [recipientType, setRecipientType] = useState<'patient' | 'colleague' | 'huisarts'>('patient');
   const [subject, setSubject] = useState('');
   const [context, setContext] = useState('');
-  const [tone, setTone] = useState<'professional' | 'friendly'>('professional');
+  const [length, setLength] = useState<'kort' | 'gemiddeld' | 'lang'>('gemiddeld');
   const [generatedEmail, setGeneratedEmail] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -64,7 +65,7 @@ export const SmartMailSimple: React.FC<SmartMailSimpleProps> = ({
         subject: subject || 'Update over behandeling',
         context,
         patientInfo,
-        tone,
+        length,
         // Ultra Think Enhancement: Include document context for AI
         documentContext: documentContext || undefined
       };
@@ -175,12 +176,25 @@ export const SmartMailSimple: React.FC<SmartMailSimpleProps> = ({
                 rows={4}
                 className="mt-1"
               />
+
+              {/* Voice Dictation */}
+              <div className="mt-2">
+                <AudioRecorder
+                  onTranscriptionComplete={(transcription) => {
+                    if (transcription.text) {
+                      setContext(prev => prev ? `${prev} ${transcription.text}` : transcription.text);
+                    }
+                  }}
+                  autoTranscribe={true}
+                  className="w-full"
+                />
+              </div>
             </div>
 
             {/* Ultra Think Document Upload */}
             <div>
               <Label className="text-sm font-medium text-green-800 block mb-3">
-                Context Document (optioneel) - Ultra Think AI
+                Upload Bestand
               </Label>
               <DocumentUploader
                 onUploadComplete={handleDocumentUpload}
@@ -188,41 +202,51 @@ export const SmartMailSimple: React.FC<SmartMailSimpleProps> = ({
                 className="mb-2"
               />
               <p className="text-xs text-gray-600">
-                Upload verwijsbrieven, vorige verslagen of andere relevante documenten voor context-bewuste AI
+                Voeg een bestand toe voor extra context
               </p>
               {documentContext && documentFilename && (
                 <div className="mt-2 text-xs text-green-600 bg-green-50 border border-green-200 rounded-md p-2 flex items-center gap-2">
                   <FileText className="h-4 w-4" />
-                  <span>✓ Document &apos;{documentFilename}&apos; geladen - AI heeft nu extra context!</span>
+                  <span>✓ Bestand &apos;{documentFilename}&apos; toegevoegd</span>
                 </div>
               )}
             </div>
 
-            {/* Tone */}
+            {/* Email Length */}
             <div>
               <Label className="text-sm font-medium text-hysio-deep-green mb-2 block">
-                Toon
+                Lengte
               </Label>
               <div className="flex gap-2">
                 <button
-                  onClick={() => setTone('professional')}
+                  onClick={() => setLength('kort')}
                   className={`px-4 py-2 rounded-md transition-colors ${
-                    tone === 'professional'
+                    length === 'kort'
                       ? 'bg-hysio-mint text-white'
                       : 'bg-gray-100 hover:bg-gray-200'
                   }`}
                 >
-                  Professioneel
+                  Kort
                 </button>
                 <button
-                  onClick={() => setTone('friendly')}
+                  onClick={() => setLength('gemiddeld')}
                   className={`px-4 py-2 rounded-md transition-colors ${
-                    tone === 'friendly'
+                    length === 'gemiddeld'
                       ? 'bg-hysio-mint text-white'
                       : 'bg-gray-100 hover:bg-gray-200'
                   }`}
                 >
-                  Vriendelijk
+                  Gemiddeld
+                </button>
+                <button
+                  onClick={() => setLength('lang')}
+                  className={`px-4 py-2 rounded-md transition-colors ${
+                    length === 'lang'
+                      ? 'bg-hysio-mint text-white'
+                      : 'bg-gray-100 hover:bg-gray-200'
+                  }`}
+                >
+                  Lang
                 </button>
               </div>
             </div>
