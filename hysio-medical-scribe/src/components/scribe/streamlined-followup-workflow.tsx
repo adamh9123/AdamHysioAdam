@@ -4,13 +4,19 @@ import { Button } from '@/components/ui/button';
 import { SOEPResultView } from '@/components/ui/soep-result-view';
 import { ConsultInputPanel } from '@/components/ui/consult-input-panel';
 import { CopyToClipboard } from '@/components/ui/copy-to-clipboard';
-import { DocumentUploader } from '@/components/ui/document-uploader';
 import {
-  Lightbulb
+  Lightbulb,
+  FileText
 } from 'lucide-react';
 import { PatientInfo, SOEPStructure, AudioRecording } from '@/lib/types';
 import { apiCall, API_ENDPOINTS } from '@/lib/api';
 import { transcribeAudio } from '@/lib/api/transcription';
+import {
+  generateIntelligentPreparation,
+  validatePreparationInput,
+  detectAnatomicalRegion,
+  type PreparationRequest
+} from '@/lib/preparation/intelligent-preparation';
 
 // Simple SOEP parsing function for this workflow
 const parseSOEPText = (fullText: string): SOEPStructure => {
@@ -72,74 +78,41 @@ const StreamlinedFollowupWorkflow: React.FC<StreamlinedFollowupWorkflowProps> = 
   const [consultNotes, setConsultNotes] = React.useState<string>('');
   const [soepResults, setSoepResults] = React.useState<SOEPStructure | null>(null);
 
-  // Document upload state
-  const [documentContext, setDocumentContext] = React.useState<string>('');
-  const [documentFilename, setDocumentFilename] = React.useState<string>('');
+  // Document context comes from patientInfo now
 
   // Loading states
   const [isGeneratingPreparation, setIsGeneratingPreparation] = React.useState(false);
   const [isProcessingSOEP, setIsProcessingSOEP] = React.useState(false);
 
-  // Handle document upload from DocumentUploader component
-  const handleDocumentUpload = (documentText: string, filename: string) => {
-    setDocumentContext(documentText);
-    setDocumentFilename(filename);
-  };
+  // Document context now comes from patientInfo, no need for separate handler
 
-  // Generate session preparation
+  // Generate session preparation using intelligent preparation system
   const handleGeneratePreparation = async () => {
     setIsGeneratingPreparation(true);
     try {
-      const systemPrompt = `Je bent een ervaren fysiotherapeut die algemene vervolgconsult guidance geeft. Geef ALLEEN algemene, evidence-based tips en aandachtspunten voor vervolgconsulten bij deze hoofdklacht. Verzin GEEN specifieke patiëntgegevens, testresultaten of behandeldetails die je niet weet. Houd je aan algemene richtlijnen en best practices.${documentContext ? '\n\nJe hebt toegang tot een context document dat extra informatie kan bevatten.' : ''}`;
-
-      const getAgeFromBirthYear = (birthYear: string): number => {
-        const currentYear = new Date().getFullYear();
-        return currentYear - parseInt(birthYear);
+      // Create preparation request
+      const preparationRequest: PreparationRequest = {
+        patientInfo: {
+          initials: patientInfo.initials,
+          birthYear: patientInfo.birthYear,
+          gender: patientInfo.gender,
+          chiefComplaint: patientInfo.chiefComplaint || ''
+        },
+        sessionType: 'consult',
+        documentContext: patientInfo.documentContext,
+        documentFilename: patientInfo.documentFilename
       };
 
-      const age = getAgeFromBirthYear(patientInfo.birthYear);
-
-      let userPrompt = `Hoofdklacht: ${patientInfo.chiefComplaint}
-Leeftijd: ${age} jaar
-Geslacht: ${patientInfo.gender}`;
-
-      // Add document context if available
-      if (documentContext) {
-        userPrompt += `\n\n${documentContext}`;
+      // Validate input requirements
+      const validation = validatePreparationInput(preparationRequest);
+      if (!validation.isValid) {
+        throw new Error(validation.errorMessage);
       }
 
-      userPrompt += `
+      // Generate intelligent preparation
+      const { systemPrompt, userPrompt, region } = await generateIntelligentPreparation(preparationRequest);
 
-Geef algemene, evidence-based guidance voor vervolgconsulten bij deze hoofdklacht:
-
-**Algemene Aandachtspunten**
-- Typische vragen over vooruitgang sinds vorige sessie
-- Standaard evaluatiepunten bij deze klacht
-- Algemene compliance controle
-
-**Subjectieve Evaluatie**
-- Gebruikelijke vragen over pijnverloop bij deze klacht
-- Standaard functionele vragen
-- Algemene vragen over dagelijkse activiteiten
-- Typische vragen over slaap en werk bij deze klacht
-
-**Objectieve Metingen**
-- Welke standaard metingen zijn relevant bij deze klacht
-- Gebruikelijke ROM-metingen voor dit probleem
-- Standaard functionele testen
-- Algemene observatiepunten
-
-**Best Practices**
-- Waarschuwingssignalen waar elke fysiotherapeut op moet letten
-- Wanneer doorverwijzing overwegen
-- Algemene behandelopties bij deze klacht
-
-BELANGRIJK: 
-- Gebruik GEEN specifieke getallen, meetwaarden of behandelresultaten
-- Verzin GEEN concrete patiëntdetails
-- Geef alleen algemene, professionele guidance
-- Gebruik Nederlandse fysiotherapie terminologie`;
-
+      // Call API with intelligent prompts
       const response = await apiCall(API_ENDPOINTS.GENERATE_CONTENT, {
         method: 'POST',
         body: JSON.stringify({
@@ -155,30 +128,48 @@ BELANGRIJK:
       if (response.success && response.data?.content) {
         setSessionPreparation(response.data.content);
       } else {
-        // Fallback content when API fails
-        const fallbackPreparation = `**Focus & Evaluatie**
-- Evalueer vooruitgang sinds vorige behandeling
-- Controleer of gestelde doelen zijn behaald
-- Beoordeel effectiviteit van gegeven behandeling
+        // Generate intelligent fallback based on detected region
+        const detectedRegion = preparationRequest.patientInfo.chiefComplaint
+          ? detectAnatomicalRegion(preparationRequest.patientInfo.chiefComplaint)
+          : null;
 
-**Subjectieve Vragen**
-- Hoe ervaart patiënt de klachten sinds vorige sessie?
-- VAS/NPRS score voor pijn (0-10)?
-- Welke activiteiten zijn verbeterd of verslechterd?
-- Compliance met huisoefeningen en adviezen?
-- Nieuwe klachten of symptomen?
+        let fallbackPreparation = `**🎯 Gerichte Consult Voorbereiding**
+Hoofdklacht: ${preparationRequest.patientInfo.chiefComplaint || 'Uit geüpload document'}
+${detectedRegion ? `Gedetecteerde regio: ${detectedRegion.name}` : ''}
 
-**Objectieve Aandachtspunten**
-- ROM metingen vergelijken met vorige sessie
-- Functionele testen herhalen
-- Palpatie en inspectie van probleemgebied
-- Gang- en bewegingspatronen observeren
-- Kracht en stabiliteit testen
+**📊 Voortgang Evaluatie Focus**
+- Hoe zijn de klachten ontwikkeld sinds vorige behandeling?
+- Specifieke vragen over functionele verbetering
+- VAS/NPRS pijnscores vergelijken (0-10)
+- Compliance met gegeven huisoefeningen
 
-*Let op: Deze voorbereiding is automatisch gegenereerd toen de AI-service niet beschikbaar was.*`;
-        
+**🔄 SOEP Gerichte Vragen**`;
+
+        if (detectedRegion) {
+          fallbackPreparation += `
+- **Subjectief**: ${detectedRegion.specificQuestions.consult[0] || 'Hoe voelt de klacht nu vergeleken met vorige keer?'}
+- **Objectief**: Relevante tests zoals ${detectedRegion.assessmentTests.slice(0, 2).join(', ')}
+- **Evaluatie**: Vooruitgang beoordelen voor ${detectedRegion.commonConditions[0] || 'deze klacht'}
+- **Plan**: Behandelaanpassingen overwegen`;
+        } else {
+          fallbackPreparation += `
+- **Subjectief**: Hoe zijn klachten en functionaliteit veranderd?
+- **Objectief**: ROM, kracht en functionele testen herhalen
+- **Evaluatie**: Vooruitgang en effectiviteit beoordelen
+- **Plan**: Behandeling aanpassen op basis van respons`;
+        }
+
+        fallbackPreparation += `
+
+**⚡ Efficiency Tips**
+- Kritische vragen die niet gemist mogen worden
+- Belangrijkste punten om snel te checken
+- Focus op functionele verbeteringen
+
+*Let op: Deze voorbereiding is een fallback toen de AI-service niet beschikbaar was, maar wel aangepast aan uw klacht.*`;
+
         setSessionPreparation(fallbackPreparation);
-        console.error('API call failed, using fallback preparation:', response.error);
+        console.error('API call failed, using intelligent fallback preparation:', response.error);
       }
     } catch (error) {
       console.error('Error generating preparation:', error);
@@ -396,20 +387,20 @@ Technische fout: Kan behandelplan niet automatisch genereren.
                 <h3 className="text-lg font-semibold text-hysio-deep-green">Sessie Voorbereiding</h3>
               </div>
               
-              {/* Document Upload Section */}
-              <div className="mb-6">
-                <label className="text-sm font-medium text-hysio-deep-green block mb-3">
-                  Context Document (optioneel)
-                </label>
-                <DocumentUploader
-                  onUploadComplete={handleDocumentUpload}
-                  disabled={disabled}
-                  className="mb-2"
-                />
-                <p className="text-xs text-hysio-deep-green-900/60">
-                  Upload verwijsbrieven, vorige verslagen of andere relevante documenten om betere tips te krijgen
-                </p>
-              </div>
+              {/* Document Context Info */}
+              {patientInfo.documentContext && patientInfo.documentFilename && (
+                <div className="mb-6 p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <FileText size={16} className="text-green-600" />
+                    <span className="text-sm font-medium text-green-800">
+                      Context document beschikbaar
+                    </span>
+                  </div>
+                  <p className="text-sm text-green-700 mt-1">
+                    '{patientInfo.documentFilename}' wordt gebruikt voor contextuele voorbereiding
+                  </p>
+                </div>
+              )}
               
               <div className="text-center py-4">
                 <Button
@@ -431,9 +422,9 @@ Technische fout: Kan behandelplan niet automatisch genereren.
                   )}
                 </Button>
                 <p className="text-sm text-hysio-deep-green-900/70 mt-3">
-                  {documentContext && documentFilename
-                    ? `Krijg context-bewuste tips op basis van het geüploade document: ${documentFilename}`
-                    : "Krijg algemene evidence-based tips voor vervolgconsulten bij deze hoofdklacht"
+                  {patientInfo.documentContext && patientInfo.documentFilename
+                    ? `Krijg context-bewuste tips op basis van het geüploade document: ${patientInfo.documentFilename}`
+                    : "Krijg intelligente, klacht-specifieke tips voor vervolgconsulten"
                   }
                 </p>
               </div>

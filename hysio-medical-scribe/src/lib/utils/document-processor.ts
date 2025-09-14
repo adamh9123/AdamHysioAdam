@@ -9,60 +9,28 @@ export interface DocumentProcessingResult {
 }
 
 /**
- * Extract text content from PDF files
+ * Extract text content from PDF files using server-side API
  */
 export const extractTextFromPDF = async (file: File): Promise<DocumentProcessingResult> => {
-  // CRITICAL: Multiple checks to prevent SSR execution
-  if (typeof window === 'undefined' || typeof document === 'undefined' || !globalThis.window) {
-    return {
-      success: false,
-      error: 'PDF processing is only available on the client side',
-      filename: file.name,
-      type: file.type
-    };
-  }
-
   try {
-    // Additional client-side verification before import
-    if (!window?.location || !document?.createElement) {
-      throw new Error('Client-side environment not properly initialized');
+    console.log('Processing PDF via server-side API');
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch('/api/document/process', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Server error: ${response.status} ${response.statusText}`);
     }
 
-    // Dynamically import pdfjs-dist only on the client side
-    const pdfjsLib = await import('pdfjs-dist');
-    
-    // Configure PDF.js worker
-    if (pdfjsLib.GlobalWorkerOptions && !pdfjsLib.GlobalWorkerOptions.workerSrc) {
-      pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-    }
-    
-    const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-    
-    let fullText = '';
-    
-    // Extract text from all pages
-    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-      const page = await pdf.getPage(pageNum);
-      const textContent = await page.getTextContent();
-      const pageText = textContent.items
-        .map((item: { str: string }) => item.str)
-        .join(' ')
-        .trim();
-      
-      if (pageText) {
-        fullText += `${pageText}\n\n`;
-      }
-    }
-    
-    return {
-      success: true,
-      text: fullText.trim(),
-      filename: file.name,
-      type: file.type
-    };
+    const result = await response.json();
+    return result;
   } catch (error) {
-    console.error('Error extracting text from PDF:', error);
+    console.error('Error processing PDF via API:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error processing PDF',
@@ -73,38 +41,28 @@ export const extractTextFromPDF = async (file: File): Promise<DocumentProcessing
 };
 
 /**
- * Extract text content from Word documents
+ * Extract text content from Word documents using server-side API
  */
 export const extractTextFromWord = async (file: File): Promise<DocumentProcessingResult> => {
-  // CRITICAL: Multiple checks to prevent SSR execution
-  if (typeof window === 'undefined' || typeof document === 'undefined' || !globalThis.window) {
-    return {
-      success: false,
-      error: 'Word document processing is only available on the client side',
-      filename: file.name,
-      type: file.type
-    };
-  }
-
   try {
-    // Additional client-side verification before import
-    if (!window?.location || !document?.createElement) {
-      throw new Error('Client-side environment not properly initialized');
+    console.log('Processing Word document via server-side API');
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch('/api/document/process', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Server error: ${response.status} ${response.statusText}`);
     }
 
-    // Dynamically import mammoth only on the client side
-    const mammoth = await import('mammoth');
-    const arrayBuffer = await file.arrayBuffer();
-    const result = await mammoth.extractRawText({ arrayBuffer });
-    
-    return {
-      success: true,
-      text: result.value.trim(),
-      filename: file.name,
-      type: file.type
-    };
+    const result = await response.json();
+    return result;
   } catch (error) {
-    console.error('Error extracting text from Word document:', error);
+    console.error('Error processing Word document via API:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error processing Word document',
@@ -119,15 +77,20 @@ export const extractTextFromWord = async (file: File): Promise<DocumentProcessin
  */
 export const processDocument = async (file: File): Promise<DocumentProcessingResult> => {
   const fileType = file.type.toLowerCase();
-  
+
+  console.log(`Processing document: ${file.name} (${fileType})`);
+
   if (fileType === 'application/pdf') {
+    console.log('Processing PDF document');
     return extractTextFromPDF(file);
   } else if (
     fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
     fileType === 'application/msword'
   ) {
+    console.log('Processing Word document');
     return extractTextFromWord(file);
   } else {
+    console.warn(`Unsupported file type: ${fileType}`);
     return {
       success: false,
       error: 'Unsupported file type. Only PDF and Word documents are supported.',

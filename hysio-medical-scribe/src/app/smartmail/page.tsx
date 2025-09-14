@@ -1,21 +1,22 @@
-// SmartMail standalone page
 'use client';
 
-import React from 'react';
-import { DashboardLayout } from '@/components/ui/dashboard-layout';
-import { SmartMailInterface } from '@/components/smartmail/smartmail-interface';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
-export default function SmartMailPage() {
+export default function SmartmailRedirect() {
+  const router = useRouter();
+
+  useEffect(() => {
+    // Redirect to the new SmartMail demo page
+    router.replace('/smartmail-demo');
+  }, [router]);
+
   return (
-    <DashboardLayout>
-      <div className="container mx-auto px-4 py-8">
-        <SmartMailInterface
-          enableDocumentUpload={true}
-          enableHistory={true}
-          enableExport={true}
-          showProgress={true}
-        />
+    <div className="min-h-screen flex items-center justify-center bg-hysio-cream/30">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-hysio-deep-green mx-auto mb-4"></div>
+        <p className="text-hysio-deep-green">Doorverwijzen naar SmartMail...</p>
       </div>
-    </DashboardLayout>
+    </div>
   );
 }

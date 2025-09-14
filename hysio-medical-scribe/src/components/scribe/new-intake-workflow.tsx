@@ -16,12 +16,18 @@ import { CopyToClipboard } from '@/components/ui/copy-to-clipboard';
 import { WorkflowStepper, WorkflowPhase } from '@/components/ui/workflow-stepper';
 import { AudioRecorder } from '@/components/ui/audio-recorder';
 import { AssistantIntegration } from '@/components/assistant/assistant-integration';
-import type { 
-  IntakeData, 
-  PatientInfo, 
-  AudioTranscription, 
-  AudioRecording, 
-  PHSBStructure 
+import {
+  generateIntelligentPreparation,
+  validatePreparationInput,
+  detectAnatomicalRegion,
+  type PreparationRequest
+} from '@/lib/preparation/intelligent-preparation';
+import type {
+  IntakeData,
+  PatientInfo,
+  AudioTranscription,
+  AudioRecording,
+  PHSBStructure
 } from '@/lib/types';
 
 // Parse PHSB structured text into individual sections
@@ -356,49 +362,33 @@ export const NewIntakeWorkflow: React.FC<NewIntakeWorkflowProps> = ({
     });
   }, [currentPhase, anamnesisState, examinationState]);
   
-  // Generate intake preparation
+  // Generate intake preparation using intelligent preparation system
   const handleGeneratePreparation = async () => {
     setIsGeneratingPreparation(true);
     try {
-      const systemPrompt = `Je bent een ervaren fysiotherapeut die intake voorbereidingen maakt. Genereer een gestructureerde intake voorbereiding voor fysiotherapie.`;
-      
-      const userPrompt = `Patiënt informatie:
-- Leeftijd: ${patientInfo.age || 'Onbekend'} jaar
-- Geslacht: ${patientInfo.gender}
-- Hoofdklacht: ${patientInfo.chiefComplaint}
+      // Create preparation request
+      const preparationRequest: PreparationRequest = {
+        patientInfo: {
+          initials: patientInfo.initials,
+          age: patientInfo.age,
+          gender: patientInfo.gender,
+          chiefComplaint: patientInfo.chiefComplaint || ''
+        },
+        sessionType: 'intake',
+        documentContext: patientInfo.documentContext,
+        documentFilename: patientInfo.documentFilename
+      };
 
-Genereer een professionele voorbereiding inclusief:
+      // Validate input requirements
+      const validation = validatePreparationInput(preparationRequest);
+      if (!validation.isValid) {
+        throw new Error(validation.errorMessage);
+      }
 
-**1. Werkhypothese**
-- Meest waarschijnlijke voorlopige diagnose
+      // Generate intelligent preparation
+      const { systemPrompt, userPrompt, region } = await generateIntelligentPreparation(preparationRequest);
 
-**2. Differentiaaldiagnoses**
-- 2-3 alternatieve verklaringen
-
-**3. Algemene Consultvragen**
-- Wat is uw hoofdklacht en wat hoopt u te bereiken met fysiotherapie?
-- Hoe beïnvloeden deze klachten uw dagelijkse activiteiten?
-- Welke verwachtingen heeft u van de behandeling?
-- Welke behandelingen heeft u al eerder gehad voor deze klachten?
-
-**4. Specifieke LOFTIG vragen voor anamnese**
-- L: Locatie - waar precies voelt u de klacht?
-- O: Ontstaan - hoe en wanneer zijn de klachten ontstaan?
-- F: Frequentie - hoe vaak heeft u last?
-- T: Tijdsverloop - hoe lang heeft u al klachten?
-- I: Intensiteit - hoe erg is de pijn (schaal 0-10)?
-- G: Gewijzigd door - wat maakt het beter of slechter?
-
-**5. Functionele Impact vragen**
-- Welke bewegingen of activiteiten worden beperkt?
-- Hoe zijn uw slaap en werk beïnvloed?
-- Welke sport/hobby activiteiten kunt u niet meer doen?
-
-**6. Aandachtspunten voor rode vlaggen**
-- DTF-specifieke screening vragen voor de betreffende regio
-
-Antwoord in het Nederlands, professioneel maar toegankelijk.`;
-
+      // Call API with intelligent prompts
       const response = await apiCall(API_ENDPOINTS.GENERATE_CONTENT, {
         method: 'POST',
         body: JSON.stringify({
@@ -410,13 +400,98 @@ Antwoord in het Nederlands, professioneel maar toegankelijk.`;
           },
         }),
       });
-      
+
       if (response.success && response.data?.content) {
         setIntakePreparation(response.data.content);
         setAnamnesisState('preparation-generated');
+      } else {
+        // Generate intelligent fallback based on detected region
+        const detectedRegion = preparationRequest.patientInfo.chiefComplaint
+          ? detectAnatomicalRegion(preparationRequest.patientInfo.chiefComplaint)
+          : null;
+
+        let fallbackPreparation = `**🎯 Gerichte Intake Voorbereiding**
+Hoofdklacht: ${preparationRequest.patientInfo.chiefComplaint || 'Uit geüpload document'}
+${detectedRegion ? `Gedetecteerde regio: ${detectedRegion.name}` : ''}
+
+**🎯 Werkhypothese & Differentiaaldiagnoses**
+- Meest waarschijnlijke voorlopige diagnose op basis van hoofdklacht
+- 2-3 alternatieve verklaringen/differentiaaldiagnoses
+- Rationale voor hypotheses
+
+**🔍 Gerichte Anamnese Vragen**`;
+
+        if (detectedRegion) {
+          fallbackPreparation += `
+- Specifieke LOFTIG vragen aangepast aan ${detectedRegion.name}
+- ${detectedRegion.specificQuestions.intake[0] || 'Gerichte regio-specifieke vragen'}
+- ${detectedRegion.specificQuestions.intake[1] || 'Functionele impact vragen voor deze regio'}`;
+        } else {
+          fallbackPreparation += `
+- Locatie, Ontstaan, Frequentie, Tijdsverloop, Intensiteit, Gewijzigd door
+- Functionele impact vragen (ADL, werk, sport)
+- Red flags screening vragen`;
+        }
+
+        fallbackPreparation += `
+
+**📋 Aanbevolen Assessment Tests**`;
+
+        if (detectedRegion) {
+          fallbackPreparation += `
+- ${detectedRegion.assessmentTests.slice(0, 2).join(', ')}
+- Relevante bewegingsanalyse voor ${detectedRegion.name}
+- Functionaliteit tests indien van toepassing`;
+        } else {
+          fallbackPreparation += `
+- Basis bewegingsonderzoek en ROM
+- Relevante palpatie en inspectie
+- Functionele bewegingstests`;
+        }
+
+        fallbackPreparation += `
+
+**⚠️ Aandachtspunten & Red Flags**`;
+
+        if (detectedRegion) {
+          fallbackPreparation += `
+- Specifieke waarschuwingssignalen voor ${detectedRegion.name}
+- Veel voorkomende aandoeningen: ${detectedRegion.commonConditions.slice(0, 2).join(', ')}
+- Wanneer doorverwijzing overwegen`;
+        } else {
+          fallbackPreparation += `
+- Algemene red flags voor musculoskeletale klachten
+- Wanneer doorverwijzing overwegen
+- Contra-indicaties voor behandeling`;
+        }
+
+        fallbackPreparation += `
+
+*Let op: Deze voorbereiding is een fallback toen de AI-service niet beschikbaar was, maar wel aangepast aan uw klacht.*`;
+
+        setIntakePreparation(fallbackPreparation);
+        setAnamnesisState('preparation-generated');
+        console.error('API call failed, using intelligent fallback preparation:', response.error);
       }
     } catch (error) {
       console.error('Error generating preparation:', error);
+
+      // Create error fallback
+      const errorFallback = `**Intake Voorbereiding**
+
+Er is een technisch probleem opgetreden bij het genereren van de voorbereiding.
+
+**Algemene aandachtspunten:**
+- Gerichte anamnese met LOFTIG systematiek
+- Functionele impact beoordeling
+- Red flags screening
+- Relevante lichamelijk onderzoek planning
+- Werkhypothese en differentiaaldiagnoses opstellen
+
+*Technische fout: Intake voorbereiding kon niet automatisch worden gegenereerd.*`;
+
+      setIntakePreparation(errorFallback);
+      setAnamnesisState('preparation-generated');
     } finally {
       setIsGeneratingPreparation(false);
     }

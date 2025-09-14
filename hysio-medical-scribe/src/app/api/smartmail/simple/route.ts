@@ -35,14 +35,26 @@ Gegenereerd met Hysio SmartMail (Demo mode - geen OpenAI API key gedetecteerd)`;
 
     // ULTRA THINK: Context-injectie volgens gespecificeerde structuur
     let finalPrompt = '';
+
+    // Length-specific instructions
+    const lengthInstructions = {
+      kort: 'Schrijf een ZEER KORTE email van maximaal 3-4 zinnen. Ga direct ter zake.',
+      gemiddeld: 'Schrijf een email van gemiddelde lengte (5-8 zinnen). Balans tussen informatief en beknopt.',
+      lang: 'Schrijf een uitgebreide email met alle relevante details. 10-15 zinnen zijn toegestaan voor volledigheid.'
+    };
+
+    const selectedLength = body.length || 'gemiddeld';
+    const lengthInstruction = lengthInstructions[selectedLength as keyof typeof lengthInstructions] || lengthInstructions.gemiddeld;
+
     const userInstruction = `Schrijf een professionele email voor een fysiotherapeut.
 
 Ontvanger: ${body.recipientType}
 Onderwerp: ${body.subject || 'Update over behandeling'}
 Context: ${body.context}
-Lengte: ${body.length || 'gemiddeld'}
 
-Gebruik Nederlandse taal en zorg dat de email professioneel maar vriendelijk is. Houd het kort en to-the-point.`;
+LENGTE INSTRUCTIES: ${lengthInstruction}
+
+Gebruik Nederlandse taal en zorg dat de email professioneel maar vriendelijk is.`;
 
     if (body.documentContext) {
       finalPrompt = `Hier is de volledige context van een bijgevoegd document (bijvoorbeeld een verwijsbrief of vorig verslag). Gebruik deze informatie als achtergrond om de onderstaande opdracht perfect uit te voeren:

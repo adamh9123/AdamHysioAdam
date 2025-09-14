@@ -71,8 +71,9 @@ const PatientInfoForm: React.FC<PatientInfoFormProps> = ({
       newErrors.gender = 'Geslacht is verplicht';
     }
 
-    if (!formData.chiefComplaint?.trim()) {
-      newErrors.chiefComplaint = 'Hoofdklacht is verplicht';
+    // Hoofdklacht OR document is required (flexible requirement)
+    if (!formData.chiefComplaint?.trim() && !documentContext?.trim()) {
+      newErrors.chiefComplaint = 'Hoofdklacht is verplicht (of upload een document voor context)';
     }
 
     setErrors(newErrors);
@@ -114,8 +115,10 @@ const PatientInfoForm: React.FC<PatientInfoFormProps> = ({
       const patientDataWithAge = {
         ...formData,
         age: calculatedAge,
+        documentContext: documentContext || undefined,
+        documentFilename: documentFilename || undefined,
       };
-      
+
       onPatientInfoSubmit(patientDataWithAge);
     } catch (error) {
       console.error('Error submitting patient info:', error);
@@ -252,7 +255,8 @@ const PatientInfoForm: React.FC<PatientInfoFormProps> = ({
 
               <div className="space-y-2">
                 <Label htmlFor="chiefComplaint" className="text-hysio-deep-green">
-                  Hoofdklacht *
+                  Hoofdklacht {!documentContext && '*'}
+                  {documentContext && <span className="text-hysio-deep-green-900/60 text-sm font-normal">(optioneel - document geüpload)</span>}
                 </Label>
                 <Textarea
                   id="chiefComplaint"
@@ -330,7 +334,7 @@ const PatientInfoForm: React.FC<PatientInfoFormProps> = ({
             Alle gegevens worden veilig opgeslagen en zijn alleen toegankelijk voor bevoegd zorgpersoneel
           </p>
           <p className="text-xs text-hysio-deep-green-900/50 mt-1">
-            * = Verplichte velden
+            * = Verplichte velden | Hoofdklacht OF document upload is verplicht voor voorbereiding
           </p>
         </div>
       </div>

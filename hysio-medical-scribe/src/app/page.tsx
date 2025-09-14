@@ -67,7 +67,7 @@ export default function Home() {
         {/* CTA Section - All Hysio AI Agents */}
         <Card className="border-2 border-hysio-mint/30 bg-hysio-mint/5">
           <CardContent className="text-center py-12">
-            <h2 className="text-3xl font-semibold text-hysio-deep-green mb-4">
+            <h2 className="text-3xl font-semibold text-hysio-deep-green mb-4" style={{ fontSize: '1.875rem', fontWeight: 600 }}>
               Hysio AI Ecosystem
             </h2>
             <p className="text-hysio-deep-green-900/70 mb-8 max-w-2xl mx-auto">

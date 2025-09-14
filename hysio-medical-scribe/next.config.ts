@@ -2,8 +2,27 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // Enable external packages for server components
-  serverExternalPackages: ['groq-sdk', 'openai'],
-  
+  serverExternalPackages: ['groq-sdk', 'openai', 'pdf-parse', 'mammoth'],
+
+  // Webpack configuration for PDF.js
+  webpack: (config) => {
+    // Handle PDF.js worker files
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'pdfjs-dist/build/pdf.worker.entry': 'pdfjs-dist/build/pdf.worker.mjs',
+    };
+
+    config.module.rules.push({
+      test: /\.m?js$/,
+      type: 'javascript/auto',
+      resolve: {
+        fullySpecified: false,
+      },
+    });
+
+    return config;
+  },
+
   // Headers for CORS and security
   async headers() {
     return [
@@ -17,7 +36,7 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  
+
   // Images configuration for potential future use
   images: {
     domains: ['localhost'],

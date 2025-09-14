@@ -7,6 +7,9 @@ export interface PatientInfo {
   chiefComplaint: string;
   // Calculated field for AI generation
   age?: number;
+  // Document context from patient info stage
+  documentContext?: string;
+  documentFilename?: string;
   // Legacy fields for backward compatibility
   firstName?: string;
   dateOfBirth?: string;
