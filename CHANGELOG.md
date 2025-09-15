@@ -1,8 +1,31 @@
-# Hysio Medical Scribe - Changelog
+# Changelog Hysio Platform
 
-This document logs all significant changes, bug fixes, and feature implementations for the Hysio platform. All entries are recorded automatically.
+Alle noemenswaardige wijzigingen in dit project worden in dit document bijgehouden.
+
+Het formaat is gebaseerd op [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), en dit project houdt zich aan [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+
+## [Unreleased]
+
+### Added
+- **World-Class README.md**: Complete rewrite met professionele badges, uitgebreide feature beschrijvingen en volledige tech stack documentatie
+- **Comprehensive Documentation**: Gedetailleerde installatie instructies, project structuur en environment variable configuratie
+- **Professional Project Presentation**: Enterprise-grade documentatie die de kwaliteit en ambitie van Hysio V2 reflecteert
+- **Commercial LICENSE.md**: Juridisch waterdichte licentie die het proprietary karakter van Hysio V2 beschermt en intellectueel eigendom waarborgt
+
+### Changed
+- **Complete README Overhaul**: Vervanging van basic README met uitgebreide, professionele documentatie
+- **Enhanced Feature Descriptions**: Gedetailleerde uitleg van alle Hysio modules inclusief Scribe, Diagnosecode, SmartMail en Assistant
+- **Improved Developer Experience**: Duidelijke setup instructies en project structuur voor nieuwe ontwikkelaars
+
+### Fixed
+- **Documentation Accuracy**: Bijgewerkte repository URL's en correcte tech stack versies
+- **Missing Information**: Toegevoegde ontbrekende documentatie voor alle platform features en capabilities
+- **Legal Documentation Gap**: Toegevoegde ontbrekende LICENSE.md om juridische onduidelijkheid over eigendom en gebruik te elimineren
+
+---
+
 
 ## [2025-09-15] - Heruitvinding: Hysio Diagnosecode Chat & UI V4
 
