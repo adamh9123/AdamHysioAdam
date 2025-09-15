@@ -187,24 +187,26 @@ export class AIIntegration {
     const userMessage = messages.find(m => m.role === 'user')?.content || '';
     const query = userMessage.toLowerCase();
 
-    // Simple pattern-based mock responses
-    if (query.includes('knie') && query.includes('pijn')) {
+    // Enhanced pattern-based mock responses for different body regions
+
+    // Knee patterns
+    if (query.includes('knie')) {
       return {
         suggestions: [
           {
             code: '7920',
             name: 'Epicondylitis/tendinitis/tendovaginitis – knie/onderbeen/voet',
-            rationale: 'Kniepijn past bij tendinitis van patellapees of andere peesstructuren rondom het kniegewricht.'
+            rationale: 'Knieklachten passen vaak bij tendinitis van patellapees of andere peesstructuren rondom het kniegewricht.'
           },
           {
             code: '7921',
             name: 'Bursitis/capsulitis – knie/onderbeen/voet',
-            rationale: 'Ontsteking van bursae rond het kniegewricht kan anterieure kniepijn veroorzaken.'
+            rationale: 'Ontsteking van bursae rond het kniegewricht kan kniepijn veroorzaken.'
           },
           {
             code: '7922',
             name: 'Chondropathie/arthropathie/meniscuslaesie – knie/onderbeen/voet',
-            rationale: 'Kraakbeenschade of meniscusletsel past bij het beschreven klachtenpatroon.'
+            rationale: 'Kraakbeenschade of meniscusletsel past bij knieproblematiek.'
           }
         ],
         needsClarification: false,
@@ -212,7 +214,83 @@ export class AIIntegration {
       };
     }
 
-    if (query.includes('rug') || query.includes('lumbaal')) {
+    // Hip patterns
+    if (query.includes('heup')) {
+      return {
+        suggestions: [
+          {
+            code: '5920',
+            name: 'Epicondylitis/tendinitis/tendovaginitis – bekken/heup',
+            rationale: 'Heupklachten kunnen ontstaan door tendinitis van periarticulaire spieren zoals de m. iliopsoas of m. gluteus medius.'
+          },
+          {
+            code: '5921',
+            name: 'Bursitis/capsulitis – bekken/heup',
+            rationale: 'Bursitis trochanterica of andere bursae rond de heup veroorzaken laterale heuppijn.'
+          },
+          {
+            code: '5923',
+            name: 'Artrose – bekken/heup',
+            rationale: 'Coxartrose kan lies- en heuppijn veroorzaken met bewegingsbeperking.'
+          }
+        ],
+        needsClarification: false,
+        clarifyingQuestion: null
+      };
+    }
+
+    // Shoulder patterns
+    if (query.includes('schouder')) {
+      return {
+        suggestions: [
+          {
+            code: '2120',
+            name: 'Epicondylitis/tendinitis/tendovaginitis – schouder',
+            rationale: 'Schouderklachten passen bij tendinitis van de rotator cuff of bicepspees.'
+          },
+          {
+            code: '2121',
+            name: 'Bursitis/capsulitis – schouder',
+            rationale: 'Subacromiale bursitis of frozen shoulder kunnen schouderpijn veroorzaken.'
+          },
+          {
+            code: '2126',
+            name: 'Spier-pees aandoeningen – schouder',
+            rationale: 'Rotator cuff problematiek is een veelvoorkomende oorzaak van schouderpijn.'
+          }
+        ],
+        needsClarification: false,
+        clarifyingQuestion: null
+      };
+    }
+
+    // Neck patterns
+    if (query.includes('nek') || query.includes('cervicaal')) {
+      return {
+        suggestions: [
+          {
+            code: '1027',
+            name: 'HNP/discusdegeneratie – cervicale wervelkolom',
+            rationale: 'Cervicale discuspathologie kan nekpijn en mogelijk uitstralende klachten veroorzaken.'
+          },
+          {
+            code: '1026',
+            name: 'Spier-pees aandoeningen – cervicale wervelkolom',
+            rationale: 'Cervicale spierproblematiek door trauma of overbelasting.'
+          },
+          {
+            code: '1038',
+            name: 'Whiplash – cervicale wervelkolom',
+            rationale: 'Whiplash trauma veroorzaakt cervicale klachten door plotselinge acceleratie-deceleratie.'
+          }
+        ],
+        needsClarification: false,
+        clarifyingQuestion: null
+      };
+    }
+
+    // Back/lumbar patterns
+    if (query.includes('rug') || query.includes('lumbaal') || query.includes('onderrug')) {
       return {
         suggestions: [
           {
@@ -236,8 +314,47 @@ export class AIIntegration {
       };
     }
 
-    // If query is too vague, ask for clarification
-    if (query.split(' ').length < 3 || (!query.includes('pijn') && !query.includes('klacht'))) {
+    // Ankle/foot patterns
+    if (query.includes('enkel') || query.includes('voet')) {
+      return {
+        suggestions: [
+          {
+            code: '7931',
+            name: 'Distorsie – knie/onderbeen/voet',
+            rationale: 'Enkeldistorsie door omslaan is een veelvoorkomende oorzaak van enkelklachten.'
+          },
+          {
+            code: '7920',
+            name: 'Epicondylitis/tendinitis/tendovaginitis – knie/onderbeen/voet',
+            rationale: 'Achillespees tendinitis of andere peesaandoeningen in enkel/voet gebied.'
+          },
+          {
+            code: '7921',
+            name: 'Bursitis/capsulitis – knie/onderbeen/voet',
+            rationale: 'Bursitis of capsulitis van enkel- of voetgewrichten.'
+          }
+        ],
+        needsClarification: false,
+        clarifyingQuestion: null
+      };
+    }
+
+    // Intelligent clarification logic
+    const hasLocation = /knie|rug|nek|schouder|heup|elleboog|pols|voet|enkel|onderrug|lumbaal|cervicaal/.test(query);
+    const hasPathology = /pijn|zwelling|stijf|beweeg|trauma|breuk|ontsteking|klacht|zeer|ongemak/.test(query);
+    const hasMechanism = /trauma|val|overbelasting|plotseling|geleidelijk|sport|werk|tillen/.test(query);
+
+    // If only location is mentioned, ask for symptoms
+    if (hasLocation && !hasPathology && !hasMechanism) {
+      return {
+        suggestions: [],
+        needsClarification: true,
+        clarifyingQuestion: "Wat voor klachten heeft u precies in die regio? (bijvoorbeeld: pijn, stijfheid, zwelling, bewegingsbeperking)"
+      };
+    }
+
+    // If query is very minimal, ask for location first
+    if (query.split(' ').length < 2) {
       return {
         suggestions: [],
         needsClarification: true,

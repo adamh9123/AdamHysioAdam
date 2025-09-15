@@ -475,11 +475,11 @@ export default function Home() {
                   </div>
                   <div>
                     <CardTitle className="text-hysio-deep-green text-xl">Hysio Diagnosecode</CardTitle>
-                    <div className="text-hysio-deep-green/60 text-sm">DCSPH Code Finder</div>
+                    <div className="text-hysio-deep-green/60 text-sm">Hysio Diagnosecode Chat</div>
                   </div>
                 </div>
                 <CardDescription className="text-base">
-                  AI-powered DCSPH diagnosis coding vanuit natuurlijke taal.
+                  Geavanceerde DCSPH diagnosis coding vanuit natuurlijke taal.
                 </CardDescription>
               </CardHeader>
               <CardContent>

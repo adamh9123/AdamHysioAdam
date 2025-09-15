@@ -203,7 +203,7 @@ export function ClinicalConclusionIntegration({
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="DCSPH Code Finder"
+        title="Hysio Diagnosecode Chat"
         size="large"
         className="max-w-4xl"
       >
@@ -295,7 +295,7 @@ export function CompactDiagnosisIntegration({
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="DCSPH Code Finder"
+        title="Hysio Diagnosecode Chat"
         size="large"
         className="max-w-3xl"
       >

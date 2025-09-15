@@ -23,7 +23,7 @@ describe('DiagnosisCodeFinder', () => {
   test('renders initial state correctly', () => {
     render(<DiagnosisCodeFinder />);
 
-    expect(screen.getByText('DCSPH Code Finder')).toBeInTheDocument();
+    expect(screen.getByText('Hysio Diagnosecode Chat')).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/Beschrijf de klacht/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Vind Code/ })).toBeInTheDocument();
     expect(screen.getByText(/Tips voor betere resultaten/)).toBeInTheDocument();
@@ -434,6 +434,6 @@ describe('DiagnosisCodeFinder', () => {
     expect(screen.getByRole('button', { name: /Vind Code/ })).toBeInTheDocument();
 
     // Check for headings
-    expect(screen.getByRole('heading', { name: 'DCSPH Code Finder' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Hysio Diagnosecode Chat' })).toBeInTheDocument();
   });
 });

@@ -15,7 +15,17 @@ import {
   Lightbulb,
   FileText,
   Target,
-  TrendingUp
+  TrendingUp,
+  MessageCircle,
+  List,
+  BookOpen,
+  Cog,
+  Award,
+  User,
+  Filter,
+  Code,
+  Stethoscope,
+  Activity
 } from 'lucide-react';
 
 export default function DiagnosisCodePage() {
@@ -46,7 +56,7 @@ export default function DiagnosisCodePage() {
                 </div>
                 <div>
                   <h1 className="text-xl font-bold text-hysio-deep-green">Hysio Diagnosecode</h1>
-                  <p className="text-sm text-hysio-deep-green-900/70">AI-aangedreven DCSPH codering</p>
+                  <p className="text-sm text-hysio-deep-green-900/70">Intelligente DCSPH codering</p>
                 </div>
               </div>
             </div>
@@ -85,7 +95,7 @@ export default function DiagnosisCodePage() {
                     </div>
                     <div className="flex items-center gap-2 text-sm text-hysio-deep-green-900/70">
                       <CheckCircle className="h-4 w-4 text-hysio-emerald" />
-                      <span>AI-gevalideerd</span>
+                      <span>Automatisch gevalideerd</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-hysio-deep-green-900/70">
                       <CheckCircle className="h-4 w-4 text-hysio-emerald" />
@@ -117,58 +127,46 @@ export default function DiagnosisCodePage() {
 
           {/* Sidebar */}
           <div className="xl:col-span-1 space-y-6">
-            {/* How It Works - Vertical Guide */}
-            <Card className="bg-white shadow-sm">
-              <CardHeader className="pb-3">
+            {/* How it Works Guide */}
+            <Card className="bg-white shadow-lg">
+              <CardHeader className="pb-4">
                 <CardTitle className="text-lg text-hysio-deep-green flex items-center gap-2">
                   <Lightbulb className="h-5 w-5" />
-                  Hoe werkt het?
+                  Hoe werkt Hysio Diagnosecode?
                 </CardTitle>
-                <CardDescription>
-                  AI-gedreven DCSPH codering in 3 stappen
-                </CardDescription>
               </CardHeader>
+
               <CardContent className="space-y-6">
-                {/* Step 1 */}
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-hysio-mint/20 rounded-full flex items-center justify-center flex-shrink-0">
-                    <FileText className="h-5 w-5 text-hysio-mint-dark" />
+                {/* Chat Method */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <MessageCircle className="h-5 w-5 text-blue-600" />
+                    <h3 className="font-semibold text-blue-900">Diagnosecode Chat</h3>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-hysio-deep-green mb-1">1. Beschrijf</h3>
-                    <p className="text-sm text-gray-600">
-                      Type de klacht in natuurlijke taal, zoals je normaal zou documenteren
-                    </p>
-                  </div>
-                </div>
-
-                <div className="w-px h-4 bg-gradient-to-b from-hysio-mint/30 to-transparent ml-5"></div>
-
-                {/* Step 2 */}
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-hysio-emerald/20 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Brain className="h-5 w-5 text-hysio-emerald" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-hysio-deep-green mb-1">2. Analyseer</h3>
-                    <p className="text-sm text-gray-600">
-                      AI analyseert en combineert locatie- en pathologiecodes volgens DCSPH systematiek
-                    </p>
+                  <div className="text-sm text-gray-600 space-y-1">
+                    <p>1. <strong>Beschrijf</strong> de klacht in detail</p>
+                    <p>2. <strong>Analyseer</strong> met één klik</p>
+                    <p>3. <strong>Ontvang</strong> top 3 DCSPH codes</p>
                   </div>
                 </div>
 
-                <div className="w-px h-4 bg-gradient-to-b from-hysio-emerald/30 to-transparent ml-5"></div>
-
-                {/* Step 3 */}
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                {/* Divider */}
+                <div className="border-t border-gray-200 pt-3">
+                  <div className="flex items-center gap-2">
                     <Target className="h-5 w-5 text-green-600" />
+                    <h3 className="font-semibold text-green-900">Diagnosecode Gids</h3>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-hysio-deep-green mb-1">3. Selecteer</h3>
-                    <p className="text-sm text-gray-600">
-                      Kies uit top 3 suggesties met rationale en kopieer direct naar je EPD
-                    </p>
+                  <div className="text-sm text-gray-600 space-y-1 mt-3">
+                    <p>1. <strong>Selecteer</strong> lichaamsregio</p>
+                    <p>2. <strong>Verfijn</strong> via wizard</p>
+                    <p>3. <strong>Vind</strong> exacte code</p>
+                  </div>
+                </div>
+
+                {/* Quick Tip */}
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <div className="text-xs font-medium text-gray-700 mb-1">
+                    💡 Tip: Chat voor snelle analyse, Gids voor systematische exploratie
                   </div>
                 </div>
               </CardContent>
@@ -207,7 +205,7 @@ export default function DiagnosisCodePage() {
                   <div className="bg-blue-100 p-3 rounded-lg mt-4">
                     <div className="text-xs text-blue-700 font-medium mb-1">Pro Tip:</div>
                     <div className="text-xs text-blue-600">
-                      Combineer AI-zoeken met de Patronenlijst voor complexe gevallen
+                      Combineer slimme zoeken met de Diagnosecode Gids voor complexe gevallen
                     </div>
                   </div>
                 </div>
@@ -242,9 +240,9 @@ export default function DiagnosisCodePage() {
       <footer className="bg-white/50 border-t border-hysio-mint/20 mt-16">
         <div className="container mx-auto px-6 py-8">
           <div className="text-center text-sm text-hysio-deep-green-900/60">
-            <p>Hysio Diagnosecode is onderdeel van de Hysio AI Toolkit</p>
+            <p>Hysio Diagnosecode is onderdeel van de Hysio Intelligente Toolkit</p>
             <p className="mt-1">
-              Officiële DCSPH systematiek • AI-gevalideerde suggesties • Klinische precisie
+              Officiële DCSPH systematiek • Geautomatiseerde suggesties • Klinische precisie
             </p>
           </div>
         </div>
