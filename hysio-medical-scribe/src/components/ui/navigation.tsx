@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from './button';
-import { User, Settings, LogOut, Menu, X, Bot } from 'lucide-react';
+import { User, Settings, LogOut, Menu, X, Bot, Home } from 'lucide-react';
 import Link from 'next/link';
 
 export interface NavigationProps {
@@ -43,6 +43,18 @@ const Navigation: React.FC<NavigationProps> = ({
 
       {/* Desktop Navigation */}
       <div className="hidden md:flex items-center gap-4">
+        {/* Dashboard Link */}
+        <Link href="/dashboard">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-2 text-hysio-deep-green hover:text-hysio-deep-green/80 hover:bg-hysio-mint/10"
+          >
+            <Home size={16} />
+            Dashboard
+          </Button>
+        </Link>
+
         {/* Assistant Link */}
         <Link href="/assistant">
           <Button
@@ -138,6 +150,18 @@ const Navigation: React.FC<NavigationProps> = ({
             )}
             
             <div className="space-y-2">
+              {/* Mobile Dashboard Link */}
+              <Link href="/dashboard">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start gap-3"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <Home size={16} />
+                  Dashboard
+                </Button>
+              </Link>
+
               {/* Mobile Assistant Link */}
               <Link href="/assistant">
                 <Button

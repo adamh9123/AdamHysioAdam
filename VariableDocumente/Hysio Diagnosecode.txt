@@ -1,0 +1,73 @@
+1. Executive Summary & Visie
+Wat is het?
+Hysio Diagnosecode is een AI‑gedreven module binnen de Hysio Toolkit die de officiële DCSPH‑diagnosecode voor een cliënt in seconden identificeert. In plaats van een handmatige zoektocht door tabellen kiest de therapeut via een conversatie met de AI de juiste code. Het systeem gebruikt de combinatie van lichaamslocatie‐ en pathologiecodes zoals gedefinieerd in de DCSPH‑handleiding om viercijferige codes samen te stellen.
+Voor wie is het?
+Eerstelijns fysiotherapeuten in Nederland die hun administratieve tijd willen minimaliseren, hun codering willen valideren en meer inzicht willen krijgen in het klinisch redeneerproces.
+Welk probleem lost het op?
+Het elimineert het tijdrovende en foutgevoelige proces van handmatig opzoeken en combineren van lichaam‑ en pathologiecodes uit de DCSPH‑lijst. Huidige processen vereisen bladeren door tabellen; de module zet dit om in een slimme dialoog waarbij de therapeut slechts klinische input levert.
+Kernwaarde
+Snelheid, nauwkeurigheid en het versterken van het klinisch redeneren. De AI begeleidt de therapeut met aanvullende vragen en toont een transparante rationale bij elke suggestie.
+2. De Gebruikersreis (Customer Journey)
+Scenario:
+Ik heb net een intake afgerond voor een patiënt met anterieure kniepijn. Ik open de Hysio Diagnosecode module. In het tekstveld typ ik: “pijn voorzijde knie bij traplopen na overbelasting”. De AI vraagt één of twee verdiepende vragen, bijvoorbeeld: “Beperkt de pijn zich tot de voorkant van de knie of straalt hij uit naar het onderbeen?” en “Is er sprake van zwelling of slotklachten?” Nadat ik antwoord, presenteert Hysio een top 3 met de meest waarschijnlijke DCSPH‑codes, elk met een korte rationale. Ik bekijk de lijst, kies de code die het best past, klik op “Kopieer Code” en plak deze in mijn EPD. Het hele proces duurt minder dan 30 seconden.
+3. Functionele Specificaties (Features & Flow)
+Inputmethode
+•	Vrij tekstveld: Eén eenvoudig tekstvak waar de therapeut in zijn eigen woorden de klacht kan omschrijven (bijv. “lage rugpijn met uitstraling naar het been”).
+•	Verdiepende vragen: Als de omschrijving te vaag is, stelt de AI automatisch 1–2 korte vervolgvragen om de regio en aard van de stoornis te verfijnen.
+Conversatie & Resultaatflow
+1.	Gegevensinvoer: Therapeut typt de klacht.
+2.	Analyse: De AI vergelijkt de input met de DCSPH‑kennisbank en bepaalt welke lichaamslocatie‑ en pathologiecodes relevant zijn. De lijst met locatiecodes bevat onder meer code 79 voor “Knie/ Onderbeen/ Voet”. De pathologielijst bevat bijvoorbeeld code 20 Epicondylitis/tendinitis/tendovaginitis, code 21 Bursitis/capsulitis en code 22 Chondropathie/arthropathie/meniscuslaesie.
+3.	Top 3 aanbevelingen: De AI combineert locatie- en pathologiecodes tot viercijferige DCSPH‑codes en toont de drie meest waarschijnlijke opties. Voor het voorbeeld “anterieure kniepijn bij traplopen na overbelasting” zijn passende combinaties:
+4.	7920 – Epicondylitis/tendinitis/tendovaginitis in de knie/onderbeen/voet.
+Rationale: Overbelasting van de patellapees of quadricepspees veroorzaakt anterieure kniepijn; code 79 identificeert de knie/onderbeen/voet en code 20 de tendinitis‐pathologie.
+5.	7921 – Bursitis/capsulitis in de knie/onderbeen/voet.
+Rationale: Een geïrriteerde prepatellaire of infrapatellaire bursa kan pijn veroorzaken bij traplopen; daarom worden locatiecode 79 en pathologiecode 21 gecombineerd.
+6.	7922 – Chondropathie/arthropathie/meniscuslaesie in de knie/onderbeen/voet.
+Rationale: Als de anterieure pijn samenhangt met patellofemoraal syndroom, kraakbeenbeschadiging of meniscuslaesie, past pathologiecode 22 bij de locatie 79.
+Outputformaat
+•	Resultaatkaarten: De drie aanbevolen codes verschijnen in een horizontale of verticale rij, elk binnen een Card.
+•	Inhoud van iedere Card:
+•	DCSPH‑code: De viercijferige code (bijv. 7920).
+•	Naam van de aandoening: Gedecomposeerd als “Epicondylitis/tendinitis/tendovaginitis – knie/onderbeen/voet”.
+•	Rationale: Een beknopte uitleg waarom deze code relevant is op basis van de ingevoerde klachten.
+•	Kopieerknop: Met één klik kopieert de therapeut de code naar het klembord.
+4. UI/UX Ontwerp & Beschrijvende Wireframes
+Ontwerpprincipe
+Radicale eenvoud en herkenbaarheid. De module gedraagt zich als een chat‑interface: de therapeut voert tekst in, ziet vervolgvragen als chatballonnen en ontvangt drie duidelijke resultaatkaarten.
+Wireframe Beschrijving
+•	Scherm: Eén overzichtelijke pagina of modal.
+•	Inputsectie: Onderaan de pagina bevindt zich een breed tekstveld met een placeholder (“Beschrijf de klacht…”) en een “Vind Code”‑knop.
+•	Conversatiestroom: Vragen van de AI verschijnen als kleinere chatballonnen boven het invoerveld. Antwoorden van de gebruiker worden daaronder geplaatst.
+•	Resultaatgebied: Zodra de AI drie codes heeft bepaald, verschijnen boven het chatgedeelte drie gestileerde Cards met code, naam, rationale en een kopieerknop. Deze Cards bevatten zachte randen en schaduwen, conform de Hysio‑branding.
+•	Styling: Gebruik de kleuren, typografie en card‑stijl uit de Hysio Brand Style Guide. Fonts variëren in grootte om hiërarchie aan te brengen (bijv. code in groot font, rationale in kleiner font).
+5. Technische Architectuur (Achter de Schermen)
+Front‑end
+•	React‑componenten:
+•	DiagnoseCodeFinderPage: Container‑component die het tekstveld, de conversatiestroom en de resultaatkaarten orchestreert.
+•	InputField: Een controlled component voor het vrije tekstveld en de “Vind Code”‑knop. Het bewaakt de invoerstatus en verstuurt queries naar de backend.
+•	ChatThread: Rendeert de vragen van de AI en de antwoorden van de therapeut als chatballonnen.
+•	ResultCard: Toon component die een DCSPH‑code, naam, rationale en kopieerknop presenteert.
+Backend
+•	API‑Endpoint: POST /api/diagnosecode/find.
+•	Request Body: { "query": "<vrije tekst van de gebruiker>" }.
+•	Response Body: { "suggestions": [ { "code": "7920", "name": "Epicondylitis/tendinitis/tendovaginitis – knie/onderbeen/voet", "rationale": "..." }, … ] }.
+•	Statuscodes: 200 OK bij succesvolle respons; 400 bij ongeldige invoer; 500 bij interne fout.
+AI Prompt Architectuur
+De system prompt stuurt het taalmodel aan zodat het uitsluitend binnen de DCSPH‑systematiek opereert en transparant rapporteert. Het prompt‑ontwerp bevat de volgende onderdelen:
+1.	Roldefinitie: “Je bent een deskundige fysiotherapeut en een expert in DCSPH‑codering.”
+2.	Kennisbank: “Je enige bron van waarheid voor codes is de verstrekte JSON‑data van de DCSPH‑keuzelijsten (locatiecodes en pathologiecodes).”
+3.	Taakbeschrijving: “Analyseer de input van de gebruiker, identificeer de bijbehorende lichaamslocatie(s) en pathologie(en) uit de kennisbank en bepaal de drie meest relevante DCSPH‑codes.”
+4.	Outputinstructie: “Geef je antwoord alleen in het JSON‑formaat: [{code, name, rationale}, …]. De ‘rationale’ is een korte, professionele onderbouwing gebaseerd op de input en moet in het Nederlands zijn.”
+Het model interpreteert de vrije tekst, stelt indien nodig aanvullende vragen en retourneert uitsluitend codes die bestaan uit een combinatie van de twee‑cijferige locatie- en pathologiecodes uit de bronnen.
+Validaties & Veiligheid
+•	Inputvalidatie: Het systeem controleert of de gebruiker voldoende informatie geeft. Indien niet, worden aanvullende vragen gesteld.
+•	Resultaatvalidatie: Het systeem verifieert dat elke voorgestelde code bestaat in de officiële tabellen (Tabel A en B) en dat er geen niet‑ondersteunde codes worden geretourneerd.
+•	Audittrail: De gekozen code en rationale worden gelogd, zodat er achteraf inzicht is in de gemaakte keuzes.
+6. Integratie in het Hysio Ecosysteem
+1. Standalone Tool
+De Diagnosecode module kan als aparte Card worden toegevoegd aan de Hysio Toolkit op het dashboard. Gebruikers openen de Card voor snelle codering na iedere intake of follow‑up. Deze benadering is ideaal voor therapeuten die codes willen opzoeken buiten de standaard intakeflow.
+2. Geïntegreerde Feature
+De module kan tevens worden geïntegreerd in de laatste stap (Klinische Conclusie) van de Hysio Intake workflow. Na het formuleren van de behandelindicatie verschijnt een knop “Suggereren Diagnosecode”. Wanneer de therapeut hierop klikt, verschijnt een zijpaneel met het tekstveld en de conversatiestroom. De AI komt met drie code‑voorstellen die direct kunnen worden overgenomen in het EPD. Dit minimaliseert context‑switching en maakt coderen onderdeel van het natuurlijke consultproces.
+________________________________________
+Door een slimme combinatie van bewezen DCSPH‑systematiek en een gebruiksvriendelijke conversatieinterface biedt Hysio Diagnosecode een krachtige aanvulling op de bestaande toolkit. Het systeem versnelt de administratieve handelingen en versterkt tegelijkertijd het klinisch redeneerproces met transparantie en ondersteuning.
+________________________________________

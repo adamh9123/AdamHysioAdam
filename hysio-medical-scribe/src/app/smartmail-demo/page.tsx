@@ -2,6 +2,9 @@
 
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, Home } from 'lucide-react';
 
 // Dynamic import to prevent SSR issues
 const SmartMailSimple = dynamic(
@@ -22,6 +25,32 @@ export default function SmartMailDemoPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Header with Dashboard Navigation */}
+      <header className="bg-white border-b border-gray-200 shadow-sm">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Link href="/dashboard">
+                <Button variant="ghost" size="sm" className="gap-2 text-hysio-deep-green hover:bg-hysio-mint/10">
+                  <ArrowLeft size={16} />
+                  Terug naar Dashboard
+                </Button>
+              </Link>
+              <div className="text-2xl font-bold text-green-800">
+                Hysio SmartMail
+              </div>
+            </div>
+
+            <Link href="/dashboard">
+              <Button variant="outline" size="sm" className="gap-2">
+                <Home size={16} />
+                Dashboard
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </header>
+
       <div className="container mx-auto py-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-green-800 mb-4">

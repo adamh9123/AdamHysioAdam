@@ -8,7 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { DocumentUploader } from '@/components/ui/document-uploader';
 import { AudioRecorder } from '@/components/ui/audio-recorder';
-import { Mail, User, Users, UserCheck, FileText, Mic } from 'lucide-react';
+import { Mail, User, Users, UserCheck, FileText, Mic, ArrowLeft, Home } from 'lucide-react';
+import Link from 'next/link';
 
 export default function SmartMailSimplePage() {
   const [recipientType, setRecipientType] = useState<'patient' | 'colleague' | 'huisarts'>('patient');
@@ -84,17 +85,45 @@ export default function SmartMailSimplePage() {
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
-      {/* Header */}
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-green-800 mb-2 flex items-center justify-center gap-2">
-          <Mail className="h-8 w-8" />
-          Hysio SmartMail - Ultra Simple
-        </h1>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header with Dashboard Navigation */}
+      <header className="bg-white border-b border-gray-200 shadow-sm">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Link href="/dashboard">
+                <Button variant="ghost" size="sm" className="gap-2 text-hysio-deep-green hover:bg-hysio-mint/10">
+                  <ArrowLeft size={16} />
+                  Terug naar Dashboard
+                </Button>
+              </Link>
+              <div className="text-2xl font-bold text-green-800 flex items-center gap-2">
+                <Mail className="h-6 w-6" />
+                Hysio SmartMail
+              </div>
+            </div>
+
+            <Link href="/dashboard">
+              <Button variant="outline" size="sm" className="gap-2">
+                <Home size={16} />
+                Dashboard
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      <div className="container mx-auto p-6 max-w-6xl">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-green-800 mb-2 flex items-center justify-center gap-2">
+            <Mail className="h-8 w-8" />
+            Hysio SmartMail - Ultra Simple
+          </h1>
         <p className="text-gray-600">
           Genereer professionele emails in seconden - Nu met fallback ondersteuning!
         </p>
-      </div>
+        </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left: Input Form */}
@@ -262,6 +291,7 @@ export default function SmartMailSimplePage() {
           </p>
         </div>
       </div>
+    </div>
     </div>
   );
 }

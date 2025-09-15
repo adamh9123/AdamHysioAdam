@@ -1,0 +1,192 @@
+BESLISSING DIAGNOSECODE
+Deze stap leidt tot de selectie van een passende officiële diagnosecode conform de DCSPH-systematiek.
+4.3 Selectie van de juiste DCSPH-code
+Elke diagnose dient officieel gecodeerd te worden volgens de DCSPH-lijst. Deze lijst zal hieronder worden getoond, analyseer diep en kies de meest geschikte. Deze lijst fungeert als officiële coderingstool en bevat alle mogelijke diagnosecodes die landelijk worden gehanteerd voor verantwoording, declaratie en monitoring. Graag 3 mogelijke opties vermelden. De DCSPH-codes worden gekozen op basis van:
+•	Regio van de klacht
+•	Aard van de stoornis (bijv. artrogene, contractiele, neurologische, myofasciale, etc.)
+•	Chronisch vs. acuut profiel
+•	Behandelsetting (eerstelijnszorg, netwerk, geriatrie, etc.)
+De geselecteerde codes wordt ingevoerd in het EPD en dient overeen te komen met de gekozen indicatie en het zorgplan.
+4.4 Integratie in het dossier
+De volgende stap is het vastleggen van deze beslissingen in het professioneel dossier:
+•	Indicatie (korte motivatie waarom)
+•	Zorgplan (met begin- en evaluatiedatum)
+•	Diagnosecode (DCSPH)
+•	Samenvatting van totale keuze, oftewel conclusie. Kort, bondig, begrijpelijk en goed leesbaar voor fysiotherapeuten.
+o	Indien afwijkend van standaardprofiel, ook nog een korte motivatie van de keuze.
+Hieronder de handleiding voor Diagnosecodes waaruit je kan kiezen:
+
+Handleiding voor het Afleiden van DCSPH-codes
+Dit document bevat de bouwstenen voor het samenstellen van 4-cijferige DCSPH-diagnosecodes. De volledige code wordt gevormd door een 2-cijferige locatiecode te combineren met een 2-cijferige pathologiecode.
+
+Formule: DCSPH-code = [Lichaamslocatie Code] + [Pathologie Code]
+
+Werkwijze:
+
+1. Identificeer de benodigde lichaamslocatie en zoek de bijbehorende 2-cijferige Lichaamslocatie Code op in Tabel A.
+
+2. Identificeer de benodigde pathologie en zoek de bijbehorende 2-cijferige Pathologie Code op in Tabel B.
+
+3. Voeg de twee codes samen om de 4-cijferige DCSPH-eindcode te vormen.
+
+Voorbeeld:
+
+Vraag: Wat is de code voor een fractuur in de regio cervicalis?
+
+Stap 1 (Tabel A): Regio cervicalis (oppervlakkige weke delen) heeft Lichaamslocatie Code: 13.
+
+Stap 2 (Tabel B): Fracturen heeft Pathologie Code: 36.
+
+Stap 3 (Resultaat): De volledige DCSPH-code is 1336. Graag 3 mogelijke opties vermelden
+ 
+Tabel A: Lichaamslocaties
+Lichaamslocatie Code	Lichaamslocatie Omschrijving
+10	Achterzijde hoofd
+11	Aangezicht
+12	Regio buccalis inclusief de kaak
+13	Regio cervicalis (oppervlakkige weke delen)
+19	Gecombineerd ** Hoofd/ Hals
+20	Regio thoracalis anterior (oppervlakkige weke delen)
+21	Regio thoracalis dorsalis (oppervlakkige weke delen)
+22	Ribben I Sternum
+23	Regio abdominalis (oppervlakkige weke delen)
+24	Regio lumbalis (oppervlakkige weke delen)
+25	Inwendige organen thorax
+26	Inwendige organen abdomen
+29	Gecombineerd ** Thorax/ Buik/ Organen
+30	Cervicale wervelkolom
+31	Cervico-thoracale wervelkolom
+32	Thoracale wervelkolom
+33	Thoraco-lumbale wervelkolom
+34	Lumbale wervelkolom
+35	Lumbo-sacrale wervel kolom
+36	Sacrum en S.I. gewrichten
+37	37
+39	39
+40	40
+41	41
+42	42
+43	43
+49	49
+50	50
+51	51
+52	52
+53	53
+54	54
+55	55
+59	59
+60	60
+61	61
+62	62
+63	63
+64	64
+69	69
+70	70
+71	71
+72	Bovenste spronggewricht (inclusief weke delen)
+73	Onderste spronggewricht (inclusief weke delen)
+74	Voetwortel
+75	Middenvoet
+76	Voorvoet (tenen)
+79	Gecombineerd ** Knie/ Onderbeen/ Voet
+90	Één lichaamszijde
+91	Bovenste lichaamshelft
+92	Onderste lichaamshelft
+93	Gegeneraliseerd
+94	Meer Lokalisaties
+ 
+Tabel B: Pathologieën
+Pathologie Code	Pathologie Omschrijving
+00	Amputatie
+01	Gewrichten, uitgezonderd wervelkolom, meniscectomie, synovectomie
+02	Botten, uitgezonderd wervelkolom
+03	Meniscectomie, synovectomie
+04	Pees, spier, ligament
+05	Wervelkolom
+06	Verwijderde osteosynthese materiaal
+08	Postoperatieve contractuur / atrofie
+09	Overige chirurgie van het bewegingsapparaat (incl. nieuwvormingen)
+10	Aseptische botnecrose
+11	Afwijkingen wervelkolom / bekken
+12	Skeletafwijkingen (aangeboren)
+13	Ossificatiestoornis
+14	Ontstekingen / nieuwvormingen in het skelet
+15	Pseudo-arthrose / epiphysiolysis / apofysitiden
+16	Standsafwijkingen extremiteiten
+17	Afwijkingen gewrichten, uitgezonderd wervelkolom / bekken
+18	Overige orthopedische aandoeningen zonder chirurgie
+19	Dupuytren
+20	Epicondylitis / tendinitis / tendovaginitis
+21	Bursitis (niet traumatisch) / capsulitis
+22	Chondropathie / arthropathie / meniscuslaesie
+23	Artrose
+24	Osteoporose
+25	Syndroom van Costen
+26	Spier-, pees- en fascie aandoeningen
+27	Discusdegeneratie, coccygodynie / HNP
+28	Sudeckse a(dys)trofie
+31	Gewrichtcontusie / -distorsie
+32	Luxatie (sub-)
+33	Spier-, peesruptuur / haematoom
+34	Hydrops / haemarthos / haematoom
+35	Myositis ossificans / adhaesies / traumatische bursitis
+36	Fracturen
+37	?
+38	Whiplash injury (nektrauma)
+39	Status na brandwonden
+40	Hartaandoeningen (niet genoemd onder 41 t/m 49)
+41	Myocard-infarct (AMI)
+42	Status na coronary artery bypassoperatie (CABG)
+43	Status na percutane transluminale coronair angioplastiek (PTCA)
+44	Status na hartklepoperatie
+45	Status na operatief gecorrigeerde congenitale afwijkingen
+46	Lymfevataandoeningen / oedeem
+47	Ulcus / decubitus / necrose
+48	Algemeen vaatlijden, circulatiestoornissen
+49	?
+50	Cara
+51	Aangeboren afwijkingen tractus respiratorius
+52	Pneumothorax / longoedeem
+53	Luchtweginfecties
+54	COPD
+55	Emfyseem
+56	Interstitiële longaandoeningen incl. sarcoïdose
+60	Diabetes mellitus
+61	Immuniteitsstoornissen
+62	Spastisch colon
+63	Covid-19
+64	Adipositas
+65	Overige-, erfelijke aandoeningen
+68	Chirurgie niet bewegingsapparaat (niet cardiochirurgie)
+69	Nieuwvormingen zonder chirurgie
+70	Perifere zenuwaandoening
+71	Cerebellaire aandoeningen / encephalopathieën
+72	Cerebrovasculair accident / centrale parese
+73	Multiple sclerose / ALS/ spinale spieratrofie
+74	Parkinson / extrapyramidale aandoening
+75	HNP met radiculair syndroom
+76	Dwarslaesie (incl. traumatisch en partieel)
+77	Neurotraumata
+78	Overige neurologische aandoeningen / neuropathieën /ziekten van neurologische oorsprong
+79	Psychomotore retardatie / ontwikkelingsstoornissen
+80	Symptomatologie (nog zonder aanwijsbare pathologie)
+81	Psychosomatische aandoeningen
+82	Hyperventilatie zonder longpathologie
+83	Proctologie
+84	M.D.L. (Maag, Darm, Lever)
+85	Seksuologie
+86	Urine incontinentie, incontinentie urinae
+87	Fecale incontinentie, incontinentie alvi
+88	Urologie
+89	Gynaecologie
+90	Reumatoïde arthritis, chronische reuma
+91	Juveniel reuma
+92	(Poly-) arthritis
+93	Spondylitis ankylopoetica / ankylose
+94	Overige reumatische- en collageenaandoeningen
+95	Littekenweefsel
+96	Sclerodermie
+97	Psoriasis
+98	Hyperhydrosis
+99	Overige huidaandoeningen
+

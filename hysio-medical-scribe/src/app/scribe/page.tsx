@@ -68,6 +68,11 @@ export default function ScribePage() {
     setCompletedSessionData(data);
     sessionState.completeSession();
     setCurrentStep('completed');
+
+    // Auto-redirect to dashboard after 10 seconds for better UX
+    setTimeout(() => {
+      window.location.href = '/dashboard';
+    }, 10000);
   };
 
   const handleSOEPComplete = (soepData: SOEPStructure, sessionPreparation?: string) => {
@@ -134,8 +139,8 @@ export default function ScribePage() {
     if (sessionState.isSessionActive) {
       sessionState.pauseSession();
     }
-    // In a real application, this would navigate to a dashboard or session list
-    console.log('Session saved and paused');
+    // Navigate to the intelligent dashboard
+    window.location.href = '/dashboard';
   };
 
   const formatDuration = (milliseconds: number): string => {

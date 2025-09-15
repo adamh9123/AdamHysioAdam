@@ -1,0 +1,501 @@
+{
+  "locaties": [
+    {
+      "code": "1000",
+      "naam": "Achterzijde hoofd"
+    },
+    {
+      "code": "1100",
+      "naam": "Aangezicht"
+    },
+    {
+      "code": "1200",
+      "naam": "Regio buccalis inclusief de kaak"
+    },
+    {
+      "code": "1300",
+      "naam": "Regio cervicalis (oppervlakkige weke delen)"
+    },
+    {
+      "code": "1900",
+      "naam": "Gecombineerd ** Hoofd/ Hals"
+    },
+    {
+      "code": "2000",
+      "naam": "Regio thoracalis anterior (oppervlakkige weke delen)"
+    },
+    {
+      "code": "2100",
+      "naam": "Regio thoracalis dorsalis (oppervlakkige weke delen)"
+    },
+    {
+      "code": "2200",
+      "naam": "Ribben I Sternum"
+    },
+    {
+      "code": "2300",
+      "naam": "Regio abdominalis (oppervlakkige weke delen)"
+    },
+    {
+      "code": "2400",
+      "naam": "Regio lumbalis (oppervlakkige weke delen)"
+    }
+  ],
+  "pathologieen": [
+    {
+      "code": "05",
+      "naam": "Wervelkolom",
+      "omschrijving": ""
+    },
+    {
+      "code": "06",
+      "naam": "Verwijderde osteosynthese materiaal",
+      "omschrijving": ""
+    },
+    {
+      "code": "08",
+      "naam": "Postoperatieve contractuur / atrofie",
+      "omschrijving": ""
+    },
+    {
+      "code": "09",
+      "naam": "Overige chirurgie van het bewegingsapparaat (incl. nieuwvormingen)",
+      "omschrijving": "Overige chirurgie van het bewegingsapparaat (incl. nieuwvormingen)"
+    },
+    {
+      "code": "10",
+      "naam": "Aseptische botnecrose",
+      "omschrijving": ""
+    },
+    {
+      "code": "11",
+      "naam": "Afwijkingen wervelkolom / bekken",
+      "omschrijving": ""
+    },
+    {
+      "code": "12",
+      "naam": "Skeletafwijkingen (aangeboren)",
+      "omschrijving": ""
+    },
+    {
+      "code": "13",
+      "naam": "Ossificatiestoornis",
+      "omschrijving": ""
+    },
+    {
+      "code": "14",
+      "naam": "Ontstekingen / nieuwvormingen in het skelet",
+      "omschrijving": ""
+    },
+    {
+      "code": "15",
+      "naam": "Pseudo-arthrose / epiphysiolysis / apofysitiden",
+      "omschrijving": ""
+    },
+    {
+      "code": "16",
+      "naam": "Standsafwijkingen extremiteiten",
+      "omschrijving": ""
+    },
+    {
+      "code": "17",
+      "naam": "Afwijkingen gewrichten, uitgezonderd wervelkolom / bekken",
+      "omschrijving": ""
+    },
+    {
+      "code": "18",
+      "naam": "Overige orthopedische aandoeningen zonder chirurgie",
+      "omschrijving": ""
+    },
+    {
+      "code": "19",
+      "naam": "Dupuytren",
+      "omschrijving": ""
+    },
+    {
+      "code": "20",
+      "naam": "Epicondylitis / tendinitis / tendovaginitis",
+      "omschrijving": ""
+    },
+    {
+      "code": "21",
+      "naam": "Bursitis (niet traumatisch) / capsulitis",
+      "omschrijving": ""
+    },
+    {
+      "code": "22",
+      "naam": "Chondropathie / arthropathie / meniscuslaesie",
+      "omschrijving": ""
+    },
+    {
+      "code": "23",
+      "naam": "Arthrose",
+      "omschrijving": ""
+    },
+    {
+      "code": "24",
+      "naam": "Osteoporose",
+      "omschrijving": ""
+    },
+    {
+      "code": "25",
+      "naam": "Syndroom van Costen",
+      "omschrijving": ""
+    },
+    {
+      "code": "26",
+      "naam": "Spier-, pees- en fascie aandoeningen",
+      "omschrijving": ""
+    },
+    {
+      "code": "27",
+      "naam": "Discusdegeneratie, coccygodynie / HNP",
+      "omschrijving": ""
+    },
+    {
+      "code": "28",
+      "naam": "Sudeckse a(dys)trofie",
+      "omschrijving": ""
+    },
+    {
+      "code": "31",
+      "naam": "Gewrichtcontusie / -distorsie",
+      "omschrijving": ""
+    },
+    {
+      "code": "32",
+      "naam": "Luxatie (sub-)",
+      "omschrijving": ""
+    },
+    {
+      "code": "33",
+      "naam": "Spier-, peesruptuur / haematoom",
+      "omschrijving": ""
+    },
+    {
+      "code": "34",
+      "naam": "Hydrops / haemarthos / haematoom",
+      "omschrijving": ""
+    },
+    {
+      "code": "35",
+      "naam": "Myositis ossificans / adhaesies / traumatische bursitis",
+      "omschrijving": ""
+    },
+    {
+      "code": "36",
+      "naam": "Fracturen",
+      "omschrijving": ""
+    },
+    {
+      "code": "37",
+      "naam": "?",
+      "omschrijving": ""
+    },
+    {
+      "code": "38",
+      "naam": "Whiplash injury (nektrauma)",
+      "omschrijving": ""
+    },
+    {
+      "code": "39",
+      "naam": "Status na brandwonden",
+      "omschrijving": ""
+    },
+    {
+      "code": "40",
+      "naam": "Hartaandoeningen (niet genoemd onder 41 t/m 49)",
+      "omschrijving": ""
+    },
+    {
+      "code": "41",
+      "naam": "Myocard-infarct (AMI)",
+      "omschrijving": ""
+    },
+    {
+      "code": "42",
+      "naam": "Status na coronary artery bypassoperatie (CABG)",
+      "omschrijving": ""
+    },
+    {
+      "code": "43",
+      "naam": "Status na percutane transluminale coronair angioplastiek (PTCA)",
+      "omschrijving": "Status na percutane transluminale coronair angioplastiek (PTCA)"
+    },
+    {
+      "code": "44",
+      "naam": "Status na hartklepoperatie",
+      "omschrijving": ""
+    },
+    {
+      "code": "45",
+      "naam": "Status na operatief gecorrigeerde congenitale afwijkingen",
+      "omschrijving": ""
+    },
+    {
+      "code": "46",
+      "naam": "Lymfevataandoeningen / oedeem",
+      "omschrijving": "Lymfoedeem/stuwing met destructie van het lymfatische weefsel"
+    },
+    {
+      "code": "47",
+      "naam": "Ulcus / decubitus / necrose",
+      "omschrijving": ""
+    },
+    {
+      "code": "48",
+      "naam": "Algemeen vaatlijden, circulatiestoornissen",
+      "omschrijving": ""
+    },
+    {
+      "code": "49",
+      "naam": "?",
+      "omschrijving": ""
+    },
+    {
+      "code": "50",
+      "naam": "Cara",
+      "omschrijving": ""
+    },
+    {
+      "code": "51",
+      "naam": "Aangeboren afwijkingen tractus respiratorius",
+      "omschrijving": ""
+    },
+    {
+      "code": "52",
+      "naam": "Pneumothorax / longoedeem",
+      "omschrijving": ""
+    },
+    {
+      "code": "53",
+      "naam": "Luchtweginfecties",
+      "omschrijving": ""
+    },
+    {
+      "code": "54",
+      "naam": "COPD",
+      "omschrijving": ""
+    },
+    {
+      "code": "55",
+      "naam": "Emfyseem",
+      "omschrijving": ""
+    },
+    {
+      "code": "56",
+      "naam": "Interstitiële longaandoeningen incl. sarcoïdose",
+      "omschrijving": ""
+    },
+    {
+      "code": "60",
+      "naam": "Diabetes mellitus",
+      "omschrijving": ""
+    },
+    {
+      "code": "61",
+      "naam": "Immuniteitsstoornissen",
+      "omschrijving": ""
+    },
+    {
+      "code": "62",
+      "naam": "Spastisch colon",
+      "omschrijving": ""
+    },
+    {
+      "code": "64",
+      "naam": "Adipositas",
+      "omschrijving": ""
+    },
+    {
+      "code": "65",
+      "naam": "Overige-, erfelijke aandoeningen",
+      "omschrijving": ""
+    },
+    {
+      "code": "68",
+      "naam": "Chirurgie niet bewegingsapparaat (niet cardiochirurgie)",
+      "omschrijving": ""
+    },
+    {
+      "code": "69",
+      "naam": "Nieuwvormingen zonder chirurgie",
+      "omschrijving": ""
+    },
+    {
+      "code": "70",
+      "naam": "Perifere zenuwaandoening",
+      "omschrijving": "Neurofibromatose type I met motorische uitval \nPerifere zenuwaandoening met motorische uitval\nZenuwlaesie met motorische uitval"
+    },
+    {
+      "code": "71",
+      "naam": "Cerebellaire aandoeningen / encephalopathieën",
+      "omschrijving": ""
+    },
+    {
+      "code": "72",
+      "naam": "Cerebrovasculair accident / centrale parese",
+      "omschrijving": ""
+    },
+    {
+      "code": "73",
+      "naam": "Multiple sclerose / ALS/ spinale spieratrofie",
+      "omschrijving": ""
+    },
+    {
+      "code": "74",
+      "naam": "Parkinson / extrapyramidale aandoening",
+      "omschrijving": ""
+    },
+    {
+      "code": "75",
+      "naam": "HNP met radiculair syndroom",
+      "omschrijving": ""
+    },
+    {
+      "code": "76",
+      "naam": "Dwarslaesie (incl. traumatisch en partieel)",
+      "omschrijving": ""
+    },
+    {
+      "code": "77",
+      "naam": "Neurotraumata",
+      "omschrijving": ""
+    },
+    {
+      "code": "78",
+      "naam": "Overige neurologische aandoeningen / neuropathieën /ziekten van neurologische oorsprong",
+      "omschrijving": "Polyradiculo/ -neuropathie met parese(n)"
+    },
+    {
+      "code": "79",
+      "naam": "Psychomotore retardatie / ontwikkelingsstoornissen",
+      "omschrijving": ""
+    },
+    {
+      "code": "80",
+      "naam": "Symptomatologie (nog zonder aanwijsbare pathologie)",
+      "omschrijving": ""
+    },
+    {
+      "code": "81",
+      "naam": "Psychosomatische aandoeningen",
+      "omschrijving": ""
+    },
+    {
+      "code": "82",
+      "naam": "Hyperventilatie zonder longpathologie",
+      "omschrijving": ""
+    },
+    {
+      "code": "83",
+      "naam": "Proctologie",
+      "omschrijving": ""
+    },
+    {
+      "code": "84",
+      "naam": "M.D.L. (Maag, Darm, Lever)",
+      "omschrijving": ""
+    },
+    {
+      "code": "85",
+      "naam": "Seksuologie",
+      "omschrijving": ""
+    },
+    {
+      "code": "86",
+      "naam": "Urine incontinentie, incontinentie urinae",
+      "omschrijving": ""
+    },
+    {
+      "code": "87",
+      "naam": "Fecale incontinentie, incontinentie alvi",
+      "omschrijving": ""
+    },
+    {
+      "code": "88",
+      "naam": "Urologie",
+      "omschrijving": ""
+    },
+    {
+      "code": "89",
+      "naam": "Gynaecologie",
+      "omschrijving": ""
+    },
+    {
+      "code": "90",
+      "naam": "Reumatoïde arthritis, chronische reuma",
+      "omschrijving": ""
+    },
+    {
+      "code": "91",
+      "naam": "Juveniel reuma",
+      "omschrijving": ""
+    },
+    {
+      "code": "92",
+      "naam": "(Poly-) arthritis",
+      "omschrijving": ""
+    },
+    {
+      "code": "93",
+      "naam": "Spondylitis ankylopoetica / ankylose",
+      "omschrijving": ""
+    },
+    {
+      "code": "94",
+      "naam": "Overige reumatische- en collageenaandoeningen",
+      "omschrijving": ""
+    },
+    {
+      "code": "95",
+      "naam": "Littekenweefsel",
+      "omschrijving": ""
+    },
+    {
+      "code": "96",
+      "naam": "Sclerodermie",
+      "omschrijving": ""
+    },
+    {
+      "code": "97",
+      "naam": "Psoriasis",
+      "omschrijving": ""
+    },
+    {
+      "code": "98",
+      "naam": "Hyperhydrosis",
+      "omschrijving": ""
+    },
+    {
+      "code": "99",
+      "naam": "Overige huidaandoeningen",
+      "omschrijving": ""
+    },
+    {
+      "code": "00",
+      "naam": "Amputatie",
+      "omschrijving": ""
+    },
+    {
+      "code": "01",
+      "naam": "Gewrichten, uitgezonderd wervelkolom, meniscectomie, synovectomie",
+      "omschrijving": "Gewrichten, uitgezonderd wervelkolom, meniscectomie, synovectomie"
+    },
+    {
+      "code": "02",
+      "naam": "Botten, uitgezonderd wervelkolom",
+      "omschrijving": ""
+    },
+    {
+      "code": "03",
+      "naam": "Meniscectomie, synovectomie",
+      "omschrijving": ""
+    },
+    {
+      "code": "04",
+      "naam": "Pees, spier, ligament",
+      "omschrijving": ""
+    }
+  ]
+}
