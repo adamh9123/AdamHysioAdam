@@ -11,6 +11,7 @@ export * from './progress-bar';
 export * from './toast';
 export * from './loading-overlay';
 export * from './navigation';
+export * from './marketing-navigation';
 export * from './dashboard-layout';
 export * from './breadcrumb';
 export * from './audio-recorder';

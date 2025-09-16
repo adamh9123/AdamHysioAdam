@@ -9,6 +9,18 @@ Het formaat is gebaseerd op [Keep a Changelog](https://keepachangelog.com/en/1.0
 ## [Unreleased]
 
 ### Added
+- **Professional Multi-Page Marketing Website**: Complete transformation from single-page application to comprehensive marketing website with navigation restructuring and dedicated pages
+- **Marketing Navigation Component**: New navigation system with "Hysio Toolkit" dropdown containing all application modules and dedicated marketing pages navigation
+- **Over Ons Page (/over-ons)**: Professional about page featuring company mission, vision, core values, and team information with call-to-action sections
+- **Prijzen Page (/prijzen)**: Comprehensive pricing page with 3-tier subscription model (Starter, Professional, Enterprise), feature comparison, FAQ section, and implementation roadmap
+- **Contact Page (/contact)**: Professional contact page with comprehensive contact form, company information, support options, office hours, and FAQ section
+- **Blog Platform (/blog)**: Complete blog system with article listing, categories, newsletter signup, and professional blog post structure
+- **SEO-Optimized Blog Content**: Three professional blog articles covering AI Revolution in Physiotherapy, Documentation Workflow Optimization, and AVG Compliance for AI Tools
+- **75% Zoom UI Effect**: Implemented global scaling by reducing root font-size from 16px to 14px for improved visual density and modern appearance
+- **Comprehensive Frontend Perfection Audit**: Complete launch-readiness analysis identifying 47 specific improvements across aesthetics, UX, trust elements, and commercial requirements
+- **Commercial Launch Assessment**: Strategic evaluation of all frontend components with prioritized roadmap for first paying customer readiness
+- **Developer Onboarding Guide**: Complete 60-minute onboarding documentation enabling new developers to set up local environment, understand codebase architecture, and complete their first feature implementation
+- **New Developer Workflow**: Step-by-step setup instructions with Docker environment, API key configuration, codebase navigation, and practical first-task tutorial
 - **World-Class README.md**: Complete rewrite met professionele badges, uitgebreide feature beschrijvingen en volledige tech stack documentatie
 - **Comprehensive Documentation**: Gedetailleerde installatie instructies, project structuur en environment variable configuratie
 - **Professional Project Presentation**: Enterprise-grade documentatie die de kwaliteit en ambitie van Hysio V2 reflecteert
@@ -43,6 +55,9 @@ Het formaat is gebaseerd op [Keep a Changelog](https://keepachangelog.com/en/1.0
 - **Performance Standards and Benchmarks**: PERFORMANCE.md with healthcare-specific performance targets, AI model optimization, clinical workflow efficiency, and regulatory compliance metrics
 
 ### Changed
+- **Homepage Architecture**: Transformed from single-page application interface to professional multi-page marketing website with modular navigation and dedicated content pages
+- **Navigation Structure**: Restructured from inline navigation to reusable MarketingNavigation component with "Hysio Toolkit" dropdown and professional marketing pages
+- **Visual Design Language**: Implemented 75% zoom effect and maintained Hysio brand consistency across all new pages with professional styling and layouts
 - **Complete README Overhaul**: Vervanging van basic README met uitgebreide, professionele documentatie
 - **Enhanced Feature Descriptions**: Gedetailleerde uitleg van alle Hysio modules inclusief Scribe, Diagnosecode, SmartMail en Assistant
 - **Improved Developer Experience**: Duidelijke setup instructies en project structuur voor nieuwe ontwikkelaars

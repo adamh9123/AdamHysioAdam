@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { MarketingNavigation } from '@/components/ui/marketing-navigation';
 import {
   FileText,
   Stethoscope,
@@ -31,55 +32,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-hysio-mint">
       {/* Navigation Bar */}
-      <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-hysio-mint/20 shadow-sm">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-hysio-mint/20 rounded-lg flex items-center justify-center">
-                <span className="text-hysio-deep-green font-bold text-lg">H</span>
-              </div>
-              <span className="text-2xl font-bold text-hysio-deep-green">Hysio</span>
-            </div>
-
-            {/* Navigation Links */}
-            <div className="hidden md:flex items-center gap-8">
-              <button onClick={() => router.push('/scribe')} className="text-hysio-deep-green hover:text-hysio-mint-dark transition-colors">
-                Hysio Scribe
-              </button>
-              <button onClick={() => router.push('/assistant')} className="text-hysio-deep-green hover:text-hysio-mint-dark transition-colors">
-                Assistant
-              </button>
-              <button onClick={() => router.push('/smartmail-demo')} className="text-hysio-deep-green hover:text-hysio-mint-dark transition-colors">
-                SmartMail
-              </button>
-              <button onClick={() => router.push('/diagnosecode')} className="text-hysio-deep-green hover:text-hysio-mint-dark transition-colors">
-                Diagnosecode
-              </button>
-              <button onClick={() => router.push('/dashboard')} className="text-hysio-deep-green hover:text-hysio-mint-dark transition-colors">
-                Dashboard
-              </button>
-              <Button
-                onClick={() => router.push('/scribe')}
-                className="bg-hysio-mint hover:bg-hysio-mint-dark text-hysio-deep-green font-semibold"
-              >
-                Start Nu
-              </Button>
-            </div>
-
-            {/* Mobile Menu Button */}
-            <div className="md:hidden">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => router.push('/scribe')}
-              >
-                <ArrowRight className="h-6 w-6" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <MarketingNavigation />
 
       {/* Hero Section */}
       <section className="relative overflow-hidden py-20">
