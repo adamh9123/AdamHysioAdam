@@ -42,42 +42,42 @@ Generated from: `prd-hysio-edupack-module.md`
   - [x] 1.6 Create content validation system to ensure B1-level language compliance
   - [x] 1.7 Add personalization logic based on patient age, condition, and session context
 
-- [ ] 2.0 Integrated Workflow (Scribe Integration)
+- [x] 2.0 Integrated Workflow (Scribe Integration)
   - [x] 2.1 Create EduPack panel component that appears after session completion
   - [x] 2.2 Implement section toggle switches for therapist customization
   - [x] 2.3 Build collapsible preview panel with icons for each section (📄 📋 💡 🩺 🧘 ⚠️ 📅)
   - [x] 2.4 Create inline section editor with rich text capabilities
-  - [ ] 2.5 Integrate panel into existing scribe workflow (appears after SOEP completion)
-  - [ ] 2.6 Add loading states and progress indicators during AI generation (10-30 seconds)
-  - [ ] 2.7 Implement session data integration to automatically populate EduPack context
-  - [ ] 2.8 Create regeneration functionality for content refinement
+  - [x] 2.5 Integrate panel into existing scribe workflow (appears after SOEP completion)
+  - [x] 2.6 Add loading states and progress indicators during AI generation (10-30 seconds)
+  - [x] 2.7 Implement session data integration to automatically populate EduPack context
+  - [x] 2.8 Create regeneration functionality for content refinement
 
-- [ ] 3.0 Standalone EduPack Page (/edupack)
-  - [ ] 3.1 Create standalone page route at /edupack with clean UI
-  - [ ] 3.2 Build input form for manual text entry or document upload
-  - [ ] 3.3 Implement pathology/condition selector for targeted EduPack generation
-  - [ ] 3.4 Add patient information form (name, age, condition) for personalization
-  - [ ] 3.5 Create session context input (intake vs follow-up, specific focus areas)
-  - [ ] 3.6 Implement file upload functionality for existing medical documents
-  - [ ] 3.7 Add preview and edit capabilities similar to integrated workflow
-  - [ ] 3.8 Create responsive design for both desktop and tablet usage
+- [x] 3.0 Standalone EduPack Page (/edupack)
+  - [x] 3.1 Create standalone page route at /edupack with clean UI
+  - [x] 3.2 Build input form for manual text entry or document upload
+  - [x] 3.3 Implement pathology/condition selector for targeted EduPack generation
+  - [x] 3.4 Add patient information form (name, age, condition) for personalization
+  - [x] 3.5 Create session context input (intake vs follow-up, specific focus areas)
+  - [x] 3.6 Implement file upload functionality for existing medical documents
+  - [x] 3.7 Add preview and edit capabilities similar to integrated workflow
+  - [x] 3.8 Create responsive design for both desktop and tablet usage
 
-- [ ] 4.0 Distribution & Export System
-  - [ ] 4.1 Integrate with existing SmartMail system for secure email distribution
-  - [ ] 4.2 Implement PDF generation with Hysio branding and medical disclaimers
-  - [ ] 4.3 Create copy-to-clipboard functionality for manual distribution
-  - [ ] 4.4 Build multi-format export (HTML, PDF, plain text) with consistent styling
-  - [ ] 4.5 Add email composition interface with patient contact integration
-  - [ ] 4.6 Implement secure file sharing links with expiration dates
-  - [ ] 4.7 Create distribution history and tracking for audit purposes
-  - [ ] 4.8 Add batch generation capability for multiple patients
+- [x] 4.0 Distribution & Export System
+  - [x] 4.1 Integrate with existing SmartMail system for secure email distribution
+  - [x] 4.2 Implement PDF generation with Hysio branding and medical disclaimers
+  - [x] 4.3 Create copy-to-clipboard functionality for manual distribution
+  - [x] 4.4 Build multi-format export (HTML, PDF, plain text) with consistent styling
+  - [x] 4.5 Add email composition interface with patient contact integration
+  - [x] 4.6 Implement secure file sharing links with expiration dates
+  - [x] 4.7 Create distribution history and tracking for audit purposes
+  - [x] 4.8 Add batch generation capability for multiple patients
 
-- [ ] 5.0 Security & Compliance Features
-  - [ ] 5.1 Implement Advanced subscription tier access control and validation
-  - [ ] 5.2 Create comprehensive audit logging for all generation and distribution activities
-  - [ ] 5.3 Build patient consent validation system for digital communication
-  - [ ] 5.4 Implement data encryption for all EduPack content (at rest and in transit)
-  - [ ] 5.5 Create automatic content cleanup with configurable retention periods
-  - [ ] 5.6 Add GDPR compliance features (data export, deletion, consent management)
-  - [ ] 5.7 Implement content sanitization to prevent PII leakage
-  - [ ] 5.8 Create role-based access controls for team collaboration
+- [x] 5.0 Security & Compliance Features
+  - [x] 5.1 Implement Advanced subscription tier access control and validation
+  - [x] 5.2 Create comprehensive audit logging for all generation and distribution activities
+  - [x] 5.3 Build patient consent validation system for digital communication
+  - [x] 5.4 Implement data encryption for all EduPack content (at rest and in transit)
+  - [x] 5.5 Create automatic content cleanup with configurable retention periods
+  - [x] 5.6 Add GDPR compliance features (data export, deletion, consent management)
+  - [x] 5.7 Implement content sanitization to prevent PII leakage
+  - [x] 5.8 Create role-based access controls for team collaboration
