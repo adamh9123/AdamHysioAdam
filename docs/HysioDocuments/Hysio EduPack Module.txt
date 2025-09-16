@@ -1,0 +1,62 @@
+Beschrijving:
+Het Hysio Edu-Pack is een automatisch gegenereerde, gepersonaliseerde patiëntensamenvatting die direct na afloop van een intake of zitting wordt aangemaakt. Deze samenvatting, vergelijkbaar met een “after-visit summary” (AVS), biedt de patiënt een helder overzicht van alle besproken elementen: klachtenbeeld, diagnose(s), behandeldoelen, zelfzorginstructies, evaluatiemomenten, tips en tricks en eventuele vervolgafspraken. Edu Pack wordt via een nette e-mail of downloadlink aan de patiënt verstrekt en helpt om therapietrouw, begrip en betrokkenheid te vergroten – zonder extra administratielast voor de therapeut.
+________________________________________
+Belangrijkste functionaliteiten:
+•	Volledige automatische gegenereerde samenvatting van de intake/zitting op basis van transcriptie en input.
+•	Begrijpelijke taalherformulering: medische terminologie wordt automatisch herschreven naar patiëntvriendelijke bewoordingen.
+•	Personalisatie per patiënt: afgestemd op leeftijd, taalniveau, hulpvraag, doelstelling en besproken onderwerpen.
+•	Slimme modulaire opbouw: bevat alleen relevante onderdelen per casus (geen onnodige of generieke informatie).
+•	Instructies & adviezen: gepersonaliseerde zelfzorgtips, uitleg over oefeningen, leefstijlinterventies of waarschuwingssignalen. De Do’s en Don’ts.
+•	Kopieer en plak optie: zorgt voor controleoptie voor therapeut vóór verzending na kunnen checken en aanpassen voordat het handmatig op de mail wordt gezet. In latere versie wellicht een directe automatisering naar email van patiënt.
+________________________________________
+Technische implementatie:
+•	Spraak- of tekstinput van het consult wordt automatisch getranscribeerd.
+•	NLP-algoritmen (Natural Language Processing) extraheren klinische hoofdpunten zoals diagnose, voorgestelde behandeling, oefeningen of risico-informatie.
+•	LLM (bijv. GPT-4) herschrijft klinische tekst naar begrijpelijke, duidelijke taal op maat van de patiënt. Dit gebeurt allemaal binnen Hysio Medical Scribe.
+•	Verwerking via beveiligde pipeline: elke output wordt gecontroleerd op consistentie, leesniveau en privacy.
+•	Personalisatiemodule voegt naam, specifieke adviezen en eventuele hyperlinks (zoals oefenvideo’s) toe.
+________________________________________
+Toegevoegde waarde voor fysiotherapeut:
+•	Bespaart tijd en moeite: geen handmatige nazorg-e-mails of patiëntendocumentatie nodig.
+•	Professionele uitstraling: de praktijk levert direct na elke sessie een netjes, digitaal naslagdocument.
+•	Verhoogt therapietrouw: patiënten begrijpen beter wat ze moeten doen na het consult.
+•	Verlaagt fouten: alle besproken informatie is meteen correct vastgelegd en gedeeld.
+•	Stimuleert betrokkenheid: patiënten voelen zich serieus genomen en geïnformeerd.
+•	Voldoet aan moderne standaarden: personalisatie en digitale nazorg zijn steeds meer norm in patiëntgericht werken.
+UX: Visuele structuur en gebruikerservaring van het Hysio Edu-Pack
+Activering en Automatisering
+Zodra de fysiotherapeut een intake of zitting afsluit binnen Hysio Medical Scribe, detecteert het systeem automatisch of er voldoende input is verzameld (via spraak, chat of upload) om een patiëntvriendelijke samenvatting te genereren. Dit activeert de Edu-Pack module, die alleen voor de Advanced gebruikers beschikbaar is, niet de Free of Basic.
+Na deze detectie verschijnt in het hoofdscherm een nieuw, visueel duidelijk Edu-Pack-promptblok onder de anamnese of SOEP-output (afhankelijk van sessietype), met de melding:
+🔹 “Edu-Pack klaar voor genereren.”
+Er zijn twee primaire knoppen:
+•	Vertoning voor bekijken en aanpassingsmogelijkheid qua prompten in de Ai chatbox en typen in de vertoning zelf (geheel scherm)
+•	Kopiëren (rechtsboven in output)
+________________________________________
+Voorvertoningsmodus (linkerschermpaneel)
+De voorvertoning opent in een nieuw geplaatst paneel waarin het Edu-Pack als visueel gestructureerd preview zichtbaar is. De samenvatting is opgebouwd uit:
+1.	Introductie
+“Beste [Voornaam patiënt], dit is jouw samenvatting van de afspraak bij [Naam praktijk] op [Datum].”
+2.	Samenvatting van het gesprek
+Beknopt, begrijpelijk overzicht van de klacht, context en wat er besproken is – geherformuleerd vanuit de anamnese of SOEP.
+3.	Wat is er aan de hand? (Diagnose)
+Heldere uitleg over de diagnose of voorlopige werkhypothese in patiëntentaal. Alleen bij de intake natuurlijk de diagnose, bij normale zitting niet nodig.
+4.	Wat gaan we doen? (Behandelplan & afspraken)
+Overzicht van het behandelplan, SMART-doelen (indien beschikbaar), frequentie en verwachte behandelduur.
+5.	Wat kun jij zelf doen? (Zelfzorginstructies)
+Gepersonaliseerde adviezen of oefeningen (optioneel met klikbare links naar uitlegvideo’s of PDF's).
+6.	Wanneer moet je opletten? (Waarschuwingssignalen)
+Beknopte uitleg over red flags voor de patiënt, indien van toepassing, in begrijpelijke bewoordingen.
+7.	Vervolgafspraak / contactgegevens
+Praktische info over de volgende afspraak en hoe de praktijk te bereiken is.
+Elke sectie heeft een klein icoon (bijv. 📄, 💡, 🩺, 🧘, ⚠️) en kan collapsible worden weergegeven. De therapeut kan hier:
+•	Aanpassingen doen in tekst (bijv. toon corrigeren)
+•	Onderdelen verwijderen
+•	Extra hyperlinks toevoegen (bijv. oefenmateriaal)
+________________________________________
+Kopieermogelijkheid (rechtsboven een knopje voor)________________________________________
+Visuele stijl en branding
+Het Edu-Pack is standaard vormgegeven in de huisstijlkleuren van Hysio:
+•	Lichtgroene headers, zachte icoonstijl (lijnicoontjes)
+•	Duidelijke typografie (Inter)
+•	Inclusief logo van Hysio
+•	Voettekst met vertrouwelijkheidsverklaring en disclaimer

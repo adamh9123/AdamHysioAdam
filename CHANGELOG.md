@@ -21,6 +21,8 @@ Het formaat is gebaseerd op [Keep a Changelog](https://keepachangelog.com/en/1.0
 - **Commercial Launch Assessment**: Strategic evaluation of all frontend components with prioritized roadmap for first paying customer readiness
 - **Developer Onboarding Guide**: Complete 60-minute onboarding documentation enabling new developers to set up local environment, understand codebase architecture, and complete their first feature implementation
 - **New Developer Workflow**: Step-by-step setup instructions with Docker environment, API key configuration, codebase navigation, and practical first-task tutorial
+- **Hysio EduPack Module PRD**: Comprehensive Product Requirements Document for AI-powered patient education summary system, defining automated after-visit summaries with B1-level Dutch language conversion
+- **Patient Communication Enhancement Strategy**: Detailed technical and functional specifications for integrating personalized patient summaries within Hysio Medical Scribe workflow
 - **World-Class README.md**: Complete rewrite met professionele badges, uitgebreide feature beschrijvingen en volledige tech stack documentatie
 - **Comprehensive Documentation**: Gedetailleerde installatie instructies, project structuur en environment variable configuratie
 - **Professional Project Presentation**: Enterprise-grade documentatie die de kwaliteit en ambitie van Hysio V2 reflecteert
