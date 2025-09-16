@@ -1,0 +1,51 @@
+# Hysio Medical Scribe - Development Overrides
+# Override configurations for local development
+
+version: '3.8'
+
+services:
+  hysio-medical-scribe:
+    build:
+      target: deps-dev  # Use development dependencies
+    environment:
+      - NODE_ENV=development
+      - DEBUG=*
+      - HOT_RELOAD=true
+    volumes:
+      - ./hysio-medical-scribe/src:/app/src
+      - ./hysio-medical-scribe/pages:/app/pages
+      - ./hysio-medical-scribe/components:/app/components
+      - ./hysio-medical-scribe/public:/app/public
+      - ./hysio-medical-scribe/styles:/app/styles
+    command: npm run dev
+    stdin_open: true
+    tty: true
+
+  # Reduced resource limits for development
+  postgres:
+    command: >
+      postgres
+      -c log_statement=none
+      -c log_min_duration_statement=5000
+      -c max_connections=50
+      -c shared_buffers=128MB
+
+  # Development-friendly Redis configuration
+  redis:
+    command: redis-server --save 60 1 --loglevel notice
+
+  # Optional services for development (can be disabled)
+  elasticsearch:
+    profiles: ["analytics"]
+
+  kibana:
+    profiles: ["analytics"]
+
+  prometheus:
+    profiles: ["monitoring"]
+
+  grafana:
+    profiles: ["monitoring"]
+
+  jaeger:
+    profiles: ["tracing"]

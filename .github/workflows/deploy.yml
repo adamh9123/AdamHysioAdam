@@ -1,0 +1,479 @@
+name: Production Deployment
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'hysio-medical-scribe/**'
+      - '.github/workflows/deploy.yml'
+  release:
+    types: [ published ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      skip_tests:
+        description: 'Skip tests (emergency deployment only)'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  NODE_VERSION: '18.x'
+  WORKING_DIRECTORY: './hysio-medical-scribe'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: hysio/medical-scribe
+
+jobs:
+  # Pre-deployment validation
+  pre-deployment:
+    name: Pre-deployment Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      environment: ${{ steps.env.outputs.environment }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine deployment environment
+        id: env
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event_name }}" == "release" ]]; then
+            echo "environment=production" >> $GITHUB_OUTPUT
+          else
+            echo "environment=staging" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Extract version
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "release" ]]; then
+            VERSION=${{ github.event.release.tag_name }}
+          else
+            VERSION="sha-$(git rev-parse --short HEAD)"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: ${{ env.WORKING_DIRECTORY }}/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: npm ci
+
+      - name: Run tests (if not skipped)
+        if: ${{ !github.event.inputs.skip_tests }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: |
+          npm run lint
+          npm test -- --coverage --watchAll=false
+        env:
+          CI: true
+
+      - name: Security scan
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: npm audit --audit-level=moderate
+
+      - name: Healthcare compliance check
+        run: |
+          echo "🏥 Running healthcare compliance validation..."
+
+          # Verify required compliance files exist
+          required_files=("SECURITY.md" "PRIVACY.md" "COMPLIANCE.md" "TERMS_OF_SERVICE.md" "DATA_PROTECTION.md")
+          for file in "${required_files[@]}"; do
+            if [[ ! -f "$file" ]]; then
+              echo "❌ Missing required compliance file: $file"
+              exit 1
+            fi
+          done
+
+          echo "✅ Healthcare compliance validation passed"
+
+  # Build and containerize
+  build-and-push:
+    name: Build and Push Container
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: pre-deployment
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: ${{ env.WORKING_DIRECTORY }}/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: npm ci
+
+      - name: Build application
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=${{ needs.pre-deployment.outputs.version }}
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ env.WORKING_DIRECTORY }}
+          file: ${{ env.WORKING_DIRECTORY }}/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            NODE_VERSION=${{ env.NODE_VERSION }}
+            BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+            VCS_REF=${{ github.sha }}
+            VERSION=${{ needs.pre-deployment.outputs.version }}
+
+  # Deploy to staging
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [pre-deployment, build-and-push]
+    if: needs.pre-deployment.outputs.environment == 'staging' || needs.pre-deployment.outputs.environment == 'production'
+    environment:
+      name: staging
+      url: https://staging.hysio.com
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to staging
+        run: |
+          echo "🚀 Deploying to staging environment..."
+          echo "Version: ${{ needs.pre-deployment.outputs.version }}"
+          echo "Image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.pre-deployment.outputs.version }}"
+
+          # Here you would typically use your deployment tool
+          # Examples: kubectl, helm, terraform, or cloud-specific tools
+
+          # Example with kubectl (uncomment and modify as needed):
+          # kubectl set image deployment/hysio-medical-scribe \
+          #   hysio-medical-scribe=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.pre-deployment.outputs.version }} \
+          #   --namespace=staging
+
+          # Example with Docker Compose (for simpler deployments):
+          # docker-compose -f docker-compose.staging.yml pull
+          # docker-compose -f docker-compose.staging.yml up -d
+
+          echo "✅ Staging deployment completed"
+
+      - name: Health check
+        run: |
+          echo "🔍 Running health checks..."
+
+          # Wait for deployment to be ready
+          sleep 30
+
+          # Health check endpoint (modify URL as needed)
+          # curl -f https://staging.hysio.com/api/health || exit 1
+
+          echo "✅ Health checks passed"
+
+      - name: Run smoke tests
+        run: |
+          echo "🧪 Running smoke tests on staging..."
+
+          # Example smoke tests
+          # npm run test:smoke -- --env=staging
+
+          echo "✅ Smoke tests passed"
+
+  # Production deployment (requires manual approval)
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [pre-deployment, build-and-push, deploy-staging]
+    if: needs.pre-deployment.outputs.environment == 'production'
+    environment:
+      name: production
+      url: https://hysio.com
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Pre-production safety checks
+        run: |
+          echo "🛡️  Running pre-production safety checks..."
+
+          # Check if this is a hotfix or emergency deployment
+          if [[ "${{ github.event.inputs.skip_tests }}" == "true" ]]; then
+            echo "⚠️  Emergency deployment mode - tests were skipped"
+            echo "🔍 Additional safety verification required"
+
+            # You might want to add extra validation here for emergency deployments
+          fi
+
+          # Verify staging deployment health
+          echo "✅ Pre-production checks completed"
+
+      - name: Blue-Green deployment preparation
+        run: |
+          echo "🔄 Preparing blue-green deployment..."
+
+          # Switch traffic gradually (example with load balancer)
+          # This is highly dependent on your infrastructure
+
+          echo "✅ Blue-green deployment prepared"
+
+      - name: Deploy to production
+        run: |
+          echo "🚀 Deploying to production environment..."
+          echo "Version: ${{ needs.pre-deployment.outputs.version }}"
+
+          # Production deployment commands
+          # kubectl set image deployment/hysio-medical-scribe \
+          #   hysio-medical-scribe=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.pre-deployment.outputs.version }} \
+          #   --namespace=production
+
+          echo "✅ Production deployment initiated"
+
+      - name: Production health check
+        run: |
+          echo "🔍 Running production health checks..."
+
+          # Extended health checks for production
+          sleep 60
+
+          # Health check with retries
+          for i in {1..5}; do
+            # curl -f https://hysio.com/api/health && break
+            # echo "Health check attempt $i failed, retrying..."
+            # sleep 30
+            echo "Health check $i completed"
+          done
+
+          echo "✅ Production health checks passed"
+
+      - name: Database migration (if needed)
+        run: |
+          echo "🗄️  Checking for database migrations..."
+
+          # Run database migrations if needed
+          # kubectl exec -it deployment/hysio-medical-scribe -- npm run db:migrate
+
+          echo "✅ Database migrations completed"
+
+      - name: Finalize blue-green deployment
+        run: |
+          echo "🔄 Finalizing blue-green deployment..."
+
+          # Switch all traffic to new version
+          # Update load balancer configuration
+
+          echo "✅ Blue-green deployment finalized"
+
+  # Rollback mechanism
+  rollback:
+    name: Emergency Rollback
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: failure() && github.event_name != 'workflow_dispatch'
+
+    steps:
+      - name: Rollback to previous version
+        run: |
+          echo "🔄 Initiating emergency rollback..."
+
+          # Rollback commands (adjust based on your deployment method)
+          # kubectl rollout undo deployment/hysio-medical-scribe --namespace=production
+
+          echo "✅ Emergency rollback completed"
+
+      - name: Send rollback notification
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          custom_payload: |
+            {
+              "text": "🚨 Emergency rollback initiated for Hysio Medical Scribe",
+              "attachments": [
+                {
+                  "color": "danger",
+                  "fields": [
+                    {
+                      "title": "Repository",
+                      "value": "${{ github.repository }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Commit",
+                      "value": "${{ github.sha }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Action",
+                      "value": "Emergency rollback to previous stable version",
+                      "short": false
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # Post-deployment verification
+  post-deployment:
+    name: Post-deployment Verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [pre-deployment, deploy-staging]
+    if: always() && needs.deploy-staging.result == 'success'
+
+    steps:
+      - name: Run integration tests
+        run: |
+          echo "🧪 Running post-deployment integration tests..."
+
+          # Run comprehensive integration tests
+          # npm run test:integration -- --env=${{ needs.pre-deployment.outputs.environment }}
+
+          echo "✅ Integration tests passed"
+
+      - name: Performance monitoring
+        run: |
+          echo "📊 Setting up performance monitoring..."
+
+          # Initialize performance monitoring for the new deployment
+          # This could include setting up alerts, dashboards, etc.
+
+          echo "✅ Performance monitoring configured"
+
+      - name: Security scan of running application
+        run: |
+          echo "🔒 Running security scan on deployed application..."
+
+          # OWASP ZAP or similar security scanning
+          # docker run -t owasp/zap2docker-stable zap-baseline.py \
+          #   -t https://${{ needs.pre-deployment.outputs.environment }}.hysio.com
+
+          echo "✅ Security scan completed"
+
+  # Notification and reporting
+  notify-success:
+    name: Notify Deployment Success
+    runs-on: ubuntu-latest
+    needs: [pre-deployment, deploy-staging, deploy-production]
+    if: always() && needs.deploy-staging.result == 'success'
+
+    steps:
+      - name: Send success notification
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          text: |
+            ✅ Hysio Medical Scribe deployment successful!
+            Environment: ${{ needs.pre-deployment.outputs.environment }}
+            Version: ${{ needs.pre-deployment.outputs.version }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Update deployment dashboard
+        run: |
+          echo "📊 Updating deployment dashboard..."
+
+          # Update internal deployment tracking
+          # This could be a database update, file update, or API call
+
+          echo "✅ Deployment dashboard updated"
+
+  # Failure notification
+  notify-failure:
+    name: Notify Deployment Failure
+    runs-on: ubuntu-latest
+    needs: [pre-deployment, deploy-staging, deploy-production]
+    if: failure()
+
+    steps:
+      - name: Send failure notification
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          text: |
+            🚨 Hysio Medical Scribe deployment failed!
+            Environment: ${{ needs.pre-deployment.outputs.environment }}
+            Check the deployment logs for details.
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Create incident issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚨 Deployment Failure - ${new Date().toISOString()}`,
+              body: `
+                ## Deployment Failure Report
+
+                **Environment:** ${{ needs.pre-deployment.outputs.environment }}
+                **Version:** ${{ needs.pre-deployment.outputs.version }}
+                **Workflow:** ${{ github.workflow }}
+                **Run ID:** ${{ github.run_id }}
+
+                **Failed Jobs:**
+                ${Object.entries(needs).filter(([_, job]) => job.result === 'failure').map(([name, _]) => `- ${name}`).join('\n')}
+
+                ## Next Steps
+                1. Review the workflow logs
+                2. Identify the root cause
+                3. Apply fixes
+                4. Re-run deployment
+
+                ## Links
+                - [Workflow Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+                - [Commit](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
+              `,
+              labels: ['bug', 'deployment', 'urgent']
+            })

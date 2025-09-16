@@ -35,7 +35,8 @@
       "Bash(grep:*)",
       "Bash(find:*)",
       "Bash(cat:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(if not exist \".github\" mkdir .github)"
     ],
     "deny": [],
     "ask": []
