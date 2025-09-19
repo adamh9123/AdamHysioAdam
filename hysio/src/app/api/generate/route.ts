@@ -64,9 +64,13 @@ export async function POST(request: NextRequest) {
     const completionOptions: OpenAICompletionOptions = {
       model: HYSIO_LLM_MODEL,
       temperature: 1.0, // GPT-5-mini only supports temperature = 1
-      maxTokens: 2000,
+      max_tokens: 2000,
       ...options,
     };
+
+    if (options.maxTokens !== undefined && options.max_tokens === undefined) {
+      completionOptions.max_tokens = options.maxTokens;
+    }
 
     if (stream) {
       // Handle streaming response
