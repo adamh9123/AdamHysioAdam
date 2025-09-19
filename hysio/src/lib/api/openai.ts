@@ -86,7 +86,8 @@ export async function generateContentWithOpenAI(
         { role: 'user', content: userPrompt }
       ],
       temperature,
-      max_completion_tokens: max_tokens, // GPT-5-mini uses max_completion_tokens instead of max_tokens
+      // Map camelCase option to OpenAI's expected snake_case field
+      max_tokens: maxTokens,
       top_p,
       frequency_penalty,
       presence_penalty,
@@ -278,7 +279,8 @@ export async function generateContentStreamWithOpenAI(
         { role: 'user', content: userPrompt }
       ],
       temperature,
-      max_completion_tokens: max_tokens, // GPT-5-mini uses max_completion_tokens instead of max_tokens
+      // Map camelCase option to OpenAI's expected snake_case field
+      max_tokens: maxTokens,
       top_p,
       frequency_penalty,
       presence_penalty,
