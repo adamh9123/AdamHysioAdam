@@ -301,7 +301,7 @@ export async function POST(request: NextRequest) {
     const openAIOptions: OpenAICompletionOptions = {
       model: HYSIO_LLM_MODEL, // Use GPT-4 for better healthcare communication
       temperature: 1.0, // GPT-5-mini only supports temperature = 1
-      max_tokens: 2000, // Sufficient for detailed emails
+      maxTokens: 2000, // Sufficient for detailed emails
       top_p: 0.9,
       presence_penalty: 0.1,
       frequency_penalty: 0.1

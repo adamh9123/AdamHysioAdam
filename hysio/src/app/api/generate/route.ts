@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     const completionOptions: OpenAICompletionOptions = {
       model: HYSIO_LLM_MODEL,
       temperature: 1.0, // GPT-5-mini only supports temperature = 1
-      max_tokens: 2000,
+      maxTokens: 2000,
       ...options,
     };
 
