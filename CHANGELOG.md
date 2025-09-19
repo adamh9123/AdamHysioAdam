@@ -9,6 +9,119 @@ Het formaat is gebaseerd op [Keep a Changelog](https://keepachangelog.com/en/1.0
 ## [Unreleased]
 
 ### Added
+- *Hier komen de beschrijvingen van nieuwe features voor de volgende release.*
+
+### Changed
+- *Hier komen beschrijvingen van aanpassingen in bestaande functionaliteit.*
+
+### Fixed
+- *Hier komen beschrijvingen van opgeloste bugs.*
+
+### Removed
+- *Hier komen beschrijvingen van features die zijn verwijderd.*
+
+---
+
+## [1.0.0] - 1-9-2025
+
+### Added
+- **Initiële Release:** De eerste versie van het Hysio Platform is gelanceerd.
+- [cite_start]**Hysio Intake Workflow:** Een compleet 3-fasen proces (Anamnese, Onderzoek, Klinische Conclusie) voor het documenteren van nieuwe patiënten[cite: 2894].
+- [cite_start]**Hysio Consult Workflow:** Een gestroomlijnde SOEP-workflow voor het documenteren van vervolgconsulten[cite: 2896].
+- **CHANGELOG.md:** Dit document is aangemaakt om alle wijzigingen te volgen.
+
+### Changed
+
+### Fixed
+
+### Removed
+
+---
+
+## [Unreleased]
+
+### Added
+- *Hier komen de beschrijvingen van nieuwe features voor de volgende release.*
+
+### Changed
+- *Hier komen beschrijvingen van aanpassingen in bestaande functionaliteit.*
+
+### Fixed
+- *Hier komen beschrijvingen van opgeloste bugs.*
+
+### Removed
+- *Hier komen beschrijvingen van features die zijn verwijderd.*
+
+---
+
+## [3.0.0] - 2025-09-19
+
+### Changed
+- **AI Model Upgrade - GPT-5-mini Migration**: Strategische upgrade van alle AI-integraties van GPT-4o naar het nieuwe, efficiëntere GPT-5-mini model. Implementatie van gecentraliseerde modelconfiguratie (HYSIO_LLM_MODEL constant) voor verbeterde onderhoudbaarheid. Aanpassing van API-parameters voor GPT-5-mini compatibiliteit, inclusief max_completion_tokens en temperature = 1.0 vereisten. Volledige migratie zonder functionele regressies voor alle modules: Scribe, SmartMail, EduPack, Assistant en DiagnoseCode.
+- **SmartMail Architecture Consolidation**: Complete elimination of fragmented routing structure (/smartmail, /smartmail-demo, /smartmail-simple) into unified professional route with enhanced functionality
+- **Enhanced AI Email Generation API**: New dedicated `/api/smartmail` endpoint with advanced tone customization, template support, and comprehensive error handling replacing basic implementation
+- **Streamlined Codebase**: Reduced SmartMail codebase complexity while dramatically expanding functionality - consolidated three separate implementations into single comprehensive solution
+- **SmartMail V2 Strategic UI Transformation**: Complete visual redesign implementing Hysio brand identity with mint green/off-white color scheme, professional typography, and enhanced visual hierarchy replacing generic interface
+- **Intelligent Settings Control Panel**: Transformation from basic options to sophisticated control panel with content length management (short/medium/extended: 200/400/600+ words), advanced tone-of-voice selection (formal, informal, direct, scientific), and formality controls for greeting and closing customization
+- **Revolutionary 3-Panel Architecture**: Complete SmartMail UI transformation from 2-panel to intuitive 3-panel design (Input | Settings | Output) with logical workflow separation, enhanced productivity, and streamlined user experience for maximum efficiency
+- **Auto Subject Line Generation**: Implementation of intelligent subject line generation with toggle control, eliminating manual subject entry when enabled and providing contextually relevant email subjects based on content analysis
+- **Prominent Subject Line Management**: Enhanced SmartMail interface with dedicated, prominent subject line display box featuring inline edit and copy functionality for improved user control and visibility
+- **Advanced Document Upload System**: Complete overhaul of document upload functionality with professional drag-and-drop interface, comprehensive file validation (PDF/Word/TXT support), intelligent file size limits (10MB), and maximum file count enforcement (3 documents)
+- **Enterprise Document Processing Pipeline**: Implementation of sophisticated document content extraction system with specialized handling for PDF, Word, and text documents, including content validation, metadata extraction, and AI-optimized formatting
+- **Enhanced AI Document Integration**: Advanced prompt engineering with intelligent document context integration, enabling AI to accurately reference and utilize uploaded document content with transparency and medical accuracy
+
+
+
+
+
+### Fixed
+- **Critical SmartMail API Validation Bug**: Fixed "Valid recipient type is required" error that was blocking all email generation due to mismatched request data structure between frontend and API endpoint
+- **SmartMail Tone Configuration**: Resolved tone-of-voice validation failures by implementing proper tone object structure with systemPrompt properties expected by AI generation API
+- **Critical Session Type Mismatch**: Resolved fatal type incompatibility between `useSessionState` hook and intake workflows that was causing immediate crashes when selecting "Hysio Intake Plus" or "Hysio Consult"
+- **Intake Workflow Stability**: Implemented comprehensive error boundaries around all workflows to prevent crashes and provide graceful recovery with user-friendly error messages
+- **Session State Integration**: Fixed session lifecycle management to properly handle all four workflow types ('intake', 'intake-plus', 'followup', 'consult') with correct data initialization
+- **API Error Resilience**: Added robust fallback mechanisms for all AI-powered workflow phases (preparation generation, PHSB structuring, examination analysis, clinical conclusions) ensuring workflows continue functioning even when AI services are unavailable
+- **Missing Import Dependencies**: Fixed missing `RotateCcw` import in StreamlinedFollowupWorkflow that was causing compilation errors
+- **Workflow State Management**: Enhanced state transition logic in NewIntakeWorkflow to ensure proper phase completion tracking and navigation button visibility
+- **Error Handling Coverage**: Comprehensive error handling added across all API calls with detailed logging and user-friendly fallback content in Dutch for production use
+- **Hysio Intake Workflow Stabilization**: Complete restructuring of streamlined intake workflow with removal of redundant document upload feature, implementation of two-panel interface architecture, and simplified direct-to-intake flow
+- **Two-Panel Interface Implementation**: Fixed Hysio Intake to use consistent TwoPanelLayout (left panel for generated output, right panel for input controls) matching the working Hysio Intake Plus architecture
+- **File Upload Functionality**: Restored working file upload capability in Hysio Intake by implementing proven file upload logic from Hysio Intake Plus workflow with proper error handling and file validation
+- **Workflow Architecture Alignment**: Eliminated unreliable step-based approach (start → recording → processing → results) and implemented stable phase-based workflow management similar to working Plus variant
+- **Real-Time Content Generation**: Fixed live display of generated content (anamnesekaart, onderzoeksbevindingen, klinische conclusie) in left panel during intake process instead of batch processing approach
+
+
+
+
+
+### Added
+- **Enhanced Tone-of-Voice Options**: Added "Standaard - Neutraal" as default neutral tone option for professional communication, providing balanced baseline tone suitable for general correspondence
+- **Hysio SmartMail 2.0 - Complete Strategic Reinvention**: Revolutionary transformation from fragmented prototype to professional-grade email generation platform with advanced AI customization and template management
+- **Multi-Tone AI Email Generation**: Four distinct writing styles (Professional, Empathetic, Collaborative, Informative) with customizable AI system prompts for precise communication tone control
+- **Template Management System**: Professional template creation, saving, and management with predefined templates for common scenarios (follow-up appointments, colleague consultations, GP referrals) and user-created custom templates
+- **Email History & Tracking**: Complete email generation history with local storage, search functionality, preview capabilities, and export tracking for professional workflow continuity
+- **Advanced Patient Context Integration**: Seamless integration with Medical Scribe sessions for automatic patient information population and contextual email enhancement
+- **Real-Time Email Preview & Editing**: Professional preview mode with in-line editing capabilities, allowing therapists to fine-tune generated content before use
+- **Tabbed Professional Interface**: Intuitive navigation with dedicated sections for email composition, template management, and generation history with modern UI/UX design
+- **Document Context Enhancement**: Advanced document upload integration for incorporating treatment notes, assessment results, and session summaries into email context
+- **Voice Dictation Integration**: Seamless integration with existing audio recording capabilities for hands-free email content input and context specification
+- **Intelligent Recipient Targeting**: Enhanced recipient categorization (Patient, Colleague, GP) with recipient-specific communication optimization and tone adjustment
+- **Multi-Language Email Generation**: Support for 8 international languages (Dutch, English, Arabic, French, German, Spanish, Mandarin, Hindi) with automatic language quality warnings for non-Dutch content to ensure professional communication standards
+- **Advanced Content Length Controls**: Granular control over email length with three preset options (Short ~200 words, Medium ~400 words, Extended ~600+ words) allowing precise communication scope management based on recipient and context requirements
+- **Professional Formality Management**: Sophisticated greeting and closing customization with three formality levels (formal, standard, informal) enabling appropriate tone matching for different professional relationships and communication contexts
+- **Smart Document Upload Interface**: Professional drag-and-drop document upload zone with real-time validation feedback, visual upload progress indicators, and comprehensive error handling for improved user experience
+- **Intelligent File Processing**: Advanced document content extraction utilities with support for multiple file formats, automatic content cleaning, size optimization for AI processing, and metadata preservation
+- **Enhanced Copy & Edit Controls**: Dedicated copy and edit buttons for subject lines with auto-save functionality and seamless inline editing experience for improved workflow efficiency
+- **Comprehensive File Validation**: Robust validation system including file type checking, size limits, duplicate detection, and maximum file count enforcement with user-friendly error messaging
+- **Enhanced History Management**: Comprehensive email history with view, copy, and delete functionality, enabling users to review previous communications, reuse successful content patterns, and maintain organized communication records with full context preservation
+- **Strategic Workflow Evolution**: Complete implementation of three distinct physiotherapy workflows with enhanced user experience and optional preparation steps
+- **Hysio Intake (New Streamlined Workflow)**: Simple 3-step workflow (Start → Record → Process) with automated analysis generating complete PHSB anamnesis, examination findings, and clinical conclusions
+- **Hysio Intake Plus (Enhanced Complex Workflow)**: Renamed and improved existing comprehensive 3-phase intake workflow with optional intelligent preparation step for complex cases
+- **Hysio Consult (Renamed SOEP Workflow)**: Consistent branding for followup consultations using SOEP methodology with optional preparation step for continuity of care
+- **Optional Preparation Steps**: Both Hysio Intake Plus and Hysio Consult now feature optional preparation generation with skip functionality, removing workflow barriers for quick sessions
+- **Intelligent Workflow Routing**: Updated session type selector with clear descriptions, estimated durations, and feature lists for all three workflow variants
+- **Streamlined Intake Backend Logic**: Complete automated processing pipeline for simple intake workflow performing transcription, PHSB structuring, examination analysis, and clinical conclusion generation
+- **Consistent Workflow Branding**: Updated all user-facing documentation titles from "SOEP documentatie" to "Hysio Consult Documentatie" for consistent brand experience
 - **Professional Multi-Page Marketing Website**: Complete transformation from single-page application to comprehensive marketing website with navigation restructuring and dedicated pages
 - **Marketing Navigation Component**: New navigation system with "Hysio Toolkit" dropdown containing all application modules and dedicated marketing pages navigation
 - **Over Ons Page (/over-ons)**: Professional about page featuring company mission, vision, core values, and team information with call-to-action sections
@@ -48,6 +161,15 @@ Het formaat is gebaseerd op [Keep a Changelog](https://keepachangelog.com/en/1.0
 - **Monitoring and Observability**: MONITORING.md with Prometheus/Grafana setup, structured logging, security monitoring, and HIPAA compliance tracking
 - **Issue Management Templates**: .github/ISSUE_TEMPLATE.md with comprehensive bug reports, feature requests, security vulnerabilities, and healthcare-specific workflows
 - **Code Review Framework**: .github/PULL_REQUEST_TEMPLATE.md with healthcare compliance checklists, security reviews, and medical software quality standards
+- **Hysio EduPack AI-Powered Patient Education System**: Complete implementation of automated patient education summary generator with AI-driven content creation, B1-level Dutch language simplification, and multi-format distribution capabilities
+- **EduPack Core Generation System**: AI content generator with GPT-4 integration for B1-level Dutch text simplification, 7 standard section templates (introduction, summary, diagnosis, treatment, self-care, warnings, follow-up), and privacy filtering for confidential information removal
+- **Integrated Scribe Workflow**: EduPack panel component integrated into existing scribe workflow, appearing after session completion with section toggle switches, collapsible preview panel with section icons, and inline rich text editing capabilities
+- **Standalone EduPack Page (/edupack)**: Independent generation page with manual text entry, document upload functionality, pathology/condition selector, patient information forms, and responsive design for desktop and tablet usage
+- **Multi-Format Distribution System**: Integration with SmartMail for secure email distribution, PDF generation with Hysio branding and medical disclaimers, copy-to-clipboard functionality, and secure file sharing links with expiration dates
+- **Advanced Security & Compliance**: Access control validation for Advanced subscription tier, comprehensive audit logging for all generation and distribution activities, patient consent validation, data encryption at rest and in transit, GDPR compliance features, and automatic content cleanup with configurable retention periods
+- **EduPack TypeScript Architecture**: Comprehensive type definitions for EduPack data structures, content validation, personalization engines, and API response interfaces with full type safety across the system
+- **Patient Personalization Engine**: Content adaptation based on patient age, condition, communication preferences, and session context with intelligent section recommendations and automated content customization
+- **Content Quality Assurance**: B1-level language compliance validation, content sanitization to prevent PII leakage, medical terminology explanation system, and automated content review workflows
 - **Backup and Recovery System**: BACKUP.md with automated backup procedures, disaster recovery protocols, and HIPAA-compliant data retention policies
 - **Horizontal Scaling Guidelines**: SCALING.md with auto-scaling configuration, healthcare workload optimization, and capacity planning for medical workflows
 - **System Maintenance Procedures**: MAINTENANCE.md with scheduled maintenance, security updates, emergency response, and HIPAA compliance validation
@@ -69,6 +191,10 @@ Het formaat is gebaseerd op [Keep a Changelog](https://keepachangelog.com/en/1.0
 - **Comprehensive API Framework**: RESTful endpoints for generation, validation, distribution, and content management with caching and rate limiting
 - **React State Management**: Custom hooks for EduPack generation state, content updates, and validation feedback with TypeScript type safety
 
+
+
+
+
 ### Changed
 - **Homepage Architecture**: Transformed from single-page application interface to professional multi-page marketing website with modular navigation and dedicated content pages
 - **Navigation Structure**: Restructured from inline navigation to reusable MarketingNavigation component with "Hysio Toolkit" dropdown and professional marketing pages
@@ -89,12 +215,18 @@ Het formaat is gebaseerd op [Keep a Changelog](https://keepachangelog.com/en/1.0
 - **Code Review Process**: Elevated from basic pull requests to comprehensive review framework with medical software quality standards and security validation
 - **Quality Assurance Framework**: Enhanced from basic QA to comprehensive quality framework with healthcare ethics, 24/7 support, strategic roadmap, and performance excellence standards
 
+
+
+
+
 ### Fixed
 - **Documentation Accuracy**: Bijgewerkte repository URL's en correcte tech stack versies
 - **Missing Information**: Toegevoegde ontbrekende documentatie voor alle platform features en capabilities
 - **Legal Documentation Gap**: Toegevoegde ontbrekende LICENSE.md om juridische onduidelijkheid over eigendom en gebruik te elimineren
 - **Enterprise Readiness Gap**: Identification en planning voor alle ontbrekende enterprise-level componenten (Security, DevOps, Compliance)
 - **Compliance Gaps**: Addressed critical gaps in healthcare data protection, privacy compliance, and regulatory framework documentation
+
+
 
 ---
 

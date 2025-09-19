@@ -36,7 +36,11 @@
       "Bash(find:*)",
       "Bash(cat:*)",
       "Bash(tree:*)",
-      "Bash(if not exist \".github\" mkdir .github)"
+      "Bash(if not exist \".github\" mkdir .github)",
+      "Bash(npx eslint:*)",
+      "Bash(NEXT_ESLINT_IGNORE_DURING_BUILD=true npm run build)",
+      "Bash(rm:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": []
