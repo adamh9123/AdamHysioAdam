@@ -205,7 +205,7 @@ export class EduPackContentGenerator {
       const options: OpenAICompletionOptions = {
         model: HYSIO_LLM_MODEL,
         temperature: 1.0, // GPT-5-mini only supports temperature = 1
-        max_tokens: wordCountTokens,
+        maxTokens: wordCountTokens,
         top_p: 0.9,
         frequency_penalty: 0.2,
         presence_penalty: 0.1
