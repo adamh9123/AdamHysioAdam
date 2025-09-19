@@ -3,8 +3,14 @@ import { SimpleEmailRequest, SimpleEmailResponse } from '@/lib/types/smartmail-s
 import { HYSIO_LLM_MODEL } from '@/lib/api/openai';
 
 export async function POST(request: NextRequest): Promise<NextResponse<SimpleEmailResponse>> {
+  let body: SimpleEmailRequest | null = null;
+
   try {
-    const body: SimpleEmailRequest = await request.json();
+    body = await request.json();
+
+    if (!body) {
+      throw new Error('Ongeldige SmartMail aanvraag: lege body');
+    }
 
     // Basic validation - keep it simple
     if (!body.recipientType || !body.context) {
@@ -106,9 +112,11 @@ ${userInstruction}`;
       console.warn('OpenAI API failed, using fallback:', aiError);
 
       // Fallback to simple template when AI fails
-      const fallbackEmail = `Beste ${body.recipientType === 'patient' ? 'patiënt' : 'collega'},
+      const fallbackRecipient = body?.recipientType === 'patient' ? 'patiënt' : 'collega';
+      const fallbackContext = body?.context ?? 'Update over uw behandeling.';
+      const fallbackEmail = `Beste ${fallbackRecipient},
 
-${body.context}
+${fallbackContext},
 
 Met vriendelijke groet,
 [Uw naam]
@@ -127,9 +135,11 @@ Gegenereerd met Hysio SmartMail (Fallback mode)`;
     console.error('SmartMail Simple Error:', error);
 
     // Simple fallback - no complex error handling
-    const fallbackEmail = `Beste ${body?.recipientType === 'patient' ? 'patiënt' : 'collega'},
+    const fallbackRecipient = body?.recipientType === 'patient' ? 'patiënt' : 'collega';
+    const fallbackContext = body?.context ?? 'Update over uw behandeling.';
+    const fallbackEmail = `Beste ${fallbackRecipient},
 
-${body?.context || 'Update over uw behandeling.'}
+${fallbackContext},
 
 Met vriendelijke groet,
 [Uw naam]
