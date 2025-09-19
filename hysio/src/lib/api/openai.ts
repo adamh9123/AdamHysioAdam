@@ -92,6 +92,7 @@ export async function generateContentWithOpenAI(
       ],
       temperature,
       // Map camelCase option to OpenAI's expected snake_case field
+
       max_tokens: resolvedMaxTokens,
       top_p,
       frequency_penalty,
@@ -272,6 +273,7 @@ export async function generateContentStreamWithOpenAI(
       onError,
     } = options;
 
+    const maxTokensValue = max_tokens;
     const temperature = normalizeTemperature(rawTemperature);
 
     const resolvedMaxTokens = max_tokens ?? maxTokens ?? 2000;
