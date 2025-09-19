@@ -197,7 +197,7 @@ Wij gaan werken aan het verminderen van uw pijn en het herstellen van uw bewegel
 3. Advisering over goede houdingen en bewegingen
 4. Geleidelijke opbouw van uw normale activiteiten
 
-We verwachten dat u binnen 4-6 weken duidelijke verbetering zult merken.`,
+We verwachten dat u binnen 4 tot 6 weken duidelijke verbetering zult merken.`,
 
     self_care: `Wat u zelf kunt doen:
 
