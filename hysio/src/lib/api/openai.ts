@@ -9,6 +9,22 @@ export const HYSIO_LLM_MODEL = 'gpt-5-mini' as const;
 // Initialize OpenAI client
 let openaiClient: OpenAI | null = null;
 
+const SUPPORTED_TEMPERATURE = 1.0;
+
+function normalizeTemperature(input?: number | null): number {
+  if (typeof input !== 'number' || Number.isNaN(input)) {
+    return SUPPORTED_TEMPERATURE;
+  }
+
+  if (Math.abs(input - SUPPORTED_TEMPERATURE) > 1e-3) {
+    console.warn(
+      `Unsupported temperature value ${input} provided. GPT-5-mini only supports ${SUPPORTED_TEMPERATURE}. Using ${SUPPORTED_TEMPERATURE} instead.`,
+    );
+  }
+
+  return SUPPORTED_TEMPERATURE;
+}
+
 function getOpenAIClient(): OpenAI {
   if (!openaiClient) {
     const apiKey = process.env.OPENAI_API_KEY;
@@ -24,8 +40,8 @@ function getOpenAIClient(): OpenAI {
 
 export interface OpenAICompletionOptions {
   model?: string; // Default to gpt-5-mini
-  temperature?: number; // 0-2, controls randomness
-  maxTokens?: number; // Maximum tokens in response
+  temperature?: number; // GPT-5-mini only supports 1.0
+  max_tokens?: number; // Maximum tokens in response
   top_p?: number; // 0-1, nucleus sampling
   frequency_penalty?: number; // -2 to 2, penalize frequent tokens
   presence_penalty?: number; // -2 to 2, penalize existing tokens
@@ -42,7 +58,8 @@ export async function generateContentWithOpenAI(
   try {
     const {
       model = HYSIO_LLM_MODEL,
-      temperature = 1.0, // GPT-5-mini only supports temperature = 1
+      temperature: rawTemperature,
+      max_tokens = 2000,
       top_p = 1.0,
       frequency_penalty = 0,
       presence_penalty = 0,
@@ -50,10 +67,7 @@ export async function generateContentWithOpenAI(
       user,
     } = options;
 
-    const maxTokens =
-      options.maxTokens ??
-      (options as { max_tokens?: number }).max_tokens ?? // Backwards compatibility with previous naming
-      2000;
+    const temperature = normalizeTemperature(rawTemperature);
 
     // Check if API key is available
     if (!process.env.OPENAI_API_KEY) {
@@ -72,6 +86,7 @@ export async function generateContentWithOpenAI(
         { role: 'user', content: userPrompt }
       ],
       temperature,
+      // Map camelCase option to OpenAI's expected snake_case field
       max_tokens: maxTokens,
       top_p,
       frequency_penalty,
@@ -239,7 +254,8 @@ export async function generateContentStreamWithOpenAI(
   try {
     const {
       model = HYSIO_LLM_MODEL,
-      temperature = 1.0, // GPT-5-mini only supports temperature = 1
+      temperature: rawTemperature,
+      max_tokens = 2000,
       top_p = 1.0,
       frequency_penalty = 0,
       presence_penalty = 0,
@@ -250,10 +266,7 @@ export async function generateContentStreamWithOpenAI(
       onError,
     } = options;
 
-    const maxTokens =
-      options.maxTokens ??
-      (options as { max_tokens?: number }).max_tokens ?? // Backwards compatibility with previous naming
-      2000;
+    const temperature = normalizeTemperature(rawTemperature);
 
     // Get OpenAI client
     const client = getOpenAIClient();
@@ -266,6 +279,7 @@ export async function generateContentStreamWithOpenAI(
         { role: 'user', content: userPrompt }
       ],
       temperature,
+      // Map camelCase option to OpenAI's expected snake_case field
       max_tokens: maxTokens,
       top_p,
       frequency_penalty,
