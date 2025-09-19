@@ -314,7 +314,7 @@ ${instructions.generate}`;
       {
         model: HYSIO_LLM_MODEL,
         temperature: 1.0, // GPT-5-mini only supports temperature = 1
-        maxTokens: 1000
+        max_tokens: 1000
       }
     );
 

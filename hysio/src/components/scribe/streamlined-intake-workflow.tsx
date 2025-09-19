@@ -557,7 +557,7 @@ Antwoord in het Nederlands, professioneel geformatteerd.`;
           userPrompt,
           options: {
             temperature: 0.3,
-            maxTokens: 1500,
+            max_tokens: 1500,
           }
         }),
       });

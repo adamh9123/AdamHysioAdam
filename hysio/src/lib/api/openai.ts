@@ -41,7 +41,9 @@ function getOpenAIClient(): OpenAI {
 export interface OpenAICompletionOptions {
   model?: string; // Default to gpt-5-mini
   temperature?: number; // GPT-5-mini only supports 1.0
-  max_tokens?: number; // Maximum tokens in response
+  max_tokens?: number; // Maximum tokens in response (canonical)
+  /** @deprecated Use max_tokens instead. Supported for backwards compatibility. */
+  maxTokens?: number;
   top_p?: number; // 0-1, nucleus sampling
   frequency_penalty?: number; // -2 to 2, penalize frequent tokens
   presence_penalty?: number; // -2 to 2, penalize existing tokens
@@ -59,13 +61,16 @@ export async function generateContentWithOpenAI(
     const {
       model = HYSIO_LLM_MODEL,
       temperature: rawTemperature,
-      max_tokens = 2000,
+      max_tokens,
+      maxTokens,
       top_p = 1.0,
       frequency_penalty = 0,
       presence_penalty = 0,
       stop,
       user,
     } = options;
+
+    const resolvedMaxTokens = max_tokens ?? maxTokens ?? 2000;
 
     const temperature = normalizeTemperature(rawTemperature);
 
@@ -87,7 +92,7 @@ export async function generateContentWithOpenAI(
       ],
       temperature,
       // Map camelCase option to OpenAI's expected snake_case field
-      max_tokens: maxTokens,
+      max_tokens: resolvedMaxTokens,
       top_p,
       frequency_penalty,
       presence_penalty,
@@ -255,7 +260,8 @@ export async function generateContentStreamWithOpenAI(
     const {
       model = HYSIO_LLM_MODEL,
       temperature: rawTemperature,
-      max_tokens = 2000,
+      max_tokens,
+      maxTokens,
       top_p = 1.0,
       frequency_penalty = 0,
       presence_penalty = 0,
@@ -267,6 +273,8 @@ export async function generateContentStreamWithOpenAI(
     } = options;
 
     const temperature = normalizeTemperature(rawTemperature);
+
+    const resolvedMaxTokens = max_tokens ?? maxTokens ?? 2000;
 
     // Get OpenAI client
     const client = getOpenAIClient();
@@ -280,7 +288,7 @@ export async function generateContentStreamWithOpenAI(
       ],
       temperature,
       // Map camelCase option to OpenAI's expected snake_case field
-      max_tokens: maxTokens,
+      max_tokens: resolvedMaxTokens,
       top_p,
       frequency_penalty,
       presence_penalty,
