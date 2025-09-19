@@ -5,7 +5,9 @@ import { HYSIO_LLM_MODEL } from '@/lib/api/openai';
 export interface AIPromptConfig {
   systemPrompt: string;
   temperature: number;
-  maxTokens: number;
+  max_tokens: number;
+  /** @deprecated Gebruik max_tokens. Alleen voor terugwaartse compatibiliteit. */
+  maxTokens?: number;
   model: string;
 }
 
@@ -96,7 +98,7 @@ export const COMMON_SYMPTOM_PATTERNS = {
 export const AI_MODEL_CONFIG: AIPromptConfig = {
   systemPrompt: DCSPH_SYSTEM_PROMPT,
   temperature: 1.0, // GPT-5-mini only supports temperature = 1
-  maxTokens: 1000,
+  max_tokens: 1000,
   model: HYSIO_LLM_MODEL
 };
 
