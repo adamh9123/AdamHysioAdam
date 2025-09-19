@@ -397,7 +397,7 @@ export const NewIntakeWorkflow: React.FC<NewIntakeWorkflowProps> = ({
           userPrompt,
           options: {
             model: HYSIO_LLM_MODEL,
-            temperature: 0.3,
+            temperature: 1.0, // GPT-5-mini only supports temperature 1.0
           },
         }),
       });
@@ -568,7 +568,7 @@ Antwoord in het Nederlands, professioneel geformatteerd.`;
           userPrompt,
           options: {
             model: HYSIO_LLM_MODEL,
-            temperature: 0.2,
+            temperature: 1.0, // GPT-5-mini only supports temperature 1.0
           },
         }),
       });
@@ -661,7 +661,7 @@ Antwoord in het Nederlands, professioneel maar praktisch uitvoerbaar.`;
           userPrompt,
           options: {
             model: HYSIO_LLM_MODEL,
-            temperature: 0.3,
+            temperature: 1.0, // GPT-5-mini only supports temperature 1.0
           },
         }),
       });
@@ -774,7 +774,7 @@ Antwoord in het Nederlands, professioneel gestructureerd.`;
           userPrompt,
           options: {
             model: HYSIO_LLM_MODEL,
-            temperature: 0.2,
+            temperature: 1.0, // GPT-5-mini only supports temperature 1.0
           },
         }),
       });
@@ -868,7 +868,7 @@ Antwoord in het Nederlands, professioneel en evidence-based.`;
           userPrompt,
           options: {
             model: HYSIO_LLM_MODEL,
-            temperature: 0.2,
+            temperature: 1.0, // GPT-5-mini only supports temperature 1.0
           },
         }),
       });
