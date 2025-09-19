@@ -67,6 +67,7 @@ export async function generateContentWithOpenAI(
       user,
     } = options;
 
+    const maxTokensValue = max_tokens;
     const temperature = normalizeTemperature(rawTemperature);
 
     // Check if API key is available
@@ -87,7 +88,7 @@ export async function generateContentWithOpenAI(
       ],
       temperature,
       // Map camelCase option to OpenAI's expected snake_case field
-      max_tokens: maxTokens,
+      max_tokens: maxTokensValue,
       top_p,
       frequency_penalty,
       presence_penalty,
@@ -266,6 +267,7 @@ export async function generateContentStreamWithOpenAI(
       onError,
     } = options;
 
+    const maxTokensValue = max_tokens;
     const temperature = normalizeTemperature(rawTemperature);
 
     // Get OpenAI client
@@ -280,7 +282,7 @@ export async function generateContentStreamWithOpenAI(
       ],
       temperature,
       // Map camelCase option to OpenAI's expected snake_case field
-      max_tokens: maxTokens,
+      max_tokens: maxTokensValue,
       top_p,
       frequency_penalty,
       presence_penalty,
