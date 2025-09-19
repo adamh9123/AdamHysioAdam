@@ -25,7 +25,7 @@ function getOpenAIClient(): OpenAI {
 export interface OpenAICompletionOptions {
   model?: string; // Default to gpt-5-mini
   temperature?: number; // 0-2, controls randomness
-  max_tokens?: number; // Maximum tokens in response
+  maxTokens?: number; // Maximum tokens in response
   top_p?: number; // 0-1, nucleus sampling
   frequency_penalty?: number; // -2 to 2, penalize frequent tokens
   presence_penalty?: number; // -2 to 2, penalize existing tokens
@@ -43,7 +43,7 @@ export async function generateContentWithOpenAI(
     const {
       model = HYSIO_LLM_MODEL,
       temperature = 1.0, // GPT-5-mini only supports temperature = 1
-      max_tokens = 2000,
+      maxTokens = 2000,
       top_p = 1.0,
       frequency_penalty = 0,
       presence_penalty = 0,
@@ -68,7 +68,8 @@ export async function generateContentWithOpenAI(
         { role: 'user', content: userPrompt }
       ],
       temperature,
-      max_completion_tokens: max_tokens, // GPT-5-mini uses max_completion_tokens instead of max_tokens
+      // Map camelCase option to OpenAI's expected snake_case field
+      max_tokens: maxTokens,
       top_p,
       frequency_penalty,
       presence_penalty,
@@ -236,7 +237,7 @@ export async function generateContentStreamWithOpenAI(
     const {
       model = HYSIO_LLM_MODEL,
       temperature = 1.0, // GPT-5-mini only supports temperature = 1
-      max_tokens = 2000,
+      maxTokens = 2000,
       top_p = 1.0,
       frequency_penalty = 0,
       presence_penalty = 0,
@@ -258,7 +259,8 @@ export async function generateContentStreamWithOpenAI(
         { role: 'user', content: userPrompt }
       ],
       temperature,
-      max_completion_tokens: max_tokens, // GPT-5-mini uses max_completion_tokens instead of max_tokens
+      // Map camelCase option to OpenAI's expected snake_case field
+      max_tokens: maxTokens,
       top_p,
       frequency_penalty,
       presence_penalty,
