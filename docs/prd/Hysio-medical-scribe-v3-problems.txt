@@ -1,0 +1,94 @@
+Hysio Intake (Automatisch)
+Grondige Analyse van de Problemen
+1.	De Kern-Bug (Hoogste Prioriteit): De Gebroken Doorsturing. De generatePreparation call werkt nu, maar de belangrijkste stap faalt. Nadat de gebruiker input geeft (audio of tekst) en op "Verwerk Volledige Intake" klikt, wordt de data correct verwerkt op de achtergrond. Echter, de applicatie stuurt de gebruiker niet door naar een volgende pagina. De gebruiker blijft vastzitten op de input-pagina, zonder ooit de resultaten te zien. Dit maakt de hele workflow nutteloos.
+2.	UI/UX Probleem 1: Redundante Componenten. De rechter "Intake Opname" paneel bevat een groot, overbodig "drag-and-drop" upload-vlak “bestand uploaden”. Dit is dubbelop, omdat er al een "Bestand selecteren" knop is onder live recorder, en het neemt onnodig veel ruimte in. Laat alleen die live recorder met daaronder bestand selecteren functie, de andere box tussen live recorder en handmatige notities mag weg, ook bij hysio stapsgewijs en hysio consult 
+3.	UI/UX Probleem 2: Onlogische Layout. De "Handmatige Invoer" staat nu onderaan, gescheiden door het overbodige upload-vlak. Dit is niet intuïtief.schuif die dus onder live recorder box.
+4.	Nieuwe Feature-eis: Hysio Assistant. Er is een duidelijke wens om de Hysio Assistant te integreren in deze workflow, direct beschikbaar onder het invoerpaneel handmatige invoer.
+________________________________________
+De Ultieme Ultrathink Prompt voor Claude Code
+Hier is de prompt, ontworpen om deze problemen definitief en volgens jouw visie op te lossen.
+Hallo Claude,
+Activeer je Ultrathink-modus. We zijn dichtbij, maar de "Hysio Intake (Volledig Automatisch)" workflow is nog steeds functioneel incompleet en de gebruikersinterface is onlogisch. Je missie is om deze workflow volledig te repareren en te verfijnen tot een naadloze en intuïtieve ervaring, van input tot eindresultaat.
+Hier is je gedetailleerde, geprioriteerde actieplan:
+1. Fix de Gebroken Gebruikersflow: Implementeer de Resultatenpagina (Hoogste Prioriteit)
+•	Probleem: Na het klikken op "Verwerk Volledige Intake" en een succesvolle verwerking op de achtergrond, wordt de gebruiker niet doorgestuurd. Ze blijven vastzitten op de input-pagina.
+•	Jouw Actie:
+1.	Implementeer de client-side redirect. Zorg ervoor dat na een succesvolle API-response van de verwerkings-endpoint, de applicatie de gebruiker automatisch doorstuurt naar de resultatenpagina.
+2.	Creëer of finaliseer de doelpagina op de route /scribe/intake-automatisch/conclusie.
+3.	Op deze nieuwe conclusie-pagina moeten de drie verwerkte onderdelen (de HHSB-anamnesekaart, de Onderzoeksbevindingen, en de Klinische Conclusie) netjes, overzichtelijk, inklapbaar, bewerkbaar, kopieerbaar en onder elkaar worden weergegeven of naast elkaar als dat er beter uitziet. Ook de mogelijkheid om naar TXT, PDF of DOCX te exporteren!
+2. Refactor de 'Intake Opname' Component (UI/UX Verbetering)
+•	Probleem: Het rechterpaneel is onoverzichtelijk door redundante en onlogisch geplaatste elementen.
+•	Jouw Actie:
+1.	Verwijder Redundantie: Verwijder het grote, overbodige "Klik om een bestand te selecteren of sleep het hier naartoe, maximaal 10mb" upload-component. De "Bestand selecteren" knop binnen de "Live Opname" sectie is voldoende.
+2.	Optimaliseer de Layout: Herstructureer de volgorde van de input-methodes naar de volgende logische en compacte opbouw:
+	Bovenaan: Live Opname (met de geïntegreerde "Bestand selecteren" knop).
+	Direct daaronder: Handmatige Invoer.
+	Daaronder: Hysio Assistant netjes verwerkt erin, kleine nette box.
+3. Integreer de Hysio Assistant (Nieuwe Feature)
+•	Probleem: De Hysio Assistant is nog niet toegankelijk vanuit deze workflow.
+•	Jouw Actie:
+1.	Voeg direct onder het "Handmatige Invoer" tekstveld een nieuwe sectie of knop toe genaamd "Hysio Assistant". En anders op een andere manier qua popup rechtsonder ofzo
+2.	Zorg ervoor dat wanneer de gebruiker hierop klikt, er een schoon, goed geformatteerd interface verschijnt waar de gebruiker kan interacteren met de assistent (bijvoorbeeld een chat-interface of een vergelijkbare, schone pop-up/modal).
+4. Belangrijke Notitie (Scope Bepaling)
+•	Houd je aan de bestaande en goedgekeurde twee-panelen layout (links voorbereiding/resultaat, rechts input). Het idee voor een drie-panelen layout is expliciet verworpen.
+Voer deze taken uit om de automatische workflow eindelijk de robuuste en gebruiksvriendelijke ervaring te maken die het moet zijn.
+
+
+
+Hysio Intake (Stapsgewijs)
+Grondige Analyse van de Problemen
+1.	De Kern-Bug (Hoogste Prioriteit): De Gebroken Gebruikersflow. De "Verwerk Anamnese" knop start succesvol het verwerkingsproces op de achtergrond (de HHSB processen API-call slaagt). Echter, na voltooiing gebeurt er niets in de interface. De gebruiker blijft vastzitten op de invoerpagina, kan het resultaat nergens zien, en de knop "Volgende: Onderzoek ->" is niet functioneel. De flow is compleet geblokkeerd.
+2.	Ontbrekende Resultaatpagina: De oorzaak van de gebroken flow is het ontbreken van een speciale plek om het verwerkte resultaat te tonen. De gebruiker stelt zelf de logische oplossing voor: er moet een nieuwe "resultaat" pagina komen.
+3.	UI/UX Probleem: Redundante Componenten. Net als in de automatische workflow, bevat de rechter "Anamnese Opname" paneel een groot, overbodig "drag-and-drop" upload-vlak dat verwarring zaait en ruimte verspilt.
+4.	Nieuwe Feature-eis: Hysio Assistant. Er is een duidelijke wens om de Hysio Assistant te integreren in deze workflow, direct beschikbaar vanuit het invoerpaneel.
+________________________________________
+De Ultieme Ultrathink Prompt voor Claude Code
+Hier is de prompt, ontworpen om deze kritieke problemen systematisch en volgens jouw visie op te lossen.
+Hallo Claude,
+Activeer je Ultrathink-modus. De "Hysio Intake (Stapsgewijs)" workflow is op een kritiek punt gebroken. De gebruiker kan de eerste stap, "Anamnese," niet voltooien, wat de hele workflow onbruikbaar maakt. Je missie is om deze fundamentele breuk in de gebruikersflow te repareren en de interface te verfijnen tot een naadloze en logische ervaring.
+Hier is je gedetailleerde, geprioriteerde actieplan:
+1. Repareer de Gebroken Gebruikersflow: Creëer de Anamnese Resultaatpagina (Hoogste Prioriteit)
+•	Probleem: Na een succesvolle verwerking van de anamnese blijft de gebruiker vastzitten op de invoerpagina. Het resultaat is onzichtbaar en de navigatie naar de volgende stap is onmogelijk.
+•	Jouw Actie:
+1.	Creëer de Resultaatpagina: Maak een nieuwe pagina aan op de door de gebruiker voorgestelde route: /scribe/intake-stapsgewijs/anamnese-resultaat.
+2.	Implementeer de Redirect: Pas de logica van de "Verwerk Anamnese" knop aan. Na een succesvolle API-response van de verwerkings-endpoint, moet de applicatie de gebruiker automatisch doorsturen naar deze nieuwe anamnese-resultaat pagina.
+3.	Toon het Resultaat: Op de nieuwe resultaatpagina moet de gegenereerde HHSB-Anamnesekaart prominent en overzichtelijk worden weergegeven.
+4.	Activeer de Navigatie: Zorg ervoor dat vanaf deze resultaatpagina de knop "Volgende: Onderzoek ->" correct functioneert en de gebruiker naar de volgende stap in de workflow leidt en dat het vanaf daar ook gewoon goed en vloeiend verloopt!
+2. Refactor de 'Anamnese Opname' Component (UI/UX Verbetering)
+•	Probleem: Het rechterpaneel is onoverzichtelijk door een overbodig upload-element.
+•	Jouw Actie:
+1.	Verwijder Redundantie: Verwijder het grote, overbodige "Klik om een bestand te selecteren of sleep het hier naartoe" upload-component. De "Bestand selecteren" knop is voldoende.
+2.	Integreer de Hysio Assistant: Voeg direct onder het "Handmatige Invoer" tekstveld een nieuwe sectie of knop toe genaamd "Hysio Assistant". Zorg ervoor dat deze een nette, goed opgemaakte interface opent voor interactie.
+Voer deze taken uit om "Stap 1: Anamnese" te transformeren van een doodlopend pad naar een soepele, logische en complete ervaring die de gebruiker daadwerkelijk verder helpt in het proces.
+
+Hysio Consult 
+Grondige Analyse van de Problemen
+1.	De Kern-Bug (Hoogste Prioriteit): De 'Fantoom-Redirect'. Dit is het meest kritieke probleem. Nadat de gebruiker input geeft en op "Verwerk Consult" klikt, gebeurt het volgende:
+o	De data wordt succesvol verwerkt.
+o	Er verschijnt correct een succesmelding ("Consult succesvol verwerkt! U wordt doorgestuurd...").
+o	De applicatie probeert de gebruiker door te sturen naar de resultatenpagina (/scribe/soep-verslag).
+o	De redirect mislukt echter onmiddellijk. De gebruiker wordt direct teruggestuurd naar de /scribe/consult pagina, waarbij alle data en de state gereset zijn. De gebruiker ziet het eindresultaat dus nooit.
+2.	UI/UX Probleem: Redundante Componenten. Net als in de andere workflows, is er een overbodig "drag-and-drop" upload-vlak in het rechterpaneel dat voor onduidelijkheid zorgt en verwijderd moet worden.
+3.	Nieuwe Feature-eis: Hysio Assistant. Er is een consistente wens om de Hysio Assistant te integreren, ook in deze workflow, direct onder het handmatige invoerveld.
+________________________________________
+De Ultieme Ultrathink Prompt voor Claude Code
+Hier is de prompt, ontworpen om deze laatste, cruciale workflow te repareren en te optimaliseren.
+Hallo Claude,
+Activeer je Ultrathink-modus. De laatste workflow, "Hysio Consult", is ook getroffen door een kritieke, workflow-brekende bug. De voorbereiding werkt, maar de gebruiker kan het proces nooit voltooien. Je missie is om de hoofdoorzaak van dit falen te diagnosticeren en een robuuste oplossing te implementeren, samen met de gevraagde UI-verbeteringen.
+Hier is je gedetailleerde actieplan:
+1. Fix de Kritieke 'Fantoom-Redirect' Bug (Hoogste Prioriteit)
+•	Probleem: Na een succesvolle verwerking van het consult wordt de gebruiker kortstondig doorgestuurd naar de resultatenpagina, maar direct weer teruggegooid naar de beginpagina, waarbij alle data verloren gaat.
+•	Jouw Actie:
+1.	Analyseer de Redirect-Logica: Onderzoek de client-side routing die wordt uitgevoerd na de succesvolle API-aanroep van "Verwerk Consult".
+2.	Debug de Resultatenpagina: De hoofdoorzaak is waarschijnlijk de /scribe/soep-verslag pagina zelf. Controleer dit component op fouten. Mogelijke oorzaken zijn:
+	Een fout bij het ophalen of renderen van de resultaatdata.
+	Een probleem met de component lifecycle (bv. een useEffect die een ongewenste nieuwe navigatie triggert).
+	Een state- of authenticatieprobleem dat specifiek op deze route optreedt.
+3.	Zorg voor een Stabiele Weergave: De eindoplossing is een stabiele navigatie. De gebruiker moet op de /scribe/soep-verslag pagina landen en blijven, waar het gegenereerde SOEP-verslag overzichtelijk wordt gepresenteerd.
+2. Refactor de 'Consult Opname' Component (UI/UX Verbetering)
+•	Probleem: Het rechterpaneel bevat een overbodig upload-element en mist de Hysio Assistant.
+•	Jouw Actie:
+1.	Verwijder Redundantie: Verwijder het grote "Klik om een bestand te selecteren of sleep het hier naartoe" upload-component.
+2.	Integreer de Hysio Assistant: Voeg direct onder het "Handmatige Invoer" tekstveld een nieuwe sectie of knop toe genaamd "Hysio Assistant", met dezelfde functionaliteit als in de andere workflows.
+Het doel is een volledig functionele, end-to-end "Hysio Consult" workflow. Repareer de gebroken navigatie en verfijn de interface om dit de laatste stap te maken in het stabiliseren van de applicatie.
+

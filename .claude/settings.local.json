@@ -48,7 +48,9 @@
       "WebSearch",
       "Bash(if [ -n \"$OPENAI_API_KEY\" ])",
       "Bash(else echo \"OPENAI_API_KEY is not set\")",
-      "Bash(fi)"
+      "Bash(fi)",
+      "Bash(move srccomponentsuiphsb-results-panel.tsx srccomponentsuihhsb-results-panel.tsx)",
+      "Bash(ren:*)"
     ],
     "deny": [],
     "ask": []

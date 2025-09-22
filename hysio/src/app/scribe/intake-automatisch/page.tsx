@@ -13,9 +13,9 @@ import { FileUpload } from '@/components/ui/file-upload';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   ArrowLeft,
+  ArrowRight,
   FileText,
   Mic,
   Upload,
@@ -44,6 +44,7 @@ interface AutomatedIntakeState {
   isComplete: boolean;
   error: string | null;
   preparationGenerated: boolean;
+  showManualNavigation: boolean;
 }
 
 export default function AutomatedIntakePage() {
@@ -66,6 +67,7 @@ export default function AutomatedIntakePage() {
     isComplete: false,
     error: null,
     preparationGenerated: false,
+    showManualNavigation: false,
   });
 
   // Set current workflow
@@ -82,12 +84,7 @@ export default function AutomatedIntakePage() {
     }
   }, [patientInfo, router]);
 
-  // Generate preparation on component mount
-  React.useEffect(() => {
-    if (patientInfo && !state.preparationGenerated) {
-      generatePreparation();
-    }
-  }, [patientInfo, state.preparationGenerated]);
+  // Removed automatic preparation generation - now only triggered by user button click
 
   const generatePreparation = async () => {
     if (!patientInfo) return;
@@ -134,18 +131,13 @@ export default function AutomatedIntakePage() {
     }
   };
 
-  const handleInputMethodChange = (method: 'recording' | 'file' | 'manual') => {
-    setState(prev => ({
-      ...prev,
-      inputMethod: method,
-      error: null,
-    }));
-  };
 
   const handleRecordingComplete = (blob: Blob, duration: number) => {
     setState(prev => ({
       ...prev,
+      inputMethod: 'recording',
       recordingData: { blob, duration, isRecording: false },
+      uploadedFile: null, // Clear file upload when recording
     }));
 
     setAutomatedIntakeData({
@@ -156,7 +148,9 @@ export default function AutomatedIntakePage() {
   const handleFileUpload = (file: File) => {
     setState(prev => ({
       ...prev,
+      inputMethod: 'file',
       uploadedFile: file,
+      recordingData: { blob: null, duration: 0, isRecording: false }, // Clear recording when uploading file
     }));
 
     setAutomatedIntakeData({
@@ -167,6 +161,7 @@ export default function AutomatedIntakePage() {
   const handleManualNotesChange = (notes: string) => {
     setState(prev => ({
       ...prev,
+      inputMethod: notes.trim() ? 'manual' : null,
       manualNotes: notes,
     }));
 
@@ -236,10 +231,18 @@ export default function AutomatedIntakePage() {
         isComplete: true,
       }));
 
-      // Navigate to results page
-      setTimeout(() => {
-        router.push('/scribe/intake-automatisch/conclusie');
-      }, 1000);
+      // Navigate to results page immediately with error handling
+      try {
+        await router.push('/scribe/intake-automatisch/conclusie');
+      } catch (navigationError) {
+        console.error('Navigation failed:', navigationError);
+        // Fallback: Show manual navigation option
+        setState(prev => ({
+          ...prev,
+          error: 'Navigatie naar resultaten mislukt. Klik hieronder om handmatig door te gaan.',
+          showManualNavigation: true,
+        }));
+      }
 
     } catch (error) {
       console.error('Intake processing error:', error);
@@ -317,12 +320,43 @@ export default function AutomatedIntakePage() {
         </Alert>
       )}
 
-      {/* Success Alert */}
-      {state.isComplete && (
+      {/* Manual Navigation Button */}
+      {state.showManualNavigation && (
+        <div className="mb-6 text-center">
+          <Button
+            onClick={() => router.push('/scribe/intake-automatisch/conclusie')}
+            className="bg-hysio-deep-green hover:bg-hysio-deep-green/90 text-white"
+            size="lg"
+          >
+            <ArrowRight size={18} className="mr-2" />
+            Ga naar Resultaten
+          </Button>
+        </div>
+      )}
+
+      {/* Enhanced Success Alert with Progress Tracking */}
+      {state.isComplete && !state.showManualNavigation && (
         <Alert className="mb-6 border-green-200 bg-green-50">
           <CheckCircle className="h-4 w-4 text-green-600" />
           <AlertDescription className="text-green-800">
-            Intake succesvol verwerkt! U wordt doorgestuurd naar de resultaten...
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <span className="font-semibold">Intake succesvol verwerkt!</span>
+              </div>
+              <div className="text-sm">
+                • HHSB Anamnesekaart gegenereerd ✓
+              </div>
+              <div className="text-sm">
+                • Onderzoeksbevindingen geanalyseerd ✓
+              </div>
+              <div className="text-sm">
+                • Klinische conclusie opgesteld ✓
+              </div>
+              <div className="text-sm text-green-700 mt-2">
+                → Resultaten worden nu geladen...
+              </div>
+            </div>
           </AlertDescription>
         </Alert>
       )}
@@ -393,26 +427,13 @@ export default function AutomatedIntakePage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs
-              value={state.inputMethod || 'recording'}
-              onValueChange={(value) => handleInputMethodChange(value as any)}
-            >
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="recording" className="flex items-center gap-2">
-                  <Mic size={16} />
-                  Live Opname
-                </TabsTrigger>
-                <TabsTrigger value="file" className="flex items-center gap-2">
-                  <Upload size={16} />
-                  Bestand
-                </TabsTrigger>
-                <TabsTrigger value="manual" className="flex items-center gap-2">
-                  <Edit3 size={16} />
-                  Handmatig
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="recording" className="space-y-4">
+            <div className="space-y-6">
+              {/* Recording Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-hysio-deep-green">
+                  <Mic size={18} />
+                  <h3 className="text-lg font-medium">Live Opname</h3>
+                </div>
                 <AudioRecorder
                   onRecordingComplete={handleRecordingComplete}
                   disabled={state.isProcessing}
@@ -425,25 +446,35 @@ export default function AutomatedIntakePage() {
                     </div>
                   </div>
                 )}
-              </TabsContent>
 
-              <TabsContent value="file" className="space-y-4">
-                <FileUpload
-                  onFileUpload={handleFileUpload}
-                  acceptedTypes={['audio/*']}
-                  disabled={state.isProcessing}
-                />
-                {state.uploadedFile && (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                    <div className="flex items-center gap-2 text-green-800">
-                      <CheckCircle size={16} />
-                      <span>Bestand geüpload: {state.uploadedFile.name}</span>
-                    </div>
+                {/* File Upload directly below recording */}
+                <div className="pt-2 border-t border-hysio-mint/20">
+                  <div className="flex items-center gap-2 text-hysio-deep-green mb-3">
+                    <Upload size={16} />
+                    <span className="text-sm font-medium">Bestand selecteren</span>
                   </div>
-                )}
-              </TabsContent>
+                  <FileUpload
+                    onFileUpload={handleFileUpload}
+                    acceptedTypes={['audio/*']}
+                    disabled={state.isProcessing}
+                  />
+                  {state.uploadedFile && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 mt-3">
+                      <div className="flex items-center gap-2 text-green-800">
+                        <CheckCircle size={16} />
+                        <span>Bestand geüpload: {state.uploadedFile.name}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
 
-              <TabsContent value="manual" className="space-y-4">
+              {/* Manual Notes Section */}
+              <div className="space-y-4 pt-4 border-t border-hysio-mint/30">
+                <div className="flex items-center gap-2 text-hysio-deep-green">
+                  <Edit3 size={18} />
+                  <h3 className="text-lg font-medium">Handmatige Invoer</h3>
+                </div>
                 <Textarea
                   placeholder="Voer hier uw intake notities in..."
                   value={state.manualNotes}
@@ -455,8 +486,8 @@ export default function AutomatedIntakePage() {
                 <p className="text-xs text-hysio-deep-green-900/60">
                   Tip: Beschrijf de anamnese, onderzoeksbevindingen en uw klinische impressie
                 </p>
-              </TabsContent>
-            </Tabs>
+              </div>
+            </div>
 
             {/* Process Button */}
             <div className="mt-6 pt-4 border-t">

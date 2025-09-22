@@ -20,29 +20,29 @@ import {
   AlertTriangle,
   Eye
 } from 'lucide-react';
-import type { PHSBStructure } from '@/lib/types';
+import type { HHSBStructure } from '@/lib/types';
 
-// Parse PHSB structured text into individual sections
-const parsePHSBText = (fullText: string): PHSBStructure => {
+// Parse HHSB structured text into individual sections
+const parseHHSBText = (fullText: string): HHSBStructure => {
   // Input validation and error handling
   if (!fullText || typeof fullText !== 'string') {
     console.warn('parsePHSBText: Invalid input provided, returning empty structure');
     return {
-      patientNeeds: '',
-      history: '',
-      disorders: '',
-      limitations: '',
+      hulpvraag: '',
+      historie: '',
+      stoornissen: '',
+      beperkingen: '',
       redFlags: [],
       fullStructuredText: '',
       anamneseSummary: '',
     };
   }
 
-  const result: PHSBStructure = {
-    patientNeeds: '',
-    history: '',
-    disorders: '',
-    limitations: '',
+  const result: HHSBStructure = {
+    hulpvraag: '',
+    historie: '',
+    stoornissen: '',
+    beperkingen: '',
     redFlags: [],
     fullStructuredText: fullText,
     anamneseSummary: '',
@@ -51,18 +51,18 @@ const parsePHSBText = (fullText: string): PHSBStructure => {
   try {
     // Comprehensive regex patterns for robust parsing
     const sectionPatterns = [
-      // Patiëntbehoeften patterns - more comprehensive
+      // Hulpvraag patterns - more comprehensive
       {
-        key: 'patientNeeds' as keyof PHSBStructure,
+        key: 'hulpvraag' as keyof HHSBStructure,
         patterns: [
-          /\*\*P\s*[-:]?\s*Patiënt\s*(?:Probleem|behoeften)?\s*(?:\/\s*Hulpvraag)?:?\s*\*\*\s*([\s\S]*?)(?=\*\*[HhSsBb]|\*\*Samenvatting|\*\*Rode|$)/im,
-          /\*\*Patiëntbehoeften:?\s*\*\*\s*([\s\S]*?)(?=\*\*[HhSsBb]|\*\*Samenvatting|\*\*Rode|$)/im,
-          /\*\*P\s*[-:]?\s*\*\*\s*([\s\S]*?)(?=\*\*[HhSsBb]|\*\*Samenvatting|\*\*Rode|$)/im,
+          /\*\*H\s*[-:]?\s*Hulpvraag\s*(?:\/\s*Patiënt\s*Probleem)?:?\s*\*\*\s*([\s\S]*?)(?=\*\*[HhSsBb]|\*\*Samenvatting|\*\*Rode|$)/im,
+          /\*\*Hulpvraag:?\s*\*\*\s*([\s\S]*?)(?=\*\*[HhSsBb]|\*\*Samenvatting|\*\*Rode|$)/im,
+          /\*\*H\s*[-:]?\s*\*\*\s*([\s\S]*?)(?=\*\*[HhSsBb]|\*\*Samenvatting|\*\*Rode|$)/im,
         ]
       },
       // Historie patterns - enhanced
       {
-        key: 'history' as keyof PHSBStructure,
+        key: 'historie' as keyof HHSBStructure,
         patterns: [
           /\*\*H\s*[-:]?\s*Historie:?\s*\*\*\s*([\s\S]*?)(?=\*\*[SsBb]|\*\*Samenvatting|\*\*Rode|$)/im,
           /\*\*Historie:?\s*\*\*\s*([\s\S]*?)(?=\*\*[SsBb]|\*\*Samenvatting|\*\*Rode|$)/im,
@@ -71,7 +71,7 @@ const parsePHSBText = (fullText: string): PHSBStructure => {
       },
       // Stoornissen patterns - enhanced
       {
-        key: 'disorders' as keyof PHSBStructure,
+        key: 'stoornissen' as keyof HHSBStructure,
         patterns: [
           /\*\*S\s*[-:]?\s*Stoornissen\s*(?:in\s*lichaamsfuncties\s*en\s*anatomische\s*structuren)?:?\s*\*\*\s*([\s\S]*?)(?=\*\*[Bb]|\*\*Samenvatting|\*\*Rode|$)/im,
           /\*\*Stoornissen:?\s*\*\*\s*([\s\S]*?)(?=\*\*[Bb]|\*\*Samenvatting|\*\*Rode|$)/im,
@@ -80,7 +80,7 @@ const parsePHSBText = (fullText: string): PHSBStructure => {
       },
       // Beperkingen patterns - enhanced
       {
-        key: 'limitations' as keyof PHSBStructure,
+        key: 'beperkingen' as keyof HHSBStructure,
         patterns: [
           /\*\*B\s*[-:]?\s*Beperkingen:?\s*\*\*\s*([\s\S]*?)(?=\*\*Samenvatting|\*\*Rode|$)/im,
           /\*\*Beperkingen:?\s*\*\*\s*([\s\S]*?)(?=\*\*Samenvatting|\*\*Rode|$)/im,
@@ -164,10 +164,10 @@ const parsePHSBText = (fullText: string): PHSBStructure => {
   } catch (error) {
     console.error('Critical error in parsePHSBText:', error);
     return {
-      patientNeeds: '',
-      history: '',
-      disorders: '',
-      limitations: '',
+      hulpvraag: '',
+      historie: '',
+      stoornissen: '',
+      beperkingen: '',
       redFlags: [],
       fullStructuredText: fullText,
       anamneseSummary: '',
@@ -175,8 +175,8 @@ const parsePHSBText = (fullText: string): PHSBStructure => {
   }
 };
 
-interface PHSBSection {
-  id: keyof PHSBStructure;
+interface HHSBSection {
+  id: keyof HHSBStructure;
   title: string;
   shortTitle: string;
   description: string;
@@ -186,18 +186,18 @@ interface PHSBSection {
   content?: string;
 }
 
-const phsbSections: PHSBSection[] = [
+const hhsbSections: HHSBSection[] = [
   {
-    id: 'patientNeeds',
-    title: 'Patiëntbehoeften',
-    shortTitle: 'P',
+    id: 'hulpvraag',
+    title: 'Hulpvraag',
+    shortTitle: 'H',
     description: 'Motivatie/hulpvraag en doelen/verwachtingen van de patiënt',
     icon: User,
     color: 'text-blue-700',
     bgColor: 'bg-blue-50',
   },
   {
-    id: 'history',
+    id: 'historie',
     title: 'Historie',
     shortTitle: 'H',
     description: 'Ontstaansmoment, verloop klachten en eerdere behandeling',
@@ -206,7 +206,7 @@ const phsbSections: PHSBSection[] = [
     bgColor: 'bg-amber-50',
   },
   {
-    id: 'disorders',
+    id: 'stoornissen',
     title: 'Stoornissen',
     shortTitle: 'S',
     description: 'Pijn, mobiliteit, kracht en stabiliteit',
@@ -215,7 +215,7 @@ const phsbSections: PHSBSection[] = [
     bgColor: 'bg-red-50',
   },
   {
-    id: 'limitations',
+    id: 'beperkingen',
     title: 'Beperkingen',
     shortTitle: 'B',
     description: 'ADL, werk en sport gerelateerde beperkingen',
@@ -234,8 +234,8 @@ const phsbSections: PHSBSection[] = [
   },
 ];
 
-export interface PHSBResultsPanelProps {
-  phsbData: PHSBStructure;
+export interface HHSBResultsPanelProps {
+  hhsbData: HHSBStructure;
   preparationContent?: string;
   onNavigateNext?: () => void;
   nextButtonLabel?: string;
@@ -244,12 +244,12 @@ export interface PHSBResultsPanelProps {
   showSources?: boolean;
   audioSource?: boolean;
   manualSource?: boolean;
-  onDataChange?: (updatedData: PHSBStructure) => void;
+  onDataChange?: (updatedData: HHSBStructure) => void;
   enableEditing?: boolean;
 }
 
-const PHSBResultsPanel: React.FC<PHSBResultsPanelProps> = ({
-  phsbData,
+const HHSBResultsPanel: React.FC<HHSBResultsPanelProps> = ({
+  hhsbData,
   preparationContent,
   onNavigateNext,
   nextButtonLabel = 'Ga naar Onderzoek',
@@ -263,29 +263,29 @@ const PHSBResultsPanel: React.FC<PHSBResultsPanelProps> = ({
 }) => {
   const [collapsedSections, setCollapsedSections] = React.useState<Set<string>>(new Set());
   const [showFullView, setShowFullView] = React.useState(false);
-  const [localData, setLocalData] = React.useState<PHSBStructure>(phsbData);
+  const [localData, setLocalData] = React.useState<HHSBStructure>(hhsbData);
   const [editingSection, setEditingSection] = React.useState<string | null>(null);
 
   // Update local data when props change and parse if needed
   React.useEffect(() => {
     // Always parse the fullStructuredText to ensure individual sections are populated
     // This ensures proper display in both compact and full view modes
-    if (phsbData.fullStructuredText) {
-      const parsedData = parsePHSBText(phsbData.fullStructuredText);
+    if (hhsbData.fullStructuredText) {
+      const parsedData = parseHHSBText(hhsbData.fullStructuredText);
       // If individual sections were already provided, preserve them, otherwise use parsed data
-      const mergedData: PHSBStructure = {
-        patientNeeds: phsbData.patientNeeds || parsedData.patientNeeds,
-        history: phsbData.history || parsedData.history,
-        disorders: phsbData.disorders || parsedData.disorders,
-        limitations: phsbData.limitations || parsedData.limitations,
-        redFlags: phsbData.redFlags?.length ? phsbData.redFlags : parsedData.redFlags,
-        fullStructuredText: phsbData.fullStructuredText
+      const mergedData: HHSBStructure = {
+        hulpvraag: hhsbData.hulpvraag || parsedData.hulpvraag,
+        historie: hhsbData.historie || parsedData.historie,
+        stoornissen: hhsbData.stoornissen || parsedData.stoornissen,
+        beperkingen: hhsbData.beperkingen || parsedData.beperkingen,
+        redFlags: hhsbData.redFlags?.length ? hhsbData.redFlags : parsedData.redFlags,
+        fullStructuredText: hhsbData.fullStructuredText
       };
       setLocalData(mergedData);
     } else {
-      setLocalData(phsbData);
+      setLocalData(hhsbData);
     }
-  }, [phsbData]);
+  }, [hhsbData]);
 
   const toggleSectionCollapse = (sectionId: string) => {
     setCollapsedSections(prev => {
@@ -308,16 +308,16 @@ const PHSBResultsPanel: React.FC<PHSBResultsPanelProps> = ({
     }
   };
 
-  const copyFullPHSB = async () => {
+  const copyFullHHSB = async () => {
     try {
       await navigator.clipboard.writeText(localData.fullStructuredText);
-      console.log('Volledige PHSB gekopieerd naar clipboard');
+      console.log('Volledige HHSB gekopieerd naar clipboard');
     } catch (err) {
       console.error('Failed to copy to clipboard:', err);
     }
   };
 
-  const updateSectionContent = (sectionId: keyof PHSBStructure, newContent: string) => {
+  const updateSectionContent = (sectionId: keyof HHSBStructure, newContent: string) => {
     const updatedData = {
       ...localData,
       [sectionId]: newContent
@@ -328,11 +328,11 @@ const PHSBResultsPanel: React.FC<PHSBResultsPanelProps> = ({
       updatedData.fullStructuredText = buildFullStructuredText(updatedData);
     } else if (sectionId === 'fullStructuredText') {
       // If full text is edited, parse it to update individual sections
-      const parsedData = parsePHSBText(newContent);
-      updatedData.patientNeeds = parsedData.patientNeeds;
-      updatedData.history = parsedData.history;
-      updatedData.disorders = parsedData.disorders;
-      updatedData.limitations = parsedData.limitations;
+      const parsedData = parseHHSBText(newContent);
+      updatedData.hulpvraag = parsedData.hulpvraag;
+      updatedData.historie = parsedData.historie;
+      updatedData.stoornissen = parsedData.stoornissen;
+      updatedData.beperkingen = parsedData.beperkingen;
       updatedData.redFlags = parsedData.redFlags;
     }
 
@@ -342,23 +342,23 @@ const PHSBResultsPanel: React.FC<PHSBResultsPanelProps> = ({
     }
   };
 
-  const buildFullStructuredText = (data: PHSBStructure): string => {
+  const buildFullStructuredText = (data: HHSBStructure): string => {
     const sections = [];
 
-    if (data.patientNeeds) {
-      sections.push(`**P - Patiënt Probleem/Hulpvraag:**\n${data.patientNeeds}`);
+    if (data.hulpvraag) {
+      sections.push(`**H - Hulpvraag:**\n${data.hulpvraag}`);
     }
 
-    if (data.history) {
-      sections.push(`**H - Historie:**\n${data.history}`);
+    if (data.historie) {
+      sections.push(`**H - Historie:**\n${data.historie}`);
     }
 
-    if (data.disorders) {
-      sections.push(`**S - Stoornissen in lichaamsfuncties en anatomische structuren:**\n${data.disorders}`);
+    if (data.stoornissen) {
+      sections.push(`**S - Stoornissen in lichaamsfuncties en anatomische structuren:**\n${data.stoornissen}`);
     }
 
-    if (data.limitations) {
-      sections.push(`**B - Beperkingen:**\n${data.limitations}`);
+    if (data.beperkingen) {
+      sections.push(`**B - Beperkingen:**\n${data.beperkingen}`);
     }
 
     if (data.anamneseSummary) {
@@ -376,7 +376,7 @@ const PHSBResultsPanel: React.FC<PHSBResultsPanelProps> = ({
   // Editable text component
   const EditableText: React.FC<{
     content: string;
-    sectionId: keyof PHSBStructure;
+    sectionId: keyof HHSBStructure;
     placeholder?: string;
     multiline?: boolean;
   }> = ({ content, sectionId, placeholder, multiline = true }) => {
@@ -468,7 +468,7 @@ const PHSBResultsPanel: React.FC<PHSBResultsPanelProps> = ({
 
   return (
     <div className={cn('space-y-6', className)}>
-      {/* PHSB Header */}
+      {/* HHSB Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <div>
@@ -476,10 +476,10 @@ const PHSBResultsPanel: React.FC<PHSBResultsPanelProps> = ({
               <div className="w-12 h-12 bg-hysio-mint/20 rounded-full flex items-center justify-center">
                 <FileText size={24} className="text-hysio-deep-green" />
               </div>
-              FysioRoadmap Anamnesekaart
+              HHSB Anamnesekaart
             </h2>
             <p className="text-hysio-deep-green-900/70 mt-2">
-              Gestructureerde anamnese volgens FysioRoadmap-format (Patiëntbehoeften, Historie, Stoornissen, Beperkingen)
+              Gestructureerde anamnese volgens HHSB-format (Hulpvraag, Historie, Stoornissen, Beperkingen)
             </p>
           </div>
           
@@ -495,7 +495,7 @@ const PHSBResultsPanel: React.FC<PHSBResultsPanelProps> = ({
             </Button>
             
             <Button
-              onClick={copyFullPHSB}
+              onClick={copyFullHHSB}
               variant="outline"
               size="sm"
               className="gap-2"
@@ -526,7 +526,7 @@ const PHSBResultsPanel: React.FC<PHSBResultsPanelProps> = ({
         )}
       </div>
 
-      {/* PHSB Sections */}
+      {/* HHSB Sections */}
       <div className="space-y-4">
         {showFullView ? (
           // Full structured text view
@@ -534,10 +534,10 @@ const PHSBResultsPanel: React.FC<PHSBResultsPanelProps> = ({
             <CardContent className="p-6">
               <div className="flex justify-between items-start mb-4">
                 <h3 className="text-lg font-semibold text-hysio-deep-green">
-                  Volledige FysioRoadmap Structuur
+                  Volledige HHSB Structuur
                 </h3>
                 <Button
-                  onClick={copyFullPHSB}
+                  onClick={copyFullHHSB}
                   variant="ghost"
                   size="sm"
                   className="gap-2"
@@ -550,14 +550,14 @@ const PHSBResultsPanel: React.FC<PHSBResultsPanelProps> = ({
                 <EditableText
                   content={localData.fullStructuredText}
                   sectionId="fullStructuredText"
-                  placeholder="Volledige FysioRoadmap structuur..."
+                  placeholder="Volledige HHSB structuur..."
                 />
               </div>
             </CardContent>
           </Card>
         ) : (
           // Individual collapsible sections
-          phsbSections.map((section) => {
+          hhsbSections.map((section) => {
             const isCollapsed = collapsedSections.has(section.id);
             const sectionContent = localData[section.id] as string || '';
             
@@ -682,4 +682,4 @@ const PHSBResultsPanel: React.FC<PHSBResultsPanelProps> = ({
   );
 };
 
-export { PHSBResultsPanel };
+export { HHSBResultsPanel };

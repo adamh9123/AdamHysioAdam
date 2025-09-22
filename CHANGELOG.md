@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **SCRIBE 3.1**: Enhanced patient information form with improved birth year input validation (4-digit limit)
+- **SCRIBE 3.1**: Enhanced dynamic age calculation display with better validation and font styling
+- **SCRIBE 3.0**: Complete multi-page workflow architecture transformation with dedicated pages for each workflow step
+- **SCRIBE 3.0**: Comprehensive API infrastructure with `/api/preparation`, `/api/hhsb/process`, and `/api/soep/process` endpoints
+- **SCRIBE 3.0**: Advanced preparation generation system with workflow-specific AI prompts for all intake types
+- **SCRIBE 3.0**: Intelligent HHSB processing with automatic text parsing and structured output generation
+- **SCRIBE 3.0**: Professional SOEP methodology implementation for follow-up consultation documentation
+- **SCRIBE 3.0**: Enhanced summary sections - "Samenvatting van Anamnese" for HHSB workflows and "Samenvatting van Consult" for SOEP workflows
+- **SCRIBE 3.0**: Restructured recording component layout with cohesive "Live Opname" and "Bestand selecteren" integration
 - **SCRIBE 2.1**: TRUE unified workflow interface with integrated three-option selector (Volledig Automatisch, Stapsgewijs, Vervolgconsult)
 - **SCRIBE 2.1**: Seamless conditional rendering system that dynamically switches workflow content without page reloads
 - **SCRIBE 2.1**: Unified left/right panel architecture with workflow-specific input panels and result displays
@@ -30,6 +39,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **SCRIBE 2.0**: Premium card-based layout for SOEP report presentation with Hysio brand styling
 
 ### Changed
+- **SCRIBE 3.2**: Standardized recording component layout across all workflows with consistent vertical structure (Live Opname → Bestand selecteren → Handmatige Invoer)
+- **SCRIBE 3.2**: Optimized state management for input method selection with automatic clearing of conflicting inputs
+- **SCRIBE 3.1**: Enhanced visual hierarchy in patient information form with bold section titles ("Basisgegevens", "Medische informatie")
+- **SCRIBE 3.1**: Improved button styling with semibold font-weight for better visual prominence
+- **SCRIBE 3.1**: Refined age calculation display to show only for valid 4-digit birth years with enhanced styling
+- **SCRIBE 3.0**: Transformed global application background from off-white to Hysio mint green (#A5E1C5) for consistent brand identity
+- **SCRIBE 3.0**: Updated navigation button text from "Ga verder naar intake workflow" to "Kies uw workflow" for improved clarity
+- **SCRIBE 3.0**: Restructured recording interface to eliminate redundant file section and create cohesive input flow
+- **SCRIBE 3.0**: Enhanced card styling with improved shadows and borders for better visual hierarchy on mint background
 - **SCRIBE 2.1**: Eliminated WorkflowSelectionHub component and integrated workflow selection directly into NewIntakeWorkflow
 - **SCRIBE 2.1**: Transformed application flow from "patient-info → workflow-selection → workflow" to "patient-info → unified-workflow-with-integrated-selection"
 - **SCRIBE 2.1**: Redesigned workflow selector with radio button-style cards and enhanced visual feedback
@@ -73,6 +91,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Optimized section backgrounds for better content separation and readability
 
 ### Removed
+- **SCRIBE 3.2**: Removed automatic generatePreparation triggers that caused unwanted API calls on component mount
+- **SCRIBE 3.2**: Eliminated unused Tabs component imports and handleInputMethodChange functions from all workflow pages
+- **SCRIBE 3.2**: Removed tab-based navigation system in favor of unified vertical layout across all workflows
+- **SCRIBE 3.0**: Removed redundant separate "Bestand" tab from recording interface in favor of integrated file selection
+- **SCRIBE 3.0**: Eliminated tab-based navigation in recording components for streamlined linear workflow
 - **SCRIBE 2.1**: Removed WorkflowSelectionHub component and intermediate workflow selection step for streamlined navigation
 - **SCRIBE 2.1**: Removed duplicate workflow mode selectors from manual workflow phases
 - **SCRIBE 2.1**: Removed redundant workflowMode state management in favor of unified selectedWorkflow state
@@ -82,6 +105,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **SCRIBE 2.0**: Removed SessionTypeSelector component and three-card selection screen for streamlined user experience
 
 ### Fixed
+- **CRITICAL**: Fixed openaiClient duplicate declaration compilation error by refactoring export strategy in openai.ts module
+- **CRITICAL**: Updated all API routes (/api/preparation, /api/hhsb/process, /api/soep/process) to use openaiClient function call syntax
+- **EMERGENCY**: Fixed automatic generatePreparation function triggers causing unwanted API calls on page load across all workflow pages
+- **EMERGENCY**: Resolved backend API endpoint failures by fixing missing openaiClient export in openai.ts module
+- **CRITICAL**: Resolved complete workflow functionality breakdown by implementing missing API endpoints (`/api/preparation`, `/api/hhsb/process`, `/api/soep/process`)
+- **CRITICAL**: Fixed 500 Internal Server Error in preparation generation across all workflows (intake-automatisch, intake-stapsgewijs, consult)
+- **CRITICAL**: Resolved audio processing failures in intake/anamnese/consult workflows by creating proper backend processing infrastructure
+- **CRITICAL**: Fixed TypeScript compilation errors by ensuring all UI components (progress, collapsible, tabs, alert, loading-spinner) are properly implemented
+- **CRITICAL**: Restored complete application functionality after comprehensive debugging and API infrastructure implementation
 - **EMERGENCY**: Fixed critical runtime crash in InputPanel component caused by undefined phaseLabels for new workflow phases
 - **EMERGENCY**: Added comprehensive phase configurations for all workflow types (anamnesis, examination, clinical-conclusion, soep, followup)
 - **EMERGENCY**: Implemented fallback phase configuration to prevent crashes from unknown phase types
