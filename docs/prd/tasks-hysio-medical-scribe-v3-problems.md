@@ -17,8 +17,8 @@ This comprehensive task list addresses all critical issues identified in the Hys
 ## **📁 Relevant Files**
 
 ### **Files to Create:**
-- `src/app/scribe/intake-stapsgewijs/anamnese-resultaat/page.tsx` - Anamnese result display page
-- `src/app/scribe/intake-stapsgewijs/onderzoek-resultaat/page.tsx` - Onderzoek result display page
+- `src/app/scribe/intake-stapsgewijs/anamnese-resultaat/page.tsx` - Anamnese result display page ✅ CREATED
+- `src/app/scribe/intake-stapsgewijs/onderzoek-resultaat/page.tsx` - Onderzoek result display page ✅ CREATED
 - `src/components/scribe/hysio-assistant.tsx` - Hysio Assistant component
 - `src/lib/utils/export.ts` - Export functionality utilities
 
@@ -64,38 +64,38 @@ This comprehensive task list addresses all critical issues identified in the Hys
 
 ---
 
-### **[ ] TASK 2: Fix Hysio Intake (Stapsgewijs) Missing Result Page & Navigation**
+### **[x] TASK 2: Fix Hysio Intake (Stapsgewijs) Missing Result Page & Navigation**
 **Priority:** 🔴 CRITICAL
 **Affected Files:** Multiple new pages needed, existing navigation broken
 **Issue:** Users can't complete first step (anamnese), broken workflow navigation
 
 #### **Sub-tasks:**
-- [ ] **2.1. Create Anamnese Result Page**
+- [x] **2.1. Create Anamnese Result Page**
   - **NEW FILE:** `src/app/scribe/intake-stapsgewijs/anamnese-resultaat/page.tsx`
   - **Purpose:** Display HHSB Anamnesekaart results after processing
   - **Template:** Based on `conclusie/page.tsx` pattern with HHSB-specific sections
   - **Features:** Collapsible sections, copy functionality, edit capabilities
   - **Navigation:** "Volgende: Onderzoek →" button to proceed
 
-- [ ] **2.2. Modify Anamnese Page Navigation**
-  - **File:** `src/app/scribe/intake-stapsgewijs/anamnese/page.tsx:263-266`
-  - **Current:** `router.push('/scribe/intake-stapsgewijs/onderzoek');` (skips results)
+- [x] **2.2. Modify Anamnese Page Navigation**
+  - **File:** `src/app/scribe/intake-stapsgewijs/anamnese/page.tsx:251-256`
+  - **Current:** No navigation after processing (results displayed inline)
   - **Change To:** `router.push('/scribe/intake-stapsgewijs/anamnese-resultaat');`
   - **Action:** Redirect to result page after successful anamnese processing
 
-- [ ] **2.3. Implement Result-to-Next-Step Flow**
+- [x] **2.3. Implement Result-to-Next-Step Flow**
   - **Location:** New anamnese-resultaat page
   - **Features:** "Volgende: Onderzoek →" button functionality
   - **Requirements:** Ensure state persistence between steps, validate completion
   - **Navigation Logic:** Proper workflow progression with data validation
 
-- [ ] **2.4. Create Onderzoek Result Page**
+- [x] **2.4. Create Onderzoek Result Page**
   - **NEW FILE:** `src/app/scribe/intake-stapsgewijs/onderzoek-resultaat/page.tsx`
   - **Purpose:** Display examination findings and measurements
   - **Navigation:** "Volgende: Klinische Conclusie →" button
   - **Integration:** Connect to existing onderzoek processing logic
 
-- [ ] **2.5. Fix Final Step Navigation**
+- [x] **2.5. Fix Final Step Navigation**
   - **File:** `src/app/scribe/intake-stapsgewijs/klinische-conclusie/page.tsx`
   - **Action:** Ensure proper completion flow and final results display
   - **Features:** Complete workflow summary, final export options
