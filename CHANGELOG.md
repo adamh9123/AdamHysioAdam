@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **SCRIBE 3.3**: New dedicated result pages for stepwise workflow - anamnese-resultaat and onderzoek-resultaat pages
+- **SCRIBE 3.3**: Complete HHSB structured display with collapsible sections for anamnese results (Hulpvraag, Historie, Stoornissen, Beperkingen)
+- **SCRIBE 3.3**: Comprehensive examination findings display with organized sections (Physical Tests, Movements, Palpation, Functional Tests, Measurements, Observations)
+- **SCRIBE 3.3**: Enhanced manual navigation recovery system with fallback buttons for failed auto-redirects across all workflows
+- **SCRIBE 3.3**: Advanced progress tracking in success alerts with detailed step-by-step completion indicators
+- **SCRIBE 3.3**: Comprehensive navigation debugging with console logging and error monitoring for all workflow transitions
+- **SCRIBE 3.3**: Enhanced data validation and state persistence recovery mechanisms in all result pages
 - **SCRIBE 3.1**: Enhanced patient information form with improved birth year input validation (4-digit limit)
 - **SCRIBE 3.1**: Enhanced dynamic age calculation display with better validation and font styling
 - **SCRIBE 3.0**: Complete multi-page workflow architecture transformation with dedicated pages for each workflow step
@@ -105,6 +112,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **SCRIBE 2.0**: Removed SessionTypeSelector component and three-card selection screen for streamlined user experience
 
 ### Fixed
+- **CRITICAL**: Fixed Hysio Intake (Automatisch) redirect failure - replaced setTimeout navigation with immediate async navigation and comprehensive error handling
+- **CRITICAL**: Fixed Hysio Intake (Stapsgewijs) missing result pages causing broken workflow navigation - created anamnese-resultaat and onderzoek-resultaat pages
+- **CRITICAL**: Fixed Hysio Consult "phantom-redirect" bug where users were bounced back immediately after successful processing
+- **CRITICAL**: Resolved workflow completion blocking issues - users can now complete all three workflows end-to-end successfully
+- **CRITICAL**: Fixed automatic redirect failures with enhanced manual navigation fallback buttons across all workflows
+- **CRITICAL**: Resolved state persistence issues causing data loss during navigation between workflow steps
+- **CRITICAL**: Fixed immediate redirect bounce-back in SOEP verslag page with enhanced lifecycle validation and delayed fallback
+- **NAVIGATION**: Enhanced navigation recovery with comprehensive error boundaries and retry mechanisms across all workflows
+- **UX**: Improved success alerts with detailed progress tracking showing step-by-step completion indicators
+- **STABILITY**: Added comprehensive console logging and debugging for navigation events to monitor success/failure rates
 - **CRITICAL**: Fixed openaiClient duplicate declaration compilation error by refactoring export strategy in openai.ts module
 - **CRITICAL**: Updated all API routes (/api/preparation, /api/hhsb/process, /api/soep/process) to use openaiClient function call syntax
 - **EMERGENCY**: Fixed automatic generatePreparation function triggers causing unwanted API calls on page load across all workflow pages
