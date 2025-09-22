@@ -40,7 +40,15 @@
       "Bash(npx eslint:*)",
       "Bash(NEXT_ESLINT_IGNORE_DURING_BUILD=true npm run build)",
       "Bash(rm:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(git pull:*)",
+      "Bash(git stash:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(timeout:*)",
+      "WebSearch",
+      "Bash(if [ -n \"$OPENAI_API_KEY\" ])",
+      "Bash(else echo \"OPENAI_API_KEY is not set\")",
+      "Bash(fi)"
     ],
     "deny": [],
     "ask": []

@@ -1,0 +1,15 @@
+// NEW: Generate simplified intake preparation for automation workflow
+  const handleGenerateIntakePreparation = async () => {
+    setIsGeneratingPreparation(true);
+    try {
+      // Use the simplified prompts specified in requirements
+      const systemPrompt = `Je bent een ervaren fysiotherapeut die intake-voorbereidingen maakt. Genereer een beknopte, algemene voorbereiding voor een intake gesprek.`;
+
+      const userPrompt = `Hoofdklacht: ${patientInfo.chiefComplaint}
+
+Genereer een beknopte voorbereiding (maximaal 250 woorden) met:
+- Mogelijke vragen om uit te diepen (voor de Intake - Anamnese gedeelte)
+- Relevante onderzoeken om te overwegen (voor de Intake - Onderzoek gedeelte)
+- Aandachtspunten tijdens de intake
+
+Antwoord in het Nederlands, professioneel en praktisch.`;

@@ -32,7 +32,7 @@ export default function AssistantPage() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-hysio-cream/30">
+    <div className="flex flex-col h-screen bg-gradient-to-br from-hysio-mint/15 via-hysio-mint/8 to-hysio-mint/5">
       {/* Navigation */}
       <Navigation
         title="Hysio Assistant"
@@ -52,7 +52,7 @@ export default function AssistantPage() {
             variant="outline"
             size="icon"
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="bg-white shadow-md border-hysio-mint/30"
+            className="bg-white/90 backdrop-blur-sm shadow-lg border-hysio-mint/40 hover:shadow-xl transition-all duration-200"
           >
             {sidebarOpen ? <X size={16} /> : <Menu size={16} />}
           </Button>
@@ -98,24 +98,24 @@ export default function AssistantPage() {
       </div>
 
       {/* Footer */}
-      <div className="border-t border-hysio-mint/20 bg-white px-6 py-3">
+      <div className="border-t border-hysio-mint/30 bg-white/95 backdrop-blur-sm px-6 py-4 shadow-lg">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <p className="text-xs text-hysio-deep-green-900/60">
-              Hysio Assistant - AI co-piloot voor fysiotherapie
+            <p className="text-sm text-hysio-deep-green-900/70 font-medium">
+              ✨ Hysio Assistant - AI co-piloot voor fysiotherapie
             </p>
           </div>
-          
+
           <div className="flex items-center gap-4">
-            <p className="text-xs text-hysio-deep-green-900/60">
-              Model: GPT-5-mini | Provider: OpenAI
+            <p className="text-xs text-hysio-deep-green-900/60 bg-hysio-mint/10 px-3 py-1 rounded-full">
+              🤖 Model: GPT-5-mini | Provider: OpenAI
             </p>
           </div>
         </div>
         
-        <div className="text-center mt-2">
-          <p className="text-xs text-hysio-deep-green-900/50">
-            <strong>Belangrijk:</strong> Alle AI-gegenereerde content moet worden geverifieerd door een bevoegd fysiotherapeut.
+        <div className="text-center mt-3">
+          <p className="text-sm text-hysio-deep-green-900/70 bg-gradient-to-r from-hysio-mint/10 to-hysio-mint/5 px-4 py-2 rounded-xl border border-hysio-mint/20">
+            <strong>⚠️ Belangrijk:</strong> Alle AI-gegenereerde content moet worden geverifieerd door een bevoegd fysiotherapeut.
             Deze tool is bedoeld ter ondersteuning en vervangt geen professioneel medisch oordeel.
           </p>
         </div>

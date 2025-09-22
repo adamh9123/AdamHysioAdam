@@ -44,25 +44,25 @@ const AssistantIntegration: React.FC<AssistantIntegrationProps> = ({
 
   return (
     <div className={cn(
-      'border border-hysio-mint/20 rounded-lg bg-white shadow-sm overflow-hidden transition-all duration-300',
+      'border border-hysio-mint/30 rounded-2xl bg-white/95 backdrop-blur-sm shadow-lg overflow-hidden transition-all duration-300',
       collapsed ? 'h-auto' : 'h-96',
       className
     )}>
       {/* Header */}
       <div
         className={cn(
-          'flex items-center justify-between p-3 bg-gradient-to-r from-sky-50 to-sky-100/50',
-          'border-b border-sky-200 cursor-pointer hover:from-sky-100 hover:to-sky-200/50 transition-colors'
+          'flex items-center justify-between p-4 bg-gradient-to-r from-hysio-mint/10 to-hysio-mint/5',
+          'border-b border-hysio-mint/30 cursor-pointer hover:from-hysio-mint/20 hover:to-hysio-mint/10 transition-all duration-200'
         )}
         onClick={handleToggle}
       >
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-sky-500 rounded-full flex items-center justify-center">
-            <Bot size={16} className="text-white" />
+          <div className="w-9 h-9 bg-gradient-to-br from-hysio-mint-dark to-hysio-emerald rounded-xl flex items-center justify-center shadow-md">
+            <Bot size={18} className="text-white" />
           </div>
           
           <div>
-            <h3 className="font-semibold text-hysio-deep-green text-sm">
+            <h3 className="font-bold text-hysio-deep-green text-sm tracking-tight">
               Hysio Assistant
             </h3>
             <p className="text-xs text-hysio-deep-green-900/60">
@@ -79,23 +79,23 @@ const AssistantIntegration: React.FC<AssistantIntegrationProps> = ({
         <div className="flex items-center gap-2">
           {/* Status Indicators */}
           {(isLoading || isStreaming) && (
-            <div className="w-2 h-2 bg-sky-500 rounded-full animate-pulse" />
+            <div className="w-3 h-3 bg-hysio-mint-dark rounded-full animate-pulse shadow-sm" />
           )}
           
           {error && (
-            <div className="w-2 h-2 bg-red-500 rounded-full" />
+            <div className="w-3 h-3 bg-red-500 rounded-full shadow-sm" />
           )}
           
           {/* Toggle Button */}
           <Button
             variant="ghost"
             size="icon"
-            className="w-6 h-6 hover:bg-sky-200"
+            className="w-7 h-7 hover:bg-hysio-mint/20 rounded-lg transition-colors duration-200"
           >
             {collapsed ? (
-              <ChevronDown size={14} className="text-hysio-deep-green" />
+              <ChevronDown size={16} className="text-hysio-deep-green" />
             ) : (
-              <ChevronUp size={14} className="text-hysio-deep-green" />
+              <ChevronUp size={16} className="text-hysio-deep-green" />
             )}
           </Button>
         </div>
@@ -122,15 +122,15 @@ const AssistantIntegration: React.FC<AssistantIntegrationProps> = ({
 
       {/* Collapsed State Preview */}
       {collapsed && messages.length > 0 && (
-        <div className="p-3 border-t border-hysio-mint/10">
-          <div className="flex items-center gap-2 text-xs text-hysio-deep-green-900/60">
-            <MessageCircle size={12} />
-            <span>
+        <div className="p-4 border-t border-hysio-mint/20 bg-hysio-mint/5">
+          <div className="flex items-center gap-2 text-xs text-hysio-deep-green-900/70">
+            <MessageCircle size={14} className="text-hysio-mint-dark" />
+            <span className="font-medium">
               Laatste: {messages[messages.length - 1].role === 'user' ? 'Jij' : 'Assistant'}
             </span>
-            <span className="truncate max-w-32">
-              {messages[messages.length - 1].content.substring(0, 30)}
-              {messages[messages.length - 1].content.length > 30 ? '...' : ''}
+            <span className="truncate max-w-40 text-hysio-deep-green-900/60">
+              {messages[messages.length - 1].content.substring(0, 35)}
+              {messages[messages.length - 1].content.length > 35 ? '...' : ''}
             </span>
           </div>
         </div>
@@ -138,9 +138,9 @@ const AssistantIntegration: React.FC<AssistantIntegrationProps> = ({
 
       {/* Footer Disclaimer (when expanded) */}
       {!collapsed && (
-        <div className="px-3 py-2 bg-gray-50 border-t border-hysio-mint/10">
-          <p className="text-xs text-hysio-deep-green-900/50 text-center">
-            <strong>Let op:</strong> Dit is gescheiden van je medische verslaglegging
+        <div className="px-4 py-3 bg-gradient-to-r from-hysio-mint/5 to-hysio-mint/10 border-t border-hysio-mint/20">
+          <p className="text-xs text-hysio-deep-green-900/60 text-center font-medium">
+            <strong>⚠️ Let op:</strong> Dit is gescheiden van je medische verslaglegging
           </p>
         </div>
       )}

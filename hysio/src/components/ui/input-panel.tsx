@@ -59,14 +59,37 @@ const InputPanel: React.FC<InputPanelProps> = ({
       audioPrompt: 'Dit is een fysiotherapie anamnese gesprek in het Nederlands. Transcribeer accuraat alle medische termen en patiënt uitspraken.',
     },
     examination: {
-      title: 'Gespreksinvoer', 
+      title: 'Lichamelijk Onderzoek',
+      description: 'Voer onderzoeksbevindingen in via opname of handmatige notities',
+      processLabel: 'Verwerk Onderzoek',
+      audioPrompt: 'Dit is een fysiotherapie lichamelijk onderzoek in het Nederlands. Transcribeer accuraat alle onderzoeksbevindingen en testresultaten.',
+    },
+    'clinical-conclusion': {
+      title: 'Klinische Conclusie',
+      description: 'Voer uw klinische conclusie en behandelplan in',
+      processLabel: 'Verwerk Conclusie',
+      audioPrompt: 'Dit is een fysiotherapie klinische conclusie in het Nederlands. Transcribeer accuraat de diagnose, behandelplan en aanbevelingen.',
+    },
+    soep: {
+      title: 'SOEP Vervolgconsult',
+      description: 'Leg het vervolgconsult vast volgens SOEP-methodiek',
+      processLabel: 'Verwerk SOEP',
+      audioPrompt: 'Dit is een fysiotherapie vervolgconsult in het Nederlands volgens SOEP-methodiek. Transcribeer accuraat alle bevindingen, voortgang en behandelingsplannen.',
+    },
+    followup: {
+      title: 'Vervolgconsult',
       description: 'Leg het vervolgconsult vast via opname of handmatige notities',
-      processLabel: 'Verwerk Gesprek',
+      processLabel: 'Verwerk Consult',
       audioPrompt: 'Dit is een fysiotherapie vervolgconsult in het Nederlands. Transcribeer accuraat alle bevindingen, voortgang en behandelingsplannen.',
     }
   };
 
-  const currentPhase = phaseLabels[phase];
+  const currentPhase = phaseLabels[phase] || {
+    title: 'Gegevens Invoer',
+    description: 'Voer gegevens in via opname of handmatige notities',
+    processLabel: 'Verwerk',
+    audioPrompt: 'Dit is een fysiotherapie gesprek in het Nederlands. Transcribeer accuraat alle relevante informatie.',
+  };
   const defaultProcessLabel = processButtonLabel || currentPhase.processLabel;
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {

@@ -121,7 +121,7 @@ export function useAssistantChat(options: UseAssistantChatOptions = {}) {
       } else {
         dispatch({ type: 'SET_ERROR', payload: { error: data.error } });
       }
-    } catch (error) {
+    } catch {
       dispatch({ type: 'SET_ERROR', payload: { error: 'Failed to load conversations' } });
     } finally {
       dispatch({ type: 'SET_LOADING', payload: { isLoading: false } });
@@ -148,7 +148,7 @@ export function useAssistantChat(options: UseAssistantChatOptions = {}) {
       } else {
         dispatch({ type: 'SET_ERROR', payload: { error: data.error } });
       }
-    } catch (error) {
+    } catch {
       dispatch({ type: 'SET_ERROR', payload: { error: 'Failed to create conversation' } });
     }
   }, [userId, state.conversations]);
@@ -226,69 +226,93 @@ export function useAssistantChat(options: UseAssistantChatOptions = {}) {
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let fullContent = '';
+      let buffer = '';
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n').filter(line => line.trim() !== '');
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || ''; // Keep incomplete line in buffer
 
         for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = JSON.parse(line.slice(6));
-            
-            if (data.success) {
-              if (data.chunk) {
-                fullContent += data.chunk;
-                dispatch({ 
-                  type: 'UPDATE_MESSAGE', 
-                  payload: { messageId: assistantMessage.id, content: fullContent } 
-                });
+          if (line.trim() === '') continue;
+
+          try {
+            if (line.startsWith('data: ')) {
+              const data = JSON.parse(line.slice(6));
+
+              if (data.success) {
+                if (data.chunk) {
+                  fullContent += data.chunk;
+                  dispatch({
+                    type: 'UPDATE_MESSAGE',
+                    payload: { messageId: assistantMessage.id, content: fullContent }
+                  });
+                }
+
+
+                if (data.complete) {
+                  const finalMessage: AssistantMessage = {
+                    ...assistantMessage,
+                    content: data.content || fullContent,
+                    isStreaming: false,
+                    requiresDisclaimer: data.requiresDisclaimer,
+                  };
+
+                  // Save assistant response to conversation
+                  try {
+                    await fetch('/api/assistant/conversations', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        action: 'add_message',
+                        conversationId: conversation.id,
+                        message: finalMessage,
+                        userId,
+                      }),
+                    });
+                  } catch (saveError) {
+                    console.warn('Failed to save assistant message:', saveError);
+                  }
+
+                  break;
+                }
+              } else {
+                throw new Error(data.error || 'Streaming failed');
               }
-              
-              if (data.complete) {
-                const finalMessage: AssistantMessage = {
-                  ...assistantMessage,
-                  content: data.content || fullContent,
-                  isStreaming: false,
-                  requiresDisclaimer: data.requiresDisclaimer,
-                };
-                
-                // Save assistant response to conversation
-                await fetch('/api/assistant/conversations', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    action: 'add_message',
-                    conversationId: conversation.id,
-                    message: finalMessage,
-                    userId,
-                  }),
-                });
-                
-                break;
-              }
-            } else {
-              throw new Error(data.error || 'Streaming failed');
             }
+          } catch (parseError) {
+            console.warn('Failed to parse streaming data:', parseError, 'Line:', line);
+            continue;
           }
         }
       }
     } catch (error) {
       if (error instanceof Error && error.name === 'AbortError') {
-        return; // Request was cancelled
+        // Request was cancelled - clean up the placeholder message
+        dispatch({
+          type: 'UPDATE_MESSAGE',
+          payload: { messageId: assistantMessage.id, content: '' }
+        });
+        return;
       }
-      
-      dispatch({ 
-        type: 'SET_ERROR', 
-        payload: { error: error instanceof Error ? error.message : 'Failed to send message' } 
+
+      console.error('Streaming error:', error);
+
+      dispatch({
+        type: 'SET_ERROR',
+        payload: { error: error instanceof Error ? error.message : 'Er is een fout opgetreden bij het versturen van het bericht' }
       });
-      
-      // Remove the failed assistant message
-      dispatch({ 
-        type: 'UPDATE_MESSAGE', 
-        payload: { messageId: assistantMessage.id, content: 'Fout bij versturen bericht.' } 
+
+      // Update failed assistant message with error
+      dispatch({
+        type: 'UPDATE_MESSAGE',
+        payload: {
+          messageId: assistantMessage.id,
+          content: '⚠️ Er is een fout opgetreden. Probeer het opnieuw.'
+        }
       });
     } finally {
       dispatch({ type: 'SET_STREAMING', payload: { isStreaming: false } });
@@ -309,7 +333,7 @@ export function useAssistantChat(options: UseAssistantChatOptions = {}) {
       } else {
         dispatch({ type: 'SET_ERROR', payload: { error: data.error } });
       }
-    } catch (error) {
+    } catch {
       dispatch({ type: 'SET_ERROR', payload: { error: 'Failed to delete conversation' } });
     }
   }, [userId]);

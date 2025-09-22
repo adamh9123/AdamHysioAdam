@@ -126,25 +126,36 @@ const PatientInfoForm: React.FC<PatientInfoFormProps> = ({
 
 
   return (
-    <div className={cn('min-h-screen bg-hysio-cream/30 w-full py-6', className)}>
-      <div className="w-full max-w-3xl mx-auto px-6">
-        <Card className="border-2 border-hysio-mint/20 bg-white shadow-lg">
+    <div className={cn('min-h-screen bg-[#E6F5F3] w-full py-8', className)}>
+      <div className="w-full max-w-4xl mx-auto px-6">
+        {/* Welcome Header */}
+        <div className="text-center mb-8">
+          <div className="w-20 h-20 bg-[#A5E1C5]/30 rounded-full flex items-center justify-center mx-auto mb-6">
+            <User size={40} className="text-[#004B3A]" />
+          </div>
+          <h1 className="text-4xl font-bold text-[#004B3A] mb-4">
+            Hysio Medical Scribe
+          </h1>
+          <p className="text-xl text-[#003728]/80 mb-2">
+            Welkom bij uw AI-ondersteunde fysiotherapie documentatie
+          </p>
+          <p className="text-[#003728]/70">
+            Vul de essentiële gegevens in om een nieuwe sessie te starten
+          </p>
+        </div>
+
+        <Card className="border-2 border-[#A5E1C5]/40 bg-[#F8F8F5] shadow-lg">
         <CardHeader>
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-12 h-12 bg-hysio-mint/20 rounded-full flex items-center justify-center">
-              <User size={24} className="text-hysio-deep-green" />
+            <div className="w-12 h-12 bg-[#A5E1C5]/30 rounded-full flex items-center justify-center">
+              <User size={24} className="text-[#004B3A]" />
             </div>
             <div>
-              <CardTitle className="text-2xl font-semibold text-hysio-deep-green">
+              <CardTitle className="text-2xl font-semibold text-[#004B3A]">
                 Patiëntinformatie
               </CardTitle>
-              <CardDescription className="text-hysio-deep-green-900/70">
-                {sessionType === 'intake'
-                  ? 'Vul de essentiële gegevens in voor Hysio Intake'
-                  : sessionType === 'intake-plus'
-                  ? 'Vul de essentiële gegevens in voor Hysio Intake Plus'
-                  : 'Controleer patiëntgegevens voor Hysio Consult'
-                }
+              <CardDescription className="text-[#003728]/70">
+                Invoeren van basisgegevens voor een nieuwe Hysio Scribe sessie
               </CardDescription>
             </div>
           </div>
@@ -154,7 +165,7 @@ const PatientInfoForm: React.FC<PatientInfoFormProps> = ({
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium text-hysio-deep-green flex items-center gap-2">
+              <h3 className="text-lg font-medium text-[#004B3A] flex items-center gap-2">
                 <User size={18} />
                 Basisgegevens
               </h3>
@@ -247,7 +258,7 @@ const PatientInfoForm: React.FC<PatientInfoFormProps> = ({
 
             {/* Medical Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium text-hysio-deep-green flex items-center gap-2">
+              <h3 className="text-lg font-medium text-[#004B3A] flex items-center gap-2">
                 <FileText size={18} />
                 Medische informatie
               </h3>

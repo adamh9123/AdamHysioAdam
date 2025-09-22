@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateContentWithOpenAI, HYSIO_LLM_MODEL } from '@/lib/api/openai';
+import { generateContentWithOpenAI, HYSIO_LLM_MODEL, getAPIMetrics, healthCheck } from '@/lib/api/openai';
 
 // Enhanced interface for SmartMail requests
 interface SmartMailRequest {
@@ -307,14 +307,21 @@ ${instructions.context}: ${data.context}
 
 ${instructions.generate}`;
 
+    // Determine reasoning effort based on email complexity
+    // Context analysis for optimization (informational only for GPT-4.1-mini)
+    const hasDocuments = data.documents && data.documents.length > 0;
+    const hasMultipleDocuments = data.documents && data.documents.length > 1;
+    const isComplexRecipient = data.recipientType === 'huisarts'; // Medical professional requires more precision
+    const hasLongContext = systemPrompt.length > 3000;
+
     // Generate the email using OpenAI
     const aiResponse = await generateContentWithOpenAI(
       systemPrompt,
       '', // Empty user prompt since we include everything in system prompt
       {
         model: HYSIO_LLM_MODEL,
-        temperature: 1.0, // GPT-5-mini only supports temperature = 1
-        max_tokens: 1000
+        temperature: 0.7, // Balanced for professional email communication
+        max_tokens: 1000, // Sufficient tokens for email content
       }
     );
 
@@ -349,18 +356,39 @@ ${instructions.generate}`;
   }
 }
 
-// Health check endpoint
+// Health check endpoint with enhanced monitoring
 export async function GET(): Promise<NextResponse> {
-  return NextResponse.json({
-    status: 'healthy',
-    service: 'SmartMail API',
-    version: '2.0.0',
-    features: [
-      'Multi-recipient support',
-      'Tone customization',
-      'Patient context integration',
-      'Document context support',
-      'Template support'
-    ]
-  });
+  try {
+    const health = await healthCheck();
+    const metrics = getAPIMetrics();
+
+    return NextResponse.json({
+      status: health.status,
+      service: 'SmartMail API',
+      version: '2.0.0',
+      features: [
+        'Multi-recipient support',
+        'Tone customization',
+        'Patient context integration',
+        'Document context support',
+        'Template support',
+        'Rate limiting',
+        'Cost monitoring',
+        'Enhanced error handling'
+      ],
+      health: health.status,
+      metrics: {
+        totalRequests: metrics.requestCount,
+        totalCost: parseFloat(metrics.totalCost.toFixed(6)),
+        averageLatency: parseFloat(metrics.averageLatency.toFixed(2))
+      },
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    return NextResponse.json({
+      status: 'unhealthy',
+      service: 'SmartMail API',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
+  }
 }

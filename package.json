@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "tiktoken": "^1.0.22",
+    "zod": "^4.1.9"
+  }
+}

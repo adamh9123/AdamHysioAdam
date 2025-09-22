@@ -28,14 +28,28 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   
-  // Auto-scroll to bottom when new messages arrive
-  const scrollToBottom = React.useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  // Auto-scroll to bottom when new messages arrive or during streaming
+  const scrollToBottom = React.useCallback((smooth = true) => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({
+        behavior: smooth ? 'smooth' : 'auto',
+        block: 'end'
+      });
+    }
   }, []);
-  
+
+  // Scroll immediately when new messages arrive
   React.useEffect(() => {
     scrollToBottom();
-  }, [messages, scrollToBottom]);
+  }, [messages.length, scrollToBottom]);
+
+  // Scroll smoothly during streaming updates
+  React.useEffect(() => {
+    if (isStreaming) {
+      const timer = setTimeout(() => scrollToBottom(false), 50);
+      return () => clearTimeout(timer);
+    }
+  }, [messages, isStreaming, scrollToBottom]);
   
   // Auto-resize textarea
   React.useEffect(() => {
@@ -71,28 +85,28 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const hasMessages = messages.length > 0;
 
   return (
-    <div className={cn('flex flex-col h-full bg-hysio-cream/30', className)}>
+    <div className={cn('flex flex-col h-full bg-gradient-to-br from-hysio-mint/10 to-hysio-mint/5', className)}>
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {!hasMessages ? (
           /* Empty State */
           <div className="flex flex-col items-center justify-center h-full text-center py-12">
-            <div className="w-16 h-16 bg-sky-500 rounded-full flex items-center justify-center mb-6">
-              <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-                <span className="text-sky-500 font-bold text-lg">H</span>
+            <div className="w-20 h-20 bg-gradient-to-br from-hysio-mint to-hysio-mint-dark rounded-2xl flex items-center justify-center mb-6 shadow-xl">
+              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-inner">
+                <span className="text-hysio-deep-green font-bold text-xl">H</span>
               </div>
             </div>
             
-            <h2 className="text-2xl font-semibold text-hysio-deep-green mb-2">
+            <h2 className="text-3xl font-bold text-hysio-deep-green mb-3 tracking-tight">
               Welkom bij Hysio Assistant
             </h2>
             
-            <p className="text-hysio-deep-green-900/70 mb-8 max-w-md">
-              Uw AI co-piloot voor fysiotherapie. Stel vragen over klinisch redeneren, 
-              richtlijnen, diagnoses en behandelingen.
+            <p className="text-hysio-deep-green-900/80 mb-10 max-w-lg text-lg leading-relaxed">
+              Uw AI co-piloot voor fysiotherapie. Krijg evidence-based inzichten voor
+              klinisch redeneren, diagnoses en behandelprotocollen.
             </p>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 max-w-4xl">
               {EXAMPLE_QUESTIONS.map((question, index) => (
                 <Button
                   key={index}
@@ -100,18 +114,19 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                   onClick={() => handleExampleQuestion(question)}
                   disabled={isLoading || isStreaming}
                   className={cn(
-                    'text-left p-4 h-auto whitespace-normal justify-start',
-                    'hover:bg-hysio-mint/20 hover:border-hysio-mint transition-colors',
-                    'border-hysio-mint/30'
+                    'text-left p-6 h-auto whitespace-normal justify-start group',
+                    'hover:bg-hysio-mint/30 hover:border-hysio-mint-dark hover:shadow-lg transition-all duration-200',
+                    'border-hysio-mint/40 bg-white/80 backdrop-blur-sm shadow-sm',
+                    'hover:scale-105 transform'
                   )}
                 >
-                  <span className="text-sm">{question}</span>
+                  <span className="text-sm font-medium text-hysio-deep-green group-hover:text-hysio-deep-green-900">{question}</span>
                 </Button>
               ))}
             </div>
             
-            <p className="text-xs text-hysio-deep-green-900/50 mt-8">
-              <strong>Altijd nazien door een bevoegd fysiotherapeut.</strong>
+            <p className="text-sm text-hysio-deep-green-900/60 mt-10 font-medium">
+              <strong>⚠️ Altijd nazien door een bevoegd fysiotherapeut.</strong>
             </p>
           </div>
         ) : (
@@ -139,7 +154,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       </div>
 
       {/* Input Area */}
-      <div className="border-t border-hysio-mint/20 bg-white p-4">
+      <div className="border-t border-hysio-mint/30 bg-white/95 backdrop-blur-sm p-4 shadow-lg">
         <form onSubmit={handleSubmit} className="flex gap-3">
           <div className="flex-1">
             <Textarea
@@ -150,9 +165,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               placeholder="Stel je vraag aan Hysio Assistant..."
               disabled={isLoading || isStreaming}
               className={cn(
-                'min-h-[44px] max-h-[120px] resize-none',
-                'border-hysio-mint/30 focus:border-sky-500 focus:ring-sky-500/20',
-                'bg-white'
+                'min-h-[48px] max-h-[120px] resize-none',
+                'border-hysio-mint/40 focus:border-hysio-mint-dark focus:ring-hysio-mint/20',
+                'bg-white shadow-sm rounded-xl'
               )}
             />
           </div>
@@ -161,8 +176,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
             type="submit"
             disabled={!inputValue.trim() || isLoading || isStreaming}
             className={cn(
-              'bg-sky-500 hover:bg-sky-600 self-end',
-              'min-w-[44px] h-[44px] p-0'
+              'bg-hysio-mint-dark hover:bg-hysio-emerald self-end shadow-lg',
+              'min-w-[48px] h-[48px] p-0 rounded-xl hover:scale-105 transition-all duration-200'
             )}
           >
             {isLoading || isStreaming ? (
@@ -179,9 +194,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           </p>
           
           {(isLoading || isStreaming) && (
-            <p className="text-xs text-sky-600 flex items-center gap-1">
-              <Loader2 size={12} className="animate-spin" />
-              {isStreaming ? 'Assistant is aan het typen...' : 'Bericht wordt verstuurd...'}
+            <p className="text-xs text-hysio-mint-dark flex items-center gap-2 font-medium">
+              <Loader2 size={14} className="animate-spin" />
+              {isStreaming ? '✨ Assistant is aan het typen...' : '📤 Bericht wordt verstuurd...'}
             </p>
           )}
         </div>

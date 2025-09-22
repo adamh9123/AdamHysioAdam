@@ -45,7 +45,26 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
   const [isPlaying, setIsPlaying] = React.useState(false);
   const [isTranscribing, setIsTranscribing] = React.useState(false);
   const [transcription, setTranscription] = React.useState<AudioTranscription | null>(null);
+  const [currentTipIndex, setCurrentTipIndex] = React.useState(0);
   const audioRef = React.useRef<HTMLAudioElement>(null);
+
+  // Contextual recording tips for physiotherapists
+  const recordingTips = [
+    "Praat hardop en duidelijk zodat Hysio kan documenteren!",
+    "Vergeet de rode vlaggen niet uit te vragen...",
+    "Denk aan de Problematische Handeling",
+    "Vraag de Hulpvraag uit!",
+    "Neem Hysio mee in je verhaal, spreek volledig uit!",
+    "Ontstaansmoment en verloop van de klachten?",
+    "Eerdere behandelingen en resultaten?",
+    "Hysio luistert mee, dus praat duidelijk!",
+    "Functionele beperkingen in ADL, werk of sport?",
+    "Maak je redenering hoorbaar – Hysio volgt je denkproces.",
+    "Pijn: karakter, intensiteit, uitlokkende factoren?",
+    "Mobiliteit, kracht en stabiliteit testen?",
+    "Verwachtingen en doelen van de patiënt?",
+    "Spreek rustig en concreet zodat Hysio geen details mist",
+  ];
 
   // Handle transcription
   const handleTranscription = async (blob: Blob) => {
@@ -165,6 +184,24 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
   }, [audioUrl]);
 
   const { isRecording, isPaused, recordingTime, error, isInitializing } = recorderState;
+
+  // Rotate tips during recording
+  React.useEffect(() => {
+    if (!isRecording || isPaused) return;
+
+    const tipInterval = setInterval(() => {
+      setCurrentTipIndex((prevIndex) => (prevIndex + 1) % recordingTips.length);
+    }, 8000); // Change tip every 8 seconds
+
+    return () => clearInterval(tipInterval);
+  }, [isRecording, isPaused, recordingTips.length]);
+
+  // Reset tip index when recording stops
+  React.useEffect(() => {
+    if (!isRecording) {
+      setCurrentTipIndex(0);
+    }
+  }, [isRecording]);
   
   const isProcessing = isTranscribing;
   const showSpinner = isInitializing || isTranscribing;
@@ -234,6 +271,37 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
           </Button>
         )}
       </div>
+
+      {/* Contextual Recording Tips */}
+      {isRecording && !isPaused && (
+        <div className="p-4 bg-hysio-mint/10 border border-hysio-mint/30 rounded-md">
+          <div className="flex items-start gap-3">
+            <div className="w-6 h-6 bg-hysio-mint rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span className="text-xs font-bold text-hysio-deep-green">💡</span>
+            </div>
+            <div className="flex-1">
+              <h4 className="text-sm font-medium text-hysio-deep-green mb-1">
+                Opname Tip:
+              </h4>
+              <p className="text-sm text-hysio-deep-green/80 leading-relaxed animate-fade-in">
+                {recordingTips[currentTipIndex]}
+              </p>
+            </div>
+          </div>
+          <div className="flex justify-center mt-3">
+            <div className="flex gap-1">
+              {recordingTips.map((_, index) => (
+                <div
+                  key={index}
+                  className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${
+                    index === currentTipIndex ? 'bg-hysio-mint' : 'bg-hysio-mint/30'
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Timer */}
       {showTimer && (isRecording || recordingTime > 0) && (

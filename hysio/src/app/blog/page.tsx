@@ -59,19 +59,20 @@ export default function Blog() {
   };
 
   return (
-    <div className="min-h-screen bg-hysio-off-white">
+    <div className="min-h-screen bg-hysio-mint">
       <MarketingNavigation />
 
       {/* Hero Section */}
-      <section className="py-20 bg-gradient-to-br from-hysio-mint via-hysio-off-white to-white">
+      <section className="py-20 bg-gradient-to-br from-hysio-mint to-hysio-mint/80">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-5xl font-bold text-hysio-deep-green mb-6">
-              Hysio Blog
+              Fysiotherapie Blog
             </h1>
             <p className="text-xl text-hysio-deep-green/80 mb-8 leading-relaxed">
-              Inzichten, tips en trends voor moderne fysiotherapiepraktijken.
-              Blijf op de hoogte van de nieuwste ontwikkelingen in AI-ondersteunde zorg.
+              Evidence-based inzichten, praktische tips en cutting-edge ontwikkelingen
+              voor de moderne fysiotherapeut. Ontdek hoe AI uw praktijk transformeert
+              en uw patiëntenzorg naar een hoger niveau tilt.
             </p>
             <div className="flex flex-wrap justify-center gap-3">
               <span className="px-4 py-2 bg-hysio-mint/20 rounded-full text-hysio-deep-green text-sm font-medium">
@@ -89,7 +90,7 @@ export default function Blog() {
       </section>
 
       {/* Featured Posts */}
-      <section className="py-16">
+      <section className="py-16 bg-hysio-off-white">
         <div className="container mx-auto px-6">
           <div className="max-w-6xl mx-auto">
             <h2 className="text-3xl font-bold text-hysio-deep-green mb-12 text-center">
@@ -164,7 +165,8 @@ export default function Blog() {
                   </div>
                   <h3 className="text-xl font-semibold text-hysio-deep-green mb-3">AI & Technologie</h3>
                   <p className="text-hysio-deep-green/70 mb-4">
-                    De nieuwste ontwikkelingen in AI voor fysiotherapie en hoe u deze kunt implementeren.
+                    Praktische implementatie van AI-tools, evidence-based onderzoek en
+                    ROI-metingen voor uw fysiotherapiepraktijk.
                   </p>
                   <Button
                     variant="outline"
@@ -182,7 +184,8 @@ export default function Blog() {
                   </div>
                   <h3 className="text-xl font-semibold text-hysio-deep-green mb-3">Praktijkmanagement</h3>
                   <p className="text-hysio-deep-green/70 mb-4">
-                    Tips en strategieën voor het optimaliseren van uw fysiotherapiepraktijk.
+                    Workflow-optimalisatie, patiëntbetrokkenheid en praktijkgroei strategieën
+                    voor de moderne fysiotherapeut.
                   </p>
                   <Button
                     variant="outline"
@@ -200,7 +203,8 @@ export default function Blog() {
                   </div>
                   <h3 className="text-xl font-semibold text-hysio-deep-green mb-3">Compliance & Privacy</h3>
                   <p className="text-hysio-deep-green/70 mb-4">
-                    Alles over AVG, privacy en compliance in de moderne fysiotherapiepraktijk.
+                    AVG-compliance, cybersecurity en risicomanagementin de digitale
+                    fysiotherapie-omgeving.
                   </p>
                   <Button
                     variant="outline"
@@ -216,14 +220,15 @@ export default function Blog() {
       </section>
 
       {/* Newsletter Signup */}
-      <section className="py-16 bg-gradient-to-br from-hysio-mint/20 via-hysio-off-white to-white">
+      <section className="py-16 bg-hysio-off-white">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl font-bold text-hysio-deep-green mb-6">
-              Blijf op de Hoogte
+              Blijf Voorop in de Fysiotherapie
             </h2>
             <p className="text-xl text-hysio-deep-green/80 mb-8">
-              Ontvang onze nieuwste blog artikelen en inzichten direct in uw inbox.
+              Ontvang wekelijks evidence-based inzichten, praktijktips en
+              AI-innovaties die uw behandelresultaten verbeteren.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
               <input

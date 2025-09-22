@@ -28,6 +28,19 @@ import type {
 
 // Parse PHSB structured text into individual sections
 const parsePHSBText = (fullText: string): PHSBStructure => {
+  // Input validation and error handling
+  if (!fullText || typeof fullText !== 'string') {
+    console.warn('parsePHSBText: Invalid input provided, returning empty structure');
+    return {
+      patientNeeds: '',
+      history: '',
+      disorders: '',
+      limitations: '',
+      redFlags: [],
+      fullStructuredText: '',
+    };
+  }
+
   const result: PHSBStructure = {
     patientNeeds: '',
     history: '',
@@ -36,6 +49,8 @@ const parsePHSBText = (fullText: string): PHSBStructure => {
     redFlags: [],
     fullStructuredText: fullText,
   };
+
+  try {
 
   // Define section patterns with multiple variations
   const patterns = [
@@ -88,7 +103,7 @@ const parsePHSBText = (fullText: string): PHSBStructure => {
 
   // Extract red flags
   const redFlagPatterns = [
-    /\*\*Rode\s*Vlagen:?\*\*([\s\S]*?)$/i,
+    /\*\*Rode\s*Vlagen:?\*\*([\s\S]*?)$/gi, // Fixed: Added global flag
     /\[RODE\s*VLAG:?([^\]]+)\]/gi
   ];
 
@@ -114,10 +129,22 @@ const parsePHSBText = (fullText: string): PHSBStructure => {
     }
   }
 
-  // Remove duplicates from red flags
-  result.redFlags = [...new Set(result.redFlags)];
+    // Remove duplicates from red flags
+    result.redFlags = [...new Set(result.redFlags)];
 
-  return result;
+    return result;
+  } catch (error) {
+    console.error('Critical error in parsePHSBText:', error);
+    // Return a safe fallback structure
+    return {
+      patientNeeds: '',
+      history: '',
+      disorders: '',
+      limitations: '',
+      redFlags: [],
+      fullStructuredText: fullText,
+    };
+  }
 };
 
 // Streamlined Input Panel component
@@ -306,6 +333,7 @@ const StreamlinedIntakeWorkflow: React.FC<StreamlinedIntakeWorkflowProps> = ({
   const [phsbStructure, setPHSBStructure] = React.useState<PHSBStructure | null>(null);
   const [examinationFindings, setExaminationFindings] = React.useState<string>('');
   const [clinicalConclusion, setClinicalConclusion] = React.useState<string>('');
+  const [preparationContent, setPreparationContent] = React.useState<string>('');
 
   // Document upload state
   const [documentContext, setDocumentContext] = React.useState<string>('');
@@ -324,6 +352,46 @@ const StreamlinedIntakeWorkflow: React.FC<StreamlinedIntakeWorkflowProps> = ({
   const [isProcessing, setIsProcessing] = React.useState(false);
   const [processingStep, setProcessingStep] = React.useState<string>('');
   const [isExporting, setIsExporting] = React.useState(false);
+
+  // Generate preparation content when patient info is available
+  React.useEffect(() => {
+    const generatePreparation = async () => {
+      if (!patientInfo.chiefComplaint?.trim()) return;
+
+      try {
+        const systemPrompt = `Je bent een ervaren fysiotherapeut die intake-voorbereidingen maakt. Genereer een beknopte, algemene voorbereiding voor een intake gesprek.`;
+
+        const userPrompt = `Hoofdklacht: ${patientInfo.chiefComplaint}
+
+Genereer een beknopte voorbereiding (maximaal 250 woorden) met:
+- Mogelijke vragen om uit te diepen (voor de Intake - Anamnese gedeelte)
+- Relevante onderzoeken om te overwegen (voor de Intake - Onderzoek gedeelte)
+- Aandachtspunten tijdens het consult
+
+Antwoord in het Nederlands, professioneel en praktisch.`;
+
+        const response = await apiCall(API_ENDPOINTS.GENERATE_CONTENT, {
+          method: 'POST',
+          body: JSON.stringify({
+            systemPrompt,
+            userPrompt,
+            options: {
+              temperature: 0.4,
+              max_completion_tokens: 300,
+            }
+          }),
+        });
+
+        if (response.success && response.data?.content) {
+          setPreparationContent(response.data.content);
+        }
+      } catch (error) {
+        console.error('Failed to generate preparation:', error);
+      }
+    };
+
+    generatePreparation();
+  }, [patientInfo.chiefComplaint]);
 
   // Document upload handler
   const handleDocumentUpload = (documentText: string, filename: string) => {
@@ -381,8 +449,8 @@ const StreamlinedIntakeWorkflow: React.FC<StreamlinedIntakeWorkflowProps> = ({
 
   const handleStopRecording = (audioRecording: AudioRecording) => {
     setRecording(audioRecording);
-    setCurrentStep('processing');
-    processRecording(audioRecording);
+    setCurrentStep('recording'); // Keep in recording step, don't auto-process
+    // processRecording(audioRecording); // Removed automatic processing
   };
 
   const handleRecordingError = (error: string) => {
@@ -403,6 +471,7 @@ const StreamlinedIntakeWorkflow: React.FC<StreamlinedIntakeWorkflowProps> = ({
 
   // Process intake handler
   const handleProcessIntake = () => {
+    setCurrentStep('processing'); // Transition to processing step
     if (recording) {
       processRecording(recording);
     } else if (manualNotes.trim()) {
@@ -442,7 +511,7 @@ const StreamlinedIntakeWorkflow: React.FC<StreamlinedIntakeWorkflowProps> = ({
 
       const intakeData: IntakeData = {
         patientInfo,
-        preparation: '',
+        preparation: preparationContent,
         anamnesisRecording: recording,
         anamnesisTranscript: transcription,
         phsbStructure,
@@ -475,7 +544,7 @@ const StreamlinedIntakeWorkflow: React.FC<StreamlinedIntakeWorkflowProps> = ({
 
       const intakeData: IntakeData = {
         patientInfo,
-        preparation: '',
+        preparation: preparationContent,
         anamnesisRecording: recording,
         anamnesisTranscript: transcription,
         phsbStructure,
@@ -557,7 +626,7 @@ Antwoord in het Nederlands, professioneel geformatteerd.`;
           userPrompt,
           options: {
             temperature: 0.3,
-            max_tokens: 1500,
+            max_completion_tokens: 1500, // Updated for GPT-5-mini compatibility
           }
         }),
       });
@@ -696,7 +765,7 @@ Formuleer een professionele klinische conclusie gebaseerd op deze informatie.`;
 
       setProcessingStep('Voltooiing...');
       setCurrentStep('results');
-      setCurrentPhase('results');
+      // setCurrentPhase('results'); // Keep in same phase, show results in left panel
 
     } catch (error) {
       console.error('Error processing recording:', error);
@@ -721,6 +790,7 @@ Formuleer een professionele klinische conclusie gebaseerd op deze informatie.`;
               {phsbStructure ? (
                 <PHSBResultsPanel
                   phsbData={phsbStructure}
+                  preparationContent={preparationContent}
                   showSources={true}
                   audioSource={!!recording}
                   manualSource={!!manualNotes.trim()}
