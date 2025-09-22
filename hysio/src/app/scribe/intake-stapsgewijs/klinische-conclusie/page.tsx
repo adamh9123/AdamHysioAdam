@@ -311,7 +311,7 @@ export default function KlinischeConclusie() {
   };
 
   const handleBack = () => {
-    router.push('/scribe/intake-stapsgewijs/onderzoek');
+    router.push('/scribe/intake-stapsgewijs/onderzoek-resultaat');
   };
 
   const handleStartNewSession = () => {
@@ -362,7 +362,7 @@ export default function KlinischeConclusie() {
           disabled={state.isProcessing}
         >
           <ArrowLeft size={16} className="mr-2" />
-          Terug naar onderzoek
+          Terug naar Onderzoek
         </Button>
 
         <div className="flex items-center gap-3 mb-4">

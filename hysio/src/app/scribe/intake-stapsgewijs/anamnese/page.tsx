@@ -250,6 +250,11 @@ export default function AnamnesePage() {
       // Mark step as complete
       markStepComplete('anamnese');
 
+      // Navigate to anamnese result page after successful processing
+      setTimeout(() => {
+        router.push('/scribe/intake-stapsgewijs/anamnese-resultaat');
+      }, 1000);
+
     } catch (error) {
       console.error('Anamnese processing error:', error);
       setState(prev => ({
