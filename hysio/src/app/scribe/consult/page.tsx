@@ -42,6 +42,7 @@ interface ConsultState {
   isComplete: boolean;
   error: string | null;
   preparationGenerated: boolean;
+  showManualNavigation: boolean;
 }
 
 export default function ConsultPage() {
@@ -64,6 +65,7 @@ export default function ConsultPage() {
     isComplete: false,
     error: null,
     preparationGenerated: false,
+    showManualNavigation: false,
   });
 
   // Set current workflow
@@ -241,10 +243,18 @@ export default function ConsultPage() {
         isComplete: true,
       }));
 
-      // Navigate to SOEP results page
-      setTimeout(() => {
-        router.push('/scribe/consult/soep-verslag');
-      }, 1000);
+      // Navigate to SOEP results page immediately with error handling
+      try {
+        await router.push('/scribe/consult/soep-verslag');
+      } catch (navigationError) {
+        console.error('Navigation to SOEP verslag failed:', navigationError);
+        // Fallback: Show manual navigation option
+        setState(prev => ({
+          ...prev,
+          error: 'Navigatie naar SOEP verslag mislukt. Klik hieronder om handmatig door te gaan.',
+          showManualNavigation: true,
+        }));
+      }
 
     } catch (error) {
       console.error('Consult processing error:', error);
@@ -328,12 +338,46 @@ export default function ConsultPage() {
         </Alert>
       )}
 
-      {/* Success Alert */}
-      {state.isComplete && (
+      {/* Manual Navigation Button */}
+      {state.showManualNavigation && (
+        <div className="mb-6 text-center">
+          <Button
+            onClick={() => router.push('/scribe/consult/soep-verslag')}
+            className="bg-hysio-deep-green hover:bg-hysio-deep-green/90 text-white"
+            size="lg"
+          >
+            <ArrowRight size={18} className="mr-2" />
+            Ga naar SOEP Verslag
+          </Button>
+        </div>
+      )}
+
+      {/* Enhanced Success Alert with Progress Tracking */}
+      {state.isComplete && !state.showManualNavigation && (
         <Alert className="mb-6 border-green-200 bg-green-50">
           <CheckCircle className="h-4 w-4 text-green-600" />
           <AlertDescription className="text-green-800">
-            Consult succesvol verwerkt! U wordt doorgestuurd naar het SOEP verslag...
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <span className="font-semibold">Consult succesvol verwerkt!</span>
+              </div>
+              <div className="text-sm">
+                • SOEP methodiek toegepast ✓
+              </div>
+              <div className="text-sm">
+                • Subjectieve bevindingen geanalyseerd ✓
+              </div>
+              <div className="text-sm">
+                • Objectieve gegevens verwerkt ✓
+              </div>
+              <div className="text-sm">
+                • Evaluatie en plan opgesteld ✓
+              </div>
+              <div className="text-sm text-green-700 mt-2">
+                → SOEP verslag wordt nu geladen...
+              </div>
+            </div>
           </AlertDescription>
         </Alert>
       )}
