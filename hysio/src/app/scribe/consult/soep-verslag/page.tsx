@@ -57,21 +57,50 @@ export default function SOEPVerslagPage() {
     redflags: true,
   });
 
-  // Redirect if no patient info
+  // Enhanced state loading with comprehensive validation and lifecycle logging
   React.useEffect(() => {
+    console.log('SOEP Verslag: useEffect triggered', { patientInfo, workflowData });
+
     if (!patientInfo) {
+      console.log('SOEP Verslag: No patient info, redirecting to scribe');
       router.push('/scribe');
       return;
     }
 
-    // Load results from workflow state
-    const consultData = workflowData.consultData;
-    if (consultData?.soepResult) {
-      setResults(consultData.soepResult);
+    // Validate workflow data exists
+    if (!workflowData) {
+      console.error('SOEP Verslag: No workflow data available');
+      setError('Workflow data niet beschikbaar. Probeer het proces opnieuw.');
       setIsLoading(false);
+      return;
+    }
+
+    // Load and validate results from workflow state
+    const consultData = workflowData.consultData;
+    console.log('SOEP Verslag: Checking consultData', consultData);
+
+    if (consultData?.soepResult) {
+      // Validate result structure
+      if (typeof consultData.soepResult === 'object' && consultData.soepResult !== null) {
+        console.log('SOEP Verslag: Results successfully loaded', consultData.soepResult);
+        setResults(consultData.soepResult);
+        setIsLoading(false);
+      } else {
+        console.error('SOEP Verslag: Invalid result data structure', consultData.soepResult);
+        setError('SOEP verslag data is ongeldig. Probeer het proces opnieuw.');
+        setIsLoading(false);
+      }
     } else {
-      // If no results, redirect back to consult page
-      router.push('/scribe/consult');
+      // Enhanced fallback with delayed redirect to prevent phantom redirects
+      console.warn('SOEP Verslag: No results found, showing error message with delayed redirect');
+      setError('Geen SOEP verslag gevonden. U wordt over 5 seconden doorgestuurd naar de consult pagina...');
+      setIsLoading(false);
+
+      // Delayed redirect to give user time to see the error
+      setTimeout(() => {
+        console.log('SOEP Verslag: Executing delayed redirect to consult page');
+        router.push('/scribe/consult');
+      }, 5000);
     }
   }, [patientInfo, workflowData, router]);
 

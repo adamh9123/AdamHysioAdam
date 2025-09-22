@@ -102,31 +102,31 @@ This comprehensive task list addresses all critical issues identified in the Hys
 
 ---
 
-### **[ ] TASK 3: Fix Hysio Consult "Fantoom-Redirect" Bug**
+### **[x] TASK 3: Fix Hysio Consult "Fantoom-Redirect" Bug**
 **Priority:** 🔴 CRITICAL
 **Affected Files:** `src/app/scribe/consult/page.tsx`, `src/app/scribe/consult/soep-verslag/page.tsx`
 **Issue:** Successful processing → redirect → immediate bounce back → lost data
 
 #### **Sub-tasks:**
-- [ ] **3.1. Debug SOEP Verslag Page Lifecycle**
-  - **File:** `src/app/scribe/consult/soep-verslag/page.tsx:61-76`
+- [x] **3.1. Debug SOEP Verslag Page Lifecycle**
+  - **File:** `src/app/scribe/consult/soep-verslag/page.tsx:61-105`
   - **Current Issue:** Page may be triggering unwanted redirects on load
   - **Action:** Add comprehensive error boundary and lifecycle logging
   - **Investigation:** Check useEffect dependencies, state loading, redirect triggers
 
-- [ ] **3.2. Implement Stable Navigation**
-  - **File:** `src/app/scribe/consult/page.tsx:245-247`
+- [x] **3.2. Implement Stable Navigation**
+  - **File:** `src/app/scribe/consult/page.tsx:244-255`
   - **Current:** `setTimeout(() => { router.push('/scribe/consult/soep-verslag'); }, 1000);`
   - **Action:** Replace setTimeout with immediate navigation + error handling
   - **Fallback:** Add manual navigation option if auto-redirect fails
 
-- [ ] **3.3. Fix State Persistence Issues**
+- [x] **3.3. Fix State Persistence Issues**
   - **Issue:** soepResult data may be lost during navigation
   - **Action:** Ensure data persists across navigation events
   - **Implementation:** Add data validation before page render, recovery mechanisms
   - **Debugging:** Add state logging to track data loss points
 
-- [ ] **3.4. Add Navigation Debugging**
+- [x] **3.4. Add Navigation Debugging**
   - **Features:** Console logging for navigation events, user-visible error messages
   - **Recovery:** Manual retry mechanisms for failed navigations
   - **Monitoring:** Track navigation success/failure rates
