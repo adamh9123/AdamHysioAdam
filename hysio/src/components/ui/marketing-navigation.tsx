@@ -21,10 +21,11 @@ const MarketingNavigation: React.FC<MarketingNavigationProps> = ({ className }) 
     { name: 'Assistant', href: '/assistant', description: 'Intelligente fysiotherapie-assistent' },
     { name: 'SmartMail', href: '/smartmail', description: 'Geautomatiseerde communicatie' },
     { name: 'Diagnosecode', href: '/diagnosecode', description: 'Slimme diagnose herkenning' },
-    { name: 'Dashboard', href: '/dashboard', description: 'Overzicht en analytics' },
+    { name: 'Hysio EduPack', href: '/edupack', description: 'Educatieve content generatie' },
   ];
 
   const mainNavItems = [
+    { name: 'Hysio Modules', href: '/modules' },
     { name: 'Over Ons', href: '/over-ons' },
     { name: 'Blog', href: '/blog' },
     { name: 'Prijzen', href: '/prijzen' },

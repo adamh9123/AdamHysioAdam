@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   // Enable external packages for server components
   serverExternalPackages: ['groq-sdk', 'openai', 'pdf-parse', 'mammoth'],
 
-  // Webpack configuration for PDF.js
+  // Webpack configuration for PDF.js (removing tiktoken WebAssembly for now)
   webpack: (config) => {
     // Handle PDF.js worker files
     config.resolve.alias = {

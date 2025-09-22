@@ -1,5 +1,5 @@
 // AI Content Generator for Hysio EduPack Module
-// Specialized GPT-5-mini integration for B1-level Dutch patient education content
+// Specialized GPT-4.1-mini integration for B1-level Dutch patient education content
 
 import { generateContentWithOpenAI, type OpenAICompletionOptions, HYSIO_LLM_MODEL } from '@/lib/api/openai';
 import type {
@@ -204,8 +204,8 @@ export class EduPackContentGenerator {
 
       const options: OpenAICompletionOptions = {
         model: HYSIO_LLM_MODEL,
-        temperature: 1.0, // GPT-5-mini only supports temperature = 1
-        max_tokens: wordCountTokens,
+        temperature: 0.8, // Optimized for creative yet reliable patient education content
+        max_tokens: Math.max(wordCountTokens, 1000), // Sufficient tokens for educational content
         top_p: 0.9,
         frequency_penalty: 0.2,
         presence_penalty: 0.1

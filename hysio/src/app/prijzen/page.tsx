@@ -9,7 +9,7 @@ export default function Prijzen() {
       name: "Starter",
       price: "€49",
       period: "/maand",
-      description: "Perfect voor individuele fysiotherapeuten",
+      description: "Voor starters en solo-praktijken",
       icon: Star,
       popular: false,
       features: [
@@ -25,7 +25,7 @@ export default function Prijzen() {
       name: "Professional",
       price: "€99",
       period: "/maand",
-      description: "Ideaal voor groeiende praktijken",
+      description: "Voor groeiende praktijken (2-5 therapeuten)",
       icon: Zap,
       popular: true,
       features: [
@@ -43,7 +43,7 @@ export default function Prijzen() {
       name: "Enterprise",
       price: "Op maat",
       period: "",
-      description: "Voor grote praktijken en ketens",
+      description: "Voor praktijkketens en grote praktijken (5+ therapeuten)",
       icon: Crown,
       popular: false,
       features: [
@@ -60,30 +60,30 @@ export default function Prijzen() {
   ];
 
   return (
-    <div className="min-h-screen bg-hysio-off-white">
+    <div className="min-h-screen bg-hysio-mint">
       <MarketingNavigation />
 
       {/* Hero Section */}
-      <section className="py-20 bg-gradient-to-br from-hysio-mint via-hysio-off-white to-white">
+      <section className="py-20 bg-gradient-to-br from-hysio-mint to-hysio-mint/80">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-5xl font-bold text-hysio-deep-green mb-6">
               Prijzen & Abonnementen
             </h1>
             <p className="text-xl text-hysio-deep-green/80 mb-8 leading-relaxed">
-              Kies het abonnement dat het beste past bij uw praktijk.
-              Start met een gratis proefperiode van 14 dagen.
+              Investeer in bewezen ROI. Onze klanten behalen gemiddeld 300% return
+              binnen 6 maanden door verhoogde patiëntcapaciteit en efficiëntiewinst.
             </p>
             <div className="inline-flex items-center gap-2 bg-hysio-mint/20 rounded-full px-4 py-2">
               <Shield className="h-5 w-5 text-hysio-deep-green" />
-              <span className="text-hysio-deep-green font-medium">14 dagen gratis proberen</span>
+              <span className="text-hysio-deep-green font-medium">Geen setup kosten, 14 dagen gratis</span>
             </div>
           </div>
         </div>
       </section>
 
       {/* Pricing Cards */}
-      <section className="py-16">
+      <section className="py-16 bg-hysio-off-white">
         <div className="container mx-auto px-6">
           <div className="max-w-7xl mx-auto">
             <div className="grid lg:grid-cols-3 gap-8">
@@ -167,7 +167,8 @@ export default function Prijzen() {
                 </div>
                 <h3 className="text-xl font-semibold text-hysio-deep-green mb-3">Veiligheid & Privacy</h3>
                 <p className="text-hysio-deep-green/70">
-                  AVG-compliant, end-to-end encryptie en veilige Nederlandse servers.
+                  ISO 27001 gecertificeerd, AVG-compliant en gehost op
+                  Nederlandse servers voor maximale veiligheid.
                 </p>
               </div>
 
@@ -177,7 +178,8 @@ export default function Prijzen() {
                 </div>
                 <h3 className="text-xl font-semibold text-hysio-deep-green mb-3">Nederlandse Ondersteuning</h3>
                 <p className="text-hysio-deep-green/70">
-                  Lokale support van experts die fysiotherapie begrijpen.
+                  Nederlandse support door fysiotherapeuten en implementatie-experts
+                  die uw workflow begrijpen.
                 </p>
               </div>
 
@@ -187,7 +189,8 @@ export default function Prijzen() {
                 </div>
                 <h3 className="text-xl font-semibold text-hysio-deep-green mb-3">Training & Implementatie</h3>
                 <p className="text-hysio-deep-green/70">
-                  Persoonlijke onboarding en training voor uw hele team.
+                  Hands-on training, change management en continue ondersteuning
+                  voor snelle ROI-realisatie.
                 </p>
               </div>
             </div>
@@ -196,7 +199,7 @@ export default function Prijzen() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-16 bg-hysio-off-white">
+      <section className="py-16">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl font-bold text-hysio-deep-green text-center mb-12">
@@ -241,14 +244,14 @@ export default function Prijzen() {
       </section>
 
       {/* Call to Action */}
-      <section className="py-16 bg-gradient-to-br from-hysio-mint/20 via-hysio-off-white to-white">
+      <section className="py-16 bg-hysio-off-white">
         <div className="container mx-auto px-6 text-center">
           <h2 className="text-3xl font-bold text-hysio-deep-green mb-6">
             Klaar om te beginnen?
           </h2>
           <p className="text-xl text-hysio-deep-green/80 mb-8 max-w-2xl mx-auto">
-            Start vandaag nog met uw gratis proefperiode en ervaar hoe Hysio
-            uw fysiotherapiepraktijk kan transformeren.
+            Sluit u aan bij 2.500+ tevreden fysiotherapeuten. Bespaar vanaf dag 1
+            minimaal 8 uur per week en verhoog uw patiëntcapaciteit met 30%.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button

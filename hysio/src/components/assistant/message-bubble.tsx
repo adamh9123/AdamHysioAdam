@@ -52,10 +52,10 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, className }) => 
     )}>
       {/* Avatar */}
       <div className={cn(
-        'flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium',
-        isUser 
-          ? 'bg-hysio-mint text-hysio-deep-green' 
-          : 'bg-sky-500 text-white'
+        'flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-sm font-medium shadow-md',
+        isUser
+          ? 'bg-gradient-to-br from-hysio-mint to-hysio-mint-dark text-hysio-deep-green'
+          : 'bg-gradient-to-br from-hysio-deep-green to-hysio-deep-green-900 text-white'
       )}>
         {isUser ? <User size={16} /> : <Bot size={16} />}
       </div>
@@ -66,16 +66,16 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, className }) => 
         isUser ? 'flex flex-col items-end' : 'flex flex-col items-start'
       )}>
         <div className={cn(
-          'rounded-2xl px-4 py-3 shadow-sm relative group',
-          isUser 
-            ? 'bg-hysio-mint text-hysio-deep-green-900 rounded-tr-md'
-            : 'bg-white border border-gray-200 text-hysio-deep-green-900 rounded-tl-md',
+          'rounded-2xl px-5 py-4 shadow-md relative group backdrop-blur-sm',
+          isUser
+            ? 'bg-gradient-to-br from-hysio-mint/90 to-hysio-mint/70 text-hysio-deep-green-900 rounded-tr-lg border border-hysio-mint-dark/30'
+            : 'bg-white/95 border border-hysio-mint/20 text-hysio-deep-green-900 rounded-tl-lg shadow-lg',
           message.isStreaming && 'animate-pulse'
         )}>
           {/* Content */}
           <div className={cn(
-            'prose prose-sm max-w-none',
-            isUser ? 'text-hysio-deep-green-900' : 'text-hysio-deep-green-900'
+            'prose prose-sm max-w-none leading-relaxed',
+            isUser ? 'text-hysio-deep-green-900 font-medium' : 'text-hysio-deep-green-900'
           )}>
             {message.content ? (
               <div 
@@ -86,9 +86,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, className }) => 
             ) : (
               message.isStreaming && (
                 <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 bg-hysio-deep-green-900/50 rounded-full animate-bounce" />
-                  <div className="w-2 h-2 bg-hysio-deep-green-900/50 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
-                  <div className="w-2 h-2 bg-hysio-deep-green-900/50 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                  <div className="w-2 h-2 bg-hysio-mint-dark rounded-full animate-bounce" />
+                  <div className="w-2 h-2 bg-hysio-mint-dark rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
+                  <div className="w-2 h-2 bg-hysio-mint-dark rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
                 </div>
               )
             )}
@@ -101,8 +101,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, className }) => 
               size="icon"
               onClick={copyToClipboard}
               className={cn(
-                'absolute top-2 right-2 w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity',
-                'hover:bg-black/5'
+                'absolute top-2 right-2 w-7 h-7 opacity-0 group-hover:opacity-100 transition-all duration-200',
+                'hover:bg-hysio-mint/20 rounded-lg backdrop-blur-sm'
               )}
             >
               {copied ? (
@@ -116,14 +116,14 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, className }) => 
         
         {/* Clinical Disclaimer */}
         {message.requiresDisclaimer && (
-          <div className="mt-2 text-xs text-hysio-deep-green-900/70 italic max-w-[75%]">
-            <strong>Altijd nazien door een bevoegd fysiotherapeut.</strong>
+          <div className="mt-3 text-xs text-hysio-deep-green-900/80 italic max-w-[75%] bg-hysio-mint/10 px-3 py-2 rounded-lg border-l-4 border-hysio-mint-dark">
+            <strong>⚠️ Altijd nazien door een bevoegd fysiotherapeut.</strong>
           </div>
         )}
         
         {/* Timestamp */}
         <div className={cn(
-          'text-xs text-hysio-deep-green-900/50 mt-1',
+          'text-xs text-hysio-deep-green-900/60 mt-2 font-medium',
           isUser ? 'text-right' : 'text-left'
         )}>
           {new Date(message.timestamp).toLocaleTimeString('nl-NL', {

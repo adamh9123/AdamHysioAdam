@@ -1,8 +1,8 @@
 // API route for Hysio Assistant chat completions
 
 import { NextRequest, NextResponse } from 'next/server';
-import { generateContentStreamWithOpenAI } from '@/lib/api/openai';
-import { HYSIO_ASSISTANT_SYSTEM_PROMPT, ASSISTANT_MODEL_CONFIG, requiresDisclaimer, CLINICAL_DISCLAIMER } from '@/lib/assistant/system-prompt';
+import { generateContentStreamWithOpenAI, getAPIMetrics, healthCheck } from '@/lib/api/openai';
+import { HYSIO_ASSISTANT_SYSTEM_PROMPT, ASSISTANT_MODEL_CONFIG, requiresDisclaimer, CLINICAL_DISCLAIMER, optimizeResponseFormat, analyzeResponseEfficiency } from '@/lib/assistant/system-prompt';
 
 export const runtime = 'nodejs';
 
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Build conversation context from history
-    const messages = [];
+    const messages: { role: string; content: string }[] = [];
     
     // Add conversation history
     if (conversationHistory.length > 0) {
@@ -66,20 +66,39 @@ export async function POST(request: NextRequest) {
                 controller.enqueue(encoder.encode(`data: ${data}\n\n`));
               },
               onComplete: (content: string) => {
+                // Optimize response format for efficiency
+                const { content: optimizedContent, wasOptimized } = optimizeResponseFormat(content);
+
+                // Analyze response efficiency
+                const efficiencyAnalysis = analyzeResponseEfficiency(optimizedContent);
+
                 // Check if response requires clinical disclaimer
-                const needsDisclaimer = requiresDisclaimer(content);
-                let finalContent = content;
-                
-                if (needsDisclaimer && !content.includes(CLINICAL_DISCLAIMER)) {
-                  finalContent = `${content}\n\n${CLINICAL_DISCLAIMER}`;
+                const needsDisclaimer = requiresDisclaimer(optimizedContent);
+                let finalContent = optimizedContent;
+
+                if (needsDisclaimer && !optimizedContent.includes(CLINICAL_DISCLAIMER)) {
+                  finalContent = `${optimizedContent}\n\n${CLINICAL_DISCLAIMER}`;
                 }
-                
+
+                // Log efficiency metrics for monitoring
+                console.log('Response Efficiency Metrics:', {
+                  wasOptimized,
+                  ...efficiencyAnalysis,
+                  originalLength: content.length,
+                  optimizedLength: finalContent.length
+                });
+
                 // Send completion signal
-                const data = JSON.stringify({ 
-                  success: true, 
+                const data = JSON.stringify({
+                  success: true,
                   complete: true,
                   content: finalContent,
-                  requiresDisclaimer: needsDisclaimer
+                  requiresDisclaimer: needsDisclaimer,
+                  efficiency: {
+                    score: efficiencyAnalysis.score,
+                    wordCount: efficiencyAnalysis.wordCount,
+                    wasOptimized
+                  }
                 });
                 controller.enqueue(encoder.encode(`data: ${data}\n\n`));
                 controller.close();
@@ -136,13 +155,32 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// GET endpoint to check API status
+// GET endpoint to check API status with enhanced monitoring
 export async function GET() {
-  return NextResponse.json({
-    success: true,
-    message: 'Hysio Assistant API is running',
-    model: ASSISTANT_MODEL_CONFIG.model,
-    provider: 'OpenAI',
-    features: ['streaming', 'conversation_history', 'clinical_disclaimer']
-  });
+  try {
+    const health = await healthCheck();
+    const metrics = getAPIMetrics();
+
+    return NextResponse.json({
+      success: true,
+      message: 'Hysio Assistant API is running',
+      model: ASSISTANT_MODEL_CONFIG.model,
+      provider: 'OpenAI',
+      features: ['streaming', 'conversation_history', 'clinical_disclaimer', 'rate-limiting', 'monitoring', 'efficiency_optimization', 'response_formatting'],
+      health: health.status,
+      metrics: {
+        totalRequests: metrics.requestCount,
+        totalCost: parseFloat(metrics.totalCost.toFixed(6)),
+        errorRate: metrics.requestCount > 0 ? (metrics.errorCount / metrics.requestCount).toFixed(3) : '0.000'
+      },
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    return NextResponse.json({
+      success: false,
+      message: 'Hysio Assistant API health check failed',
+      error: error instanceof Error ? error.message : 'Unknown error',
+      health: 'unhealthy'
+    }, { status: 500 });
+  }
 }

@@ -1,7 +1,14 @@
-// API route for AI content generation using OpenAI GPT-5-mini
+// API route for AI content generation using OpenAI GPT-4.1-mini
 
 import { NextRequest, NextResponse } from 'next/server';
-import { generateContentWithOpenAI, generateContentStreamWithOpenAI, type OpenAICompletionOptions, HYSIO_LLM_MODEL } from '@/lib/api/openai';
+import {
+  generateContentWithOpenAI,
+  generateContentStreamWithOpenAI,
+  type OpenAICompletionOptions,
+  HYSIO_LLM_MODEL,
+  getAPIMetrics,
+  healthCheck
+} from '@/lib/api/openai';
 
 export const runtime = 'nodejs';
 
@@ -60,14 +67,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Set default options
+    // Set default options optimized for GPT-4.1-mini
     const completionOptions: OpenAICompletionOptions = {
       model: HYSIO_LLM_MODEL,
-      temperature: 1.0, // GPT-5-mini only supports temperature = 1
-      max_tokens: 2000,
+      temperature: 0.8, // Balanced creativity for content generation
+      max_tokens: 4000, // Sufficient tokens for comprehensive content
       ...options,
     };
 
+    // Handle backwards compatibility
     if (options.maxTokens !== undefined && options.max_tokens === undefined) {
       completionOptions.max_tokens = options.maxTokens;
     }
@@ -151,7 +159,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// GET endpoint to check API status
+// GET endpoint to check API status with enhanced monitoring
 export async function GET() {
   try {
     console.log('GET /api/generate called');
@@ -160,20 +168,34 @@ export async function GET() {
     const importTest = testImports();
     console.log('Import test result:', importTest);
 
-    // Test environment variables
-    const hasOpenAIKey = !!process.env.OPENAI_API_KEY;
-    console.log('OpenAI API Key configured:', hasOpenAIKey);
-    console.log('OpenAI API Key length:', process.env.OPENAI_API_KEY?.length || 0);
+    // Get comprehensive health check and metrics
+    const health = await healthCheck();
+    const metrics = getAPIMetrics();
 
     return NextResponse.json({
       success: true,
       message: 'Content generation API is running',
       model: HYSIO_LLM_MODEL,
       provider: 'OpenAI',
-      capabilities: ['text-generation', 'streaming', 'dutch-language-support'],
-      maxPromptLength: '~50,000 characters',
+      capabilities: ['text-generation', 'streaming', 'dutch-language-support', 'rate-limiting', 'monitoring'],
+      features: {
+        tikTokenCounting: true,
+        tokenBucketRateLimit: true,
+        zodValidation: true,
+        exponentialBackoff: true,
+        costTracking: true,
+        healthMonitoring: true
+      },
+      health: health.status,
+      metrics: {
+        totalRequests: metrics.requestCount,
+        totalTokens: metrics.totalTokens,
+        totalCost: parseFloat(metrics.totalCost.toFixed(6)),
+        averageLatency: parseFloat(metrics.averageLatency.toFixed(2)),
+        errorCount: metrics.errorCount,
+        lastRequestTime: metrics.lastRequestTime
+      },
       importTest,
-      hasOpenAIKey,
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
@@ -182,7 +204,7 @@ export async function GET() {
       success: false,
       error: 'GET endpoint failed',
       details: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
+      health: 'unhealthy'
     }, { status: 500 });
   }
 }

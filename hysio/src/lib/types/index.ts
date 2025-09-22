@@ -86,11 +86,12 @@ export interface PHSBData {
 
 export interface PHSBStructure {
   patientNeeds: string; // Patiëntbehoeften - Motivatie/hulpvraag, doelen/verwachtingen
-  history: string; // Historie - Ontstaansmoment, verloop, eerdere behandeling  
+  history: string; // Historie - Ontstaansmoment, verloop, eerdere behandeling
   disorders: string; // Stoornissen - Pijn, mobiliteit, kracht, stabiliteit
   limitations: string; // Beperkingen - ADL, werk, sport
   redFlags: string[];
   fullStructuredText: string;
+  anamneseSummary?: string; // Samenvatting Anamnese - Narrative summary of the anamnesis
 }
 
 export interface SOEPStructure {
@@ -100,6 +101,7 @@ export interface SOEPStructure {
   plan: string;
   redFlags: string[];
   fullStructuredText: string;
+  consultSummary?: string; // Samenvatting Consult - Narrative summary of the consultation
 }
 
 export interface AudioTranscription {

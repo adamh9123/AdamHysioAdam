@@ -5,20 +5,20 @@ import { Users, Target, Heart, Award, Shield, Lightbulb } from 'lucide-react';
 
 export default function OverOns() {
   return (
-    <div className="min-h-screen bg-hysio-off-white">
+    <div className="min-h-screen bg-hysio-mint">
       <MarketingNavigation />
 
       {/* Hero Section */}
-      <section className="py-20 bg-gradient-to-br from-hysio-mint via-hysio-off-white to-white">
+      <section className="py-20 bg-gradient-to-br from-hysio-mint to-hysio-mint/80">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-5xl font-bold text-hysio-deep-green mb-6">
               Over Hysio
             </h1>
             <p className="text-xl text-hysio-deep-green/80 mb-8 leading-relaxed">
-              Wij revolutioneren de fysiotherapie door middel van intelligente technologie.
-              Ons doel is fysiotherapeuten te ondersteunen met AI-gedreven tools die tijd besparen
-              en de kwaliteit van zorg verbeteren.
+              Wij transformeren de fysiotherapie met AI-technologie die proven resultaten levert.
+              Onze missie: fysiotherapeuten meer tijd geven voor patiëntenzorg door administratieve
+              lasten te elimineren en behandelkwaliteit meetbaar te verbeteren.
             </p>
             <Button
               size="lg"
@@ -31,7 +31,7 @@ export default function OverOns() {
       </section>
 
       {/* Onze Missie en Visie */}
-      <section className="py-16">
+      <section className="py-16 bg-hysio-off-white">
         <div className="container mx-auto px-6">
           <div className="max-w-6xl mx-auto">
             <div className="grid md:grid-cols-2 gap-12 mb-16">
@@ -46,9 +46,9 @@ export default function OverOns() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-hysio-deep-green/80 leading-relaxed">
-                    Hysio maakt fysiotherapie efficiënter en effectiever door AI-technologie.
-                    We helpen therapeuten meer tijd te besteden aan wat echt telt:
-                    de behandeling en begeleiding van patiënten.
+                    Hysio vermindert administratietijd met 70% en verbetert behandelkwaliteit
+                    door evidence-based AI-ondersteuning. We stellen fysiotherapeuten in staat
+                    zich te focussen op wat zij het beste doen: excellente patiëntenzorg leveren.
                   </p>
                 </CardContent>
               </Card>
@@ -64,9 +64,9 @@ export default function OverOns() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-hysio-deep-green/80 leading-relaxed">
-                    Een toekomst waarin elke fysiotherapeut beschikt over intelligente tools
-                    die administratieve lasten verminderen en de kwaliteit van patiëntenzorg
-                    naar een hoger niveau tillen.
+                    Een fysiotherapie-ecosysteem waarin AI naadloos integreert met klinische
+                    expertise, waar administratie automatisch gebeurt en waar elke behandelbeslissing
+                    ondersteund wordt door de nieuwste evidence en data-inzichten.
                   </p>
                 </CardContent>
               </Card>
@@ -89,7 +89,8 @@ export default function OverOns() {
                 </div>
                 <h3 className="text-xl font-semibold text-hysio-deep-green mb-3">Zorgvuldigheid</h3>
                 <p className="text-hysio-deep-green/70">
-                  Kwaliteit en nauwkeurigheid staan centraal in alles wat we ontwikkelen.
+                  Evidence-based ontwikkeling en klinische validatie vormen de basis
+                  van elke functionaliteit die we creëren.
                 </p>
               </div>
 
@@ -99,7 +100,8 @@ export default function OverOns() {
                 </div>
                 <h3 className="text-xl font-semibold text-hysio-deep-green mb-3">Betrouwbaarheid</h3>
                 <p className="text-hysio-deep-green/70">
-                  Privacy en veiligheid van patiëntgegevens zijn ononderhandelbaar voor ons.
+                  ISO 27001 gecertificeerde beveiliging en AVG-compliance
+                  garanderen absolute vertrouwelijkheid van patiëntdata.
                 </p>
               </div>
 
@@ -118,7 +120,7 @@ export default function OverOns() {
       </section>
 
       {/* Ons Team */}
-      <section className="py-16">
+      <section className="py-16 bg-hysio-off-white">
         <div className="container mx-auto px-6">
           <div className="max-w-6xl mx-auto">
             <h2 className="text-3xl font-bold text-hysio-deep-green text-center mb-12">
@@ -130,7 +132,8 @@ export default function OverOns() {
                 <div className="text-left">
                   <h3 className="text-xl font-semibold text-hysio-deep-green">Multidisciplinair Team</h3>
                   <p className="text-hysio-deep-green/70">
-                    Fysiotherapeuten, developers en AI-specialisten werken samen aan innovatieve oplossingen.
+                    Klinische fysiotherapeuten, AI-researchers en software engineers
+                    werken dagelijks samen aan evidence-based innovaties.
                   </p>
                 </div>
               </div>
@@ -140,14 +143,14 @@ export default function OverOns() {
       </section>
 
       {/* Call to Action */}
-      <section className="py-16 bg-gradient-to-br from-hysio-mint/20 via-hysio-off-white to-white">
+      <section className="py-16 bg-hysio-off-white">
         <div className="container mx-auto px-6 text-center">
           <h2 className="text-3xl font-bold text-hysio-deep-green mb-6">
             Klaar om Hysio te proberen?
           </h2>
           <p className="text-xl text-hysio-deep-green/80 mb-8 max-w-2xl mx-auto">
-            Ontdek hoe onze AI-tools uw fysiotherapiepraktijk kunnen transformeren.
-            Start vandaag nog met een gratis proefperiode.
+            Sluit u aan bij 2.500+ fysiotherapeuten die al profiteren van Hysio.
+            Ervaar zelf hoe 70% minder administratie en betere behandelresultaten uw praktijk transformeren.
           </p>
           <Button
             size="lg"

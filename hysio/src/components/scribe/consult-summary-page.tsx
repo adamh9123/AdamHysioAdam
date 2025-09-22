@@ -72,28 +72,32 @@ const CompactSOEPCard: React.FC<CompactSOEPCardProps> = ({
 
   const buildFullSOEPText = (data: SOEPStructure): string => {
     const sections = [];
-    
+
     if (data.subjective) {
       sections.push(`**S - Subjectief:**\n${data.subjective}`);
     }
-    
+
     if (data.objective) {
       sections.push(`**O - Objectief:**\n${data.objective}`);
     }
-    
+
     if (data.evaluation) {
       sections.push(`**E - Evaluatie:**\n${data.evaluation}`);
     }
-    
+
     if (data.plan) {
       sections.push(`**P - Plan:**\n${data.plan}`);
     }
-    
+
+    if (data.consultSummary) {
+      sections.push(`**Samenvatting Consult:**\n${data.consultSummary}`);
+    }
+
     if (data.redFlags && data.redFlags.length > 0) {
       const redFlagsText = data.redFlags.map(flag => `[RODE VLAG: ${flag}]`).join('\n');
       sections.push(`**Rode Vlagen:**\n${redFlagsText}`);
     }
-    
+
     return sections.join('\n\n');
   };
 
@@ -155,6 +159,12 @@ const CompactSOEPCard: React.FC<CompactSOEPCardProps> = ({
             border: 'border-purple-200',
             bg: 'bg-purple-50/30',
             text: 'text-purple-700'
+          };
+        case 'indigo':
+          return {
+            border: 'border-indigo-200',
+            bg: 'bg-indigo-50/30',
+            text: 'text-indigo-700'
           };
         default:
           return {
@@ -279,6 +289,7 @@ const CompactSOEPCard: React.FC<CompactSOEPCardProps> = ({
     { key: 'objective', title: 'Objectief', icon: Stethoscope, color: 'green', description: 'Wat zie/meet je' },
     { key: 'evaluation', title: 'Evaluatie', icon: Eye, color: 'amber', description: 'Wat betekent dit' },
     { key: 'plan', title: 'Plan', icon: Target, color: 'purple', description: 'Wat ga je doen' },
+    { key: 'consultSummary', title: 'Samenvatting Consult', icon: Heart, color: 'indigo', description: 'Beknopte samenvatting consult' },
   ];
 
   return (
@@ -438,27 +449,53 @@ const ConsultSummaryPage: React.FC<ConsultSummaryPageProps> = ({
   };
 
   return (
-    <div className={cn('w-full p-6 space-y-8', className)}>
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-hysio-deep-green mb-2">
+    <div className={cn('min-h-screen bg-[#F8F8F5] w-full py-8', className)}>
+      <div className="w-full max-w-6xl mx-auto px-6 space-y-8">
+        {/* Enhanced Header */}
+        <div className="text-center mb-8">
+          <div className="w-20 h-20 bg-[#A5E1C5]/30 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Stethoscope size={40} className="text-[#004B3A]" />
+          </div>
+          <h1 className="text-4xl font-bold text-[#004B3A] mb-4">
             Consult Samenvatting
           </h1>
-          <p className="text-hysio-deep-green-900/70">
+          <p className="text-xl text-[#003728]/80 mb-2">
             {patientInfo.initials} ({patientInfo.birthYear}) - Vervolgconsult voltooid
           </p>
+          <p className="text-[#003728]/70">
+            SOEP-gestructureerde documentatie en samenvatting
+          </p>
         </div>
-        <Button
-          variant="outline"
-          onClick={onBack}
-          disabled={disabled}
-          className="gap-2"
-        >
-          <ArrowLeft size={16} />
-          Terug
-        </Button>
-      </div>
+
+        {/* Patient Info Bar */}
+        <Card className="border-2 border-[#A5E1C5]/40 bg-[#E6F5F3]/50 shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-[#A5E1C5]/30 rounded-full flex items-center justify-center">
+                  <User size={20} className="text-[#004B3A]" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-[#004B3A]">
+                    {patientInfo.initials} - {patientInfo.age || 'Onbekende'} jaar, {patientInfo.gender}
+                  </h3>
+                  <p className="text-sm text-[#003728]/80">
+                    Vervolgconsult • {new Date().toLocaleDateString('nl-NL')}
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                onClick={onBack}
+                disabled={disabled}
+                className="gap-2 border-[#A5E1C5] text-[#004B3A] hover:bg-[#A5E1C5]/10"
+              >
+                <ArrowLeft size={16} />
+                Terug
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
       {/* 1. Compact Editable SOEP Card */}
       <CompactSOEPCard
@@ -467,115 +504,116 @@ const ConsultSummaryPage: React.FC<ConsultSummaryPageProps> = ({
         enableEditing={true}
       />
 
-      {/* 2. Full SOEP Documentation */}
-      <Card className="border-2 border-hysio-mint/20 bg-hysio-cream/10">
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <CardTitle className="flex items-center gap-2 text-hysio-deep-green">
-              <FileText size={18} />
-              Hysio Consult Documentatie
-            </CardTitle>
-            <CopyToClipboard text={localSOEPData.fullStructuredText} />
-          </div>
-        </CardHeader>
-        <CardContent>
-          <EditableFullSOEP
-            content={localSOEPData.fullStructuredText}
-            onContentChange={(newContent) => {
-              const updatedData = { ...localSOEPData, fullStructuredText: newContent };
-              setLocalSOEPData(updatedData);
-            }}
-          />
-        </CardContent>
-      </Card>
-
-      {/* Export Buttons Section */}
-      <Card className="border-2 border-hysio-mint/30 bg-hysio-mint/10">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-hysio-deep-green">
-            <Download size={18} />
-            Rapport Exporteren
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-hysio-deep-green-900/70 mb-6">
-            Exporteer het volledige consult rapport als professioneel document.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Button
-              onClick={handleExportPDF}
-              disabled={disabled || isExporting || isExportingLocal}
-              size="lg"
-              className="bg-red-600 hover:bg-red-700 text-white flex-1"
-            >
-              {(isExporting || isExportingLocal) ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                  Exporteren...
-                </>
-              ) : (
-                <>
-                  <FileDown size={18} className="mr-2" />
-                  Exporteer als HTML
-                </>
-              )}
-            </Button>
-            
-            <Button
-              onClick={handleExportWord}
-              disabled={disabled || isExporting || isExportingLocal}
-              size="lg"
-              className="bg-blue-600 hover:bg-blue-700 text-white flex-1"
-            >
-              {(isExporting || isExportingLocal) ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                  Exporteren...
-                </>
-              ) : (
-                <>
-                  <FileDown size={18} className="mr-2" />
-                  Exporteer als TXT
-                </>
-              )}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* 3. Reference: Consultation Preparation */}
-      {sessionPreparation && (
-        <Card className="border-2 border-amber-200 bg-amber-50/30">
+        {/* 2. Full SOEP Documentation */}
+        <Card className="border-2 border-[#A5E1C5]/40 bg-white shadow-lg">
           <CardHeader>
             <div className="flex justify-between items-center">
-              <CardTitle className="flex items-center gap-2 text-amber-800">
-                <Lightbulb size={18} />
-                Referentie: Consult Voorbereiding
+              <CardTitle className="flex items-center gap-2 text-[#004B3A]">
+                <FileText size={18} />
+                Hysio Consult Documentatie
               </CardTitle>
-              <CopyToClipboard text={sessionPreparation} />
+              <CopyToClipboard text={localSOEPData.fullStructuredText} />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="bg-white p-4 rounded-lg border border-amber-200">
-              <pre className="whitespace-pre-wrap font-inter text-sm leading-relaxed text-gray-800">
-                {sessionPreparation}
-              </pre>
+            <EditableFullSOEP
+              content={localSOEPData.fullStructuredText}
+              onContentChange={(newContent) => {
+                const updatedData = { ...localSOEPData, fullStructuredText: newContent };
+                setLocalSOEPData(updatedData);
+              }}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Export Buttons Section */}
+        <Card className="border-2 border-[#A5E1C5]/40 bg-[#E6F5F3]/30 shadow-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-[#004B3A]">
+              <Download size={18} />
+              Rapport Exporteren
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-[#003728]/80 mb-6">
+              Exporteer het volledige consult rapport als professioneel document.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button
+                onClick={handleExportPDF}
+                disabled={disabled || isExporting || isExportingLocal}
+                size="lg"
+                className="bg-[#004B3A] hover:bg-[#003728] text-white flex-1"
+              >
+                {(isExporting || isExportingLocal) ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                    Exporteren...
+                  </>
+                ) : (
+                  <>
+                    <FileDown size={18} className="mr-2" />
+                    Exporteer als HTML
+                  </>
+                )}
+              </Button>
+
+              <Button
+                onClick={handleExportWord}
+                disabled={disabled || isExporting || isExportingLocal}
+                size="lg"
+                className="bg-[#10B981] hover:bg-[#059669] text-white flex-1"
+              >
+                {(isExporting || isExportingLocal) ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                    Exporteren...
+                  </>
+                ) : (
+                  <>
+                    <FileDown size={18} className="mr-2" />
+                    Exporteer als TXT
+                  </>
+                )}
+              </Button>
             </div>
           </CardContent>
         </Card>
-      )}
 
-      {/* Footer */}
-      <div className="text-center pt-8 border-t border-hysio-mint/20">
-        <p className="text-sm text-hysio-deep-green-900/60 mb-2">
-          Hysio Medical Scribe - AI-ondersteunde Fysiotherapie Documentatie
-        </p>
-        <p className="text-xs text-hysio-deep-green-900/50">
-          Consult rapport gegenereerd op {formatDate(new Date().toISOString())} • 
-          Voldoet aan Nederlandse fysiotherapie richtlijnen (KNGF, DTF) • 
-          Alle AI-gegenereerde content moet worden geverifieerd door een bevoegd fysiotherapeut
-        </p>
+        {/* 3. Reference: Consultation Preparation */}
+        {sessionPreparation && (
+          <Card className="border-2 border-[#F59E0B]/40 bg-[#FEF3C7]/30 shadow-lg">
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <CardTitle className="flex items-center gap-2 text-[#D97706]">
+                  <Lightbulb size={18} />
+                  Referentie: Consult Voorbereiding
+                </CardTitle>
+                <CopyToClipboard text={sessionPreparation} />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-white p-4 rounded-lg border border-[#F59E0B]/40">
+                <pre className="whitespace-pre-wrap font-inter text-sm leading-relaxed text-[#003728]">
+                  {sessionPreparation}
+                </pre>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Footer */}
+        <div className="text-center pt-8 border-t border-[#A5E1C5]/30">
+          <p className="text-sm text-[#003728]/70 mb-2">
+            Hysio Medical Scribe - AI-ondersteunde Fysiotherapie Documentatie
+          </p>
+          <p className="text-xs text-[#003728]/60">
+            Consult rapport gegenereerd op {formatDate(new Date().toISOString())} •
+            Voldoet aan Nederlandse fysiotherapie richtlijnen (KNGF, DTF) •
+            Alle AI-gegenereerde content moet worden geverifieerd door een bevoegd fysiotherapeut
+          </p>
+        </div>
       </div>
     </div>
   );

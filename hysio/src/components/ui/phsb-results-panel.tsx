@@ -24,6 +24,20 @@ import type { PHSBStructure } from '@/lib/types';
 
 // Parse PHSB structured text into individual sections
 const parsePHSBText = (fullText: string): PHSBStructure => {
+  // Input validation and error handling
+  if (!fullText || typeof fullText !== 'string') {
+    console.warn('parsePHSBText: Invalid input provided, returning empty structure');
+    return {
+      patientNeeds: '',
+      history: '',
+      disorders: '',
+      limitations: '',
+      redFlags: [],
+      fullStructuredText: '',
+      anamneseSummary: '',
+    };
+  }
+
   const result: PHSBStructure = {
     patientNeeds: '',
     history: '',
@@ -31,81 +45,134 @@ const parsePHSBText = (fullText: string): PHSBStructure => {
     limitations: '',
     redFlags: [],
     fullStructuredText: fullText,
+    anamneseSummary: '',
   };
 
-  // Define section patterns with multiple variations
-  const patterns = [
-    // Patient/Patiënt patterns
-    {
-      key: 'patientNeeds' as keyof PHSBStructure,
-      patterns: [
-        /\*\*P\s*-\s*Patiënt\s*Probleem\/Hulpvraag:?\*\*([\s\S]*?)(?=\*\*[HhSsBb]\s*-|$)/i,
-        /\*\*Patiëntbehoeften:?\*\*([\s\S]*?)(?=\*\*Historie|\*\*[HhSsBb]\s*-|$)/i,
-        /\*\*P:?\*\*([\s\S]*?)(?=\*\*[HhSsBb]\s*-|$)/i,
-      ]
-    },
-    // Historie patterns
-    {
-      key: 'history' as keyof PHSBStructure,
-      patterns: [
-        /\*\*H\s*-\s*Historie:?\*\*([\s\S]*?)(?=\*\*[SsBb]\s*-|$)/i,
-        /\*\*Historie:?\*\*([\s\S]*?)(?=\*\*Stoornissen|\*\*[SsBb]\s*-|$)/i,
-        /\*\*H:?\*\*([\s\S]*?)(?=\*\*[SsBb]\s*-|$)/i,
-      ]
-    },
-    // Stoornissen patterns
-    {
-      key: 'disorders' as keyof PHSBStructure,
-      patterns: [
-        /\*\*S\s*-\s*Stoornissen\s*in\s*lichaamsfuncties\s*en\s*anatomische\s*structuren:?\*\*([\s\S]*?)(?=\*\*[Bb]\s*-|$)/i,
-        /\*\*Stoornissen:?\*\*([\s\S]*?)(?=\*\*Beperkingen|\*\*[Bb]\s*-|$)/i,
-        /\*\*S:?\*\*([\s\S]*?)(?=\*\*[Bb]\s*-|$)/i,
-      ]
-    },
-    // Beperkingen patterns
-    {
-      key: 'limitations' as keyof PHSBStructure,
-      patterns: [
-        /\*\*B\s*-\s*Beperkingen:?\*\*([\s\S]*?)(?=\*\*Rode\s*Vlagen|$)/i,
-        /\*\*Beperkingen:?\*\*([\s\S]*?)(?=\*\*Rode\s*Vlagen|$)/i,
-        /\*\*B:?\*\*([\s\S]*?)(?=\*\*Rode\s*Vlagen|$)/i,
-      ]
-    }
-  ];
+  try {
+    // Comprehensive regex patterns for robust parsing
+    const sectionPatterns = [
+      // Patiëntbehoeften patterns - more comprehensive
+      {
+        key: 'patientNeeds' as keyof PHSBStructure,
+        patterns: [
+          /\*\*P\s*[-:]?\s*Patiënt\s*(?:Probleem|behoeften)?\s*(?:\/\s*Hulpvraag)?:?\s*\*\*\s*([\s\S]*?)(?=\*\*[HhSsBb]|\*\*Samenvatting|\*\*Rode|$)/im,
+          /\*\*Patiëntbehoeften:?\s*\*\*\s*([\s\S]*?)(?=\*\*[HhSsBb]|\*\*Samenvatting|\*\*Rode|$)/im,
+          /\*\*P\s*[-:]?\s*\*\*\s*([\s\S]*?)(?=\*\*[HhSsBb]|\*\*Samenvatting|\*\*Rode|$)/im,
+        ]
+      },
+      // Historie patterns - enhanced
+      {
+        key: 'history' as keyof PHSBStructure,
+        patterns: [
+          /\*\*H\s*[-:]?\s*Historie:?\s*\*\*\s*([\s\S]*?)(?=\*\*[SsBb]|\*\*Samenvatting|\*\*Rode|$)/im,
+          /\*\*Historie:?\s*\*\*\s*([\s\S]*?)(?=\*\*[SsBb]|\*\*Samenvatting|\*\*Rode|$)/im,
+          /\*\*H\s*[-:]?\s*\*\*\s*([\s\S]*?)(?=\*\*[SsBb]|\*\*Samenvatting|\*\*Rode|$)/im,
+        ]
+      },
+      // Stoornissen patterns - enhanced
+      {
+        key: 'disorders' as keyof PHSBStructure,
+        patterns: [
+          /\*\*S\s*[-:]?\s*Stoornissen\s*(?:in\s*lichaamsfuncties\s*en\s*anatomische\s*structuren)?:?\s*\*\*\s*([\s\S]*?)(?=\*\*[Bb]|\*\*Samenvatting|\*\*Rode|$)/im,
+          /\*\*Stoornissen:?\s*\*\*\s*([\s\S]*?)(?=\*\*[Bb]|\*\*Samenvatting|\*\*Rode|$)/im,
+          /\*\*S\s*[-:]?\s*\*\*\s*([\s\S]*?)(?=\*\*[Bb]|\*\*Samenvatting|\*\*Rode|$)/im,
+        ]
+      },
+      // Beperkingen patterns - enhanced
+      {
+        key: 'limitations' as keyof PHSBStructure,
+        patterns: [
+          /\*\*B\s*[-:]?\s*Beperkingen:?\s*\*\*\s*([\s\S]*?)(?=\*\*Samenvatting|\*\*Rode|$)/im,
+          /\*\*Beperkingen:?\s*\*\*\s*([\s\S]*?)(?=\*\*Samenvatting|\*\*Rode|$)/im,
+          /\*\*B\s*[-:]?\s*\*\*\s*([\s\S]*?)(?=\*\*Samenvatting|\*\*Rode|$)/im,
+        ]
+      }
+    ];
 
-  // Extract content for each section
-  patterns.forEach(({ key, patterns: sectionPatterns }) => {
-    for (const pattern of sectionPatterns) {
+    // Extract content for each section with better parsing
+    sectionPatterns.forEach(({ key, patterns }) => {
+      for (const pattern of patterns) {
+        const match = fullText.match(pattern);
+        if (match && match[1]) {
+          // Clean and trim the content
+          const content = match[1]
+            .replace(/^\s*[\n\r]+/, '') // Remove leading whitespace/newlines
+            .replace(/[\n\r]+\s*$/, '') // Remove trailing whitespace/newlines
+            .trim();
+
+          if (content) {
+            result[key] = content;
+            break;
+          }
+        }
+      }
+    });
+
+    // Extract anamnesis summary
+    const summaryPatterns = [
+      /\*\*Samenvatting\s*(?:Anamnese)?:?\s*\*\*\s*([\s\S]*?)(?=\*\*Rode|$)/im,
+      /\*\*Anamnese\s*Samenvatting:?\s*\*\*\s*([\s\S]*?)(?=\*\*Rode|$)/im,
+    ];
+
+    for (const pattern of summaryPatterns) {
       const match = fullText.match(pattern);
       if (match && match[1]) {
-        result[key] = match[1].trim();
+        result.anamneseSummary = match[1].trim();
         break;
       }
     }
-  });
 
-  // Extract red flags
-  const redFlagPatterns = [
-    /\*\*Rode\s*Vlagen:?\*\*([\s\S]*?)$/i,
-    /\[RODE\s*VLAG:?([^\]]+)\]/gi
-  ];
-  
-  for (const pattern of redFlagPatterns) {
-    const matches = fullText.matchAll(pattern);
-    for (const match of matches) {
-      if (match[1]) {
-        const flags = match[1].split('\n')
-          .map(line => line.replace(/^\s*[-*]\s*/, '').trim())
-          .filter(line => line.length > 0);
-        result.redFlags.push(...flags);
+    // Enhanced red flags extraction
+    const redFlagPatterns = [
+      /\*\*Rode\s*Vlagen:?\s*\*\*\s*([\s\S]*?)$/im,
+      /\[RODE\s*VLAG\s*:?\s*([^\]]+)\]/gim
+    ];
+
+    for (const pattern of redFlagPatterns) {
+      try {
+        if (pattern.global) {
+          const matches = Array.from(fullText.matchAll(pattern));
+          for (const match of matches) {
+            if (match && match[1]) {
+              const flag = match[1].trim();
+              if (flag && !result.redFlags.includes(flag)) {
+                result.redFlags.push(flag);
+              }
+            }
+          }
+        } else {
+          const match = fullText.match(pattern);
+          if (match && match[1]) {
+            const flags = match[1]
+              .split(/[\n\r]+/)
+              .map(line => line.replace(/^\s*[-*•]\s*/, '').trim())
+              .filter(line => line.length > 0);
+
+            flags.forEach(flag => {
+              if (!result.redFlags.includes(flag)) {
+                result.redFlags.push(flag);
+              }
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error extracting red flags:', error);
       }
     }
+
+    return result;
+  } catch (error) {
+    console.error('Critical error in parsePHSBText:', error);
+    return {
+      patientNeeds: '',
+      history: '',
+      disorders: '',
+      limitations: '',
+      redFlags: [],
+      fullStructuredText: fullText,
+      anamneseSummary: '',
+    };
   }
-
-  // Remove duplicates from red flags
-  result.redFlags = [...new Set(result.redFlags)];
-
-  return result;
 };
 
 interface PHSBSection {
@@ -156,6 +223,15 @@ const phsbSections: PHSBSection[] = [
     color: 'text-green-700',
     bgColor: 'bg-green-50',
   },
+  {
+    id: 'anamneseSummary',
+    title: 'Samenvatting Anamnese',
+    shortTitle: 'Samenvatting',
+    description: 'Beknopte samenvatting van de anamnese bevindingen',
+    icon: Heart,
+    color: 'text-purple-700',
+    bgColor: 'bg-purple-50',
+  },
 ];
 
 export interface PHSBResultsPanelProps {
@@ -192,14 +268,20 @@ const PHSBResultsPanel: React.FC<PHSBResultsPanelProps> = ({
 
   // Update local data when props change and parse if needed
   React.useEffect(() => {
-    // If individual sections are empty but fullStructuredText exists, parse it
-    if (phsbData.fullStructuredText && 
-        !phsbData.patientNeeds && 
-        !phsbData.history && 
-        !phsbData.disorders && 
-        !phsbData.limitations) {
+    // Always parse the fullStructuredText to ensure individual sections are populated
+    // This ensures proper display in both compact and full view modes
+    if (phsbData.fullStructuredText) {
       const parsedData = parsePHSBText(phsbData.fullStructuredText);
-      setLocalData(parsedData);
+      // If individual sections were already provided, preserve them, otherwise use parsed data
+      const mergedData: PHSBStructure = {
+        patientNeeds: phsbData.patientNeeds || parsedData.patientNeeds,
+        history: phsbData.history || parsedData.history,
+        disorders: phsbData.disorders || parsedData.disorders,
+        limitations: phsbData.limitations || parsedData.limitations,
+        redFlags: phsbData.redFlags?.length ? phsbData.redFlags : parsedData.redFlags,
+        fullStructuredText: phsbData.fullStructuredText
+      };
+      setLocalData(mergedData);
     } else {
       setLocalData(phsbData);
     }
@@ -240,12 +322,20 @@ const PHSBResultsPanel: React.FC<PHSBResultsPanelProps> = ({
       ...localData,
       [sectionId]: newContent
     };
-    
+
     // Rebuild full structured text if individual sections change
     if (sectionId !== 'fullStructuredText' && sectionId !== 'redFlags') {
       updatedData.fullStructuredText = buildFullStructuredText(updatedData);
+    } else if (sectionId === 'fullStructuredText') {
+      // If full text is edited, parse it to update individual sections
+      const parsedData = parsePHSBText(newContent);
+      updatedData.patientNeeds = parsedData.patientNeeds;
+      updatedData.history = parsedData.history;
+      updatedData.disorders = parsedData.disorders;
+      updatedData.limitations = parsedData.limitations;
+      updatedData.redFlags = parsedData.redFlags;
     }
-    
+
     setLocalData(updatedData);
     if (onDataChange) {
       onDataChange(updatedData);
@@ -254,28 +344,32 @@ const PHSBResultsPanel: React.FC<PHSBResultsPanelProps> = ({
 
   const buildFullStructuredText = (data: PHSBStructure): string => {
     const sections = [];
-    
+
     if (data.patientNeeds) {
       sections.push(`**P - Patiënt Probleem/Hulpvraag:**\n${data.patientNeeds}`);
     }
-    
+
     if (data.history) {
       sections.push(`**H - Historie:**\n${data.history}`);
     }
-    
+
     if (data.disorders) {
       sections.push(`**S - Stoornissen in lichaamsfuncties en anatomische structuren:**\n${data.disorders}`);
     }
-    
+
     if (data.limitations) {
       sections.push(`**B - Beperkingen:**\n${data.limitations}`);
     }
-    
+
+    if (data.anamneseSummary) {
+      sections.push(`**Samenvatting Anamnese:**\n${data.anamneseSummary}`);
+    }
+
     if (data.redFlags && data.redFlags.length > 0) {
       const redFlagsText = data.redFlags.map(flag => `[RODE VLAG: ${flag}]`).join('\n');
       sections.push(`**Rode Vlagen:**\n${redFlagsText}`);
     }
-    
+
     return sections.join('\n\n');
   };
 
@@ -394,10 +488,10 @@ const PHSBResultsPanel: React.FC<PHSBResultsPanelProps> = ({
               onClick={() => setShowFullView(!showFullView)}
               variant="outline"
               size="sm"
-              className="gap-2"
+              className="gap-2 border-[#A5E1C5] text-[#004B3A] hover:bg-[#A5E1C5]/10"
             >
               <Eye size={16} />
-              {showFullView ? 'Compact weergave' : 'Volledige weergave'}
+              {showFullView ? 'Compacte Weergave' : 'Volledige Weergave'}
             </Button>
             
             <Button

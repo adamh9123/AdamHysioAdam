@@ -1,0 +1,1472 @@
+Professionele Dossiervoering voor Fysiotherapeuten – Adam Hourmat Allah
+Inhoud
+Inleiding tot Dossiervoering in de Fysiotherapie	1
+Structuur van het Therapeutisch Proces	2
+FysioRoadmap: De Anamnese Kaart	6
+Hoofdpagina – Anamnese Kaart:	6
+Patiëntbehoeften:	7
+Stoornissen:	7
+Historie:	7
+Beperkingen:	7
+FysioRoadmap – Onderzoek	7
+Onderzoek – CWK (Cervicale Wervelkolom)	7
+Onderzoek - TWK (Thoracale Wervelkolom)	7
+Onderzoek LWK (Lumbale Wervelkolom)	7
+Onderzoek Schouder	7
+Onderzoek Elleboog	7
+Onderzoek Hand/Pols	7
+Onderzoek Heup	7
+Onderzoek Knie	7
+Onderzoek Enkel	7
+SMART-Doelen	7
+SOEP-Methodiek	8
+
+
+________________________________________
+Inleiding tot Dossiervoering in de Fysiotherapie
+Het belang van goede dossiervoering
+Dossiervoering is een cruciaal onderdeel van het werk van een fysiotherapeut en draagt bij aan klinisch redeneren, de kwaliteit van zorg, en de samenwerking tussen zorgverleners en patiënt. Een goed dossier ondersteunt niet alleen de continuïteit van zorg, maar fungeert ook als communicatiemiddel tussen de betrokken zorgverleners en de patiënt zelf. Daarnaast biedt het dossier een juridisch verdedigbare weergave van de verleende zorg.
+
+
+Overzicht van de richtlijnen en standaarden (KNGF, WGBO)
+De KNGF-richtlijn Fysiotherapeutische Dossiervoering 2019 vormt de leidraad voor de opbouw en inhoud van fysiotherapeutische dossiers. Deze richtlijn benadrukt het belang van een systematische vastlegging van gegevens en biedt handvatten om de kwaliteit van de dossiervoering te verbeteren. De richtlijn volgt de verschillende fasen van het behandelproces, van aanmelding en intake tot evaluatie en afsluiting van de behandeling. De richtlijn stelt ook dat elke stap in het behandelproces gedocumenteerd moet worden, met als doel de voortgang en effectiviteit van de behandeling inzichtelijk te maken.
+De belangrijkste onderdelen van de KNGF-richtlijn zijn:
+•	Aanmelding en intake: Alle relevante patiëntinformatie, zoals de medische voorgeschiedenis, toestemmingsverklaringen, en de hulpvraag, moet in deze fase worden vastgelegd. Tijdens de intake worden ook screeningsvragen gesteld om rode en gele vlaggen te identificeren. Deze screening helpt om risicofactoren in kaart te brengen en te bepalen of er aanvullende zorg nodig is.
+•	Onderzoek en diagnostiek: Tijdens deze fase worden diagnostische verrichtingen uitgevoerd om een helder klinisch beeld te vormen. Het basisonderzoek en eventueel aanvullend of specifiek onderzoek moeten goed worden vastgelegd. Dit omvat het beschrijven van stoornissen, beperkingen, en de mogelijke invloed van externe factoren.
+•	Behandelplan en uitvoering: Het behandelplan, inclusief doelen (SMART geformuleerd), de gekozen interventies en de verwachte resultaten en prognose, wordt vastgelegd. Elke behandeling wordt volgens de SOEP-methodiek (Subjectief, Objectief, Evaluatie, Plan) genoteerd.
+•	Evaluatie en eindevaluatie: De voortgang en resultaten worden regelmatig geëvalueerd en aangepast. Hierbij worden objectieve meetinstrumenten, zoals NPRS en PSK, gebruikt om de voortgang te monitoren.
+De WGBO stelt daarnaast dat patiënten het recht hebben om hun dossier in te zien, en dat zorgverleners verplicht zijn om volledige en nauwkeurige gegevens vast te leggen. Patiënten moeten expliciet toestemming geven voor bepaalde behandelingen en gegevensuitwisseling, en deze toestemming moet ook gedocumenteerd worden.
+Structuur van het Therapeutisch Proces
+Een goed gestructureerd dossier is essentieel voor het waarborgen van de kwaliteit van zorg en voor effectieve communicatie tussen zorgverleners. Dit hoofdstuk beschrijft de kernonderdelen van het fysiotherapeutisch dossier, zodat zowel de fysiotherapeut als een AI-assistent gemakkelijk relevante informatie kan terugvinden en gebruiken om de behandeling te optimaliseren.
+Kernonderdelen van het Therapeutisch Proces
+Het fysiotherapeutisch dossier bevat verschillende essentiële onderdelen, waaronder:
+•	Screening: Screening vormt de eerste stap bij binnenkomst van de patiënt ALS ZE NIET DOORVERWEZEN ZIJN EN DIRECTE TOEGANG FYSIOTHERAPIE HEBBEN (DTF). Hierbij worden belangrijke rode vlaggen uitgesloten om ernstige pathologieën te identificeren en te bepalen of fysiotherapeutische zorg de juiste route is. Veelvoorkomende rode vlaggen die worden uitgevraagd zijn:
+o	Onverklaarbaar gewichtsverlies: Kan wijzen op ernstige onderliggende pathologieën zoals maligniteit.
+o	Koorts of nachtzweten: Mogelijk teken van een infectie of ontsteking.
+o	Pijn in rust of 's nachts: Dit kan wijzen op een erge systemische aandoening.
+o	Trauma in de (recente) voorgeschiedenis: Kan wijzen op mogelijke fracturen of andere acute blessures.
+o	Neurologische symptomen: Zoals uitstralende pijn, tintelingen, gevoelloosheid of spierzwakte, die kunnen wijzen op zenuwcompressie.
+o	Medicijngebruik of onder behandeling bij een arts: Altijd uitvragen.
+o	Algemeen onwelbevinden. Duizeligheid of visusproblemen: Kan wijzen op cardiovasculaire of neurologische aandoeningen.
+Het uitsluiten van deze rode vlaggen helpt bij het identificeren van patiënten die verdere diagnostische tests of verwijzing naar een specialist nodig hebben.
+•	Anamnese: De anamnese is een uitgebreide inventarisatie van de klachten van de patiënt. Hierbij wordt gebruik gemaakt van de LOFTIG-methode:
+o	Locatie: Het insluiten van het gebied en identificeren van betrokken weefsels.
+o	Ontstaansmoment: Inzicht in het ontstaan van de klacht, bijvoorbeeld acuut of door overbelasting.
+o	Functieproblemen: Identificatie van handelingen die door de patiënt als problematisch worden ervaren.
+o	Tijdgebondenheid: Het verloop van de klachten en of ze continu of intermitterend aanwezig zijn.
+o	Intensiteit: De aard en hevigheid van de klachten, bijvoorbeeld pijnniveau.
+o	Geschiedenis: Eventuele comorbiditeiten of eerdere episodes van dezelfde klacht. 
+Daarnaast wordt CEGS in kaart gebracht:
+o	Cognitie: De perceptie van de klacht door de patiënt en diens kennis hierover.
+o	Emotie: De impact van de klachten op het emotionele welzijn van de patiënt.
+o	Gedrag: De copingstijl van de patiënt en hoe deze omgaat met de klachten.
+o	Sociaal: Sociale factoren zoals steun of druk vanuit de omgeving.
+•	Observatie en Inspectie: Een visuele beoordeling van de aangedane regio. Dit omvat het beoordelen van verkleuringen (bijv. hematoom), zwellingen, standafwijkingen en het palpatoir onderzoeken van het gebied om herkenbare pijn uit te lokken en tonusverschillen te identificeren.
+•	Actief en Passief Onderzoek:
+o	AROM (Actieve Range of Motion): Beoordelen van actieve bewegingen en de betrokken spiergroepen. Hierbij wordt gebruik gemaakt van de MRC-schaal (Medical Research Council) om de spierkracht te beoordelen. De MRC-schaal bestaat uit de volgende niveaus:
+o	5: Normale kracht.
+o	4: Beweging tegen zwaartekracht en weerstand, waarbij onderverdeling mogelijk is in:
+	4+: Tegen sterke weerstand.
+	4: Tegen matige weerstand.
+	4-: Tegen geringe weerstand.
+o	3: Beweging die de zwaartekracht overwint, maar zonder externe weerstand.
+o	2: Beweging die alleen loodrecht op de zwaartekracht kan worden uitgevoerd (met verminderde ondersteuning).
+o	1: Minimale contractie zichtbaar of voelbaar, maar geen beweging.
+o	0: Geen contractie aanwezig.
+Deze schaal helpt bij het objectief vastleggen van spierkracht en het identificeren van mogelijke zwakheden die tijdens de behandeling moeten worden aangepakt.
+•	PROM (Passieve Range of Motion): Beoordelen van bewegingsuitslagen waarbij de fysiotherapeut de beweging uitvoert om beperkingen in passieve structuren te identificeren.
+•	Specifiek Onderzoek: Specifieke testen worden uitgevoerd om pathologieën in te sluiten of uit te sluiten. Deze testen zijn van groot belang om een accurate diagnose te stellen en om de juiste behandelstrategie te bepalen. Als AI-assistent heb ik toegang tot diverse klinimetrie en specifieke testen uit onderbouwde bronnen, waardoor ik alleen gevalideerde en betrouwbare tests aanbeveel om de validiteit van de diagnose te waarborgen. Dit draagt bij aan een consistente en betrouwbare diagnostiek.
+o	De klinische testen voor verschillende regio’s worden in een ander hoofdstuk genoemd. Als je als AI-assistent helpt met het voorbereiden van een Intake, gebruik die testen in combinatie met je overige kennis om een goede voorbereiding klaar te zetten voor de fysiotherapeut.
+•	Krachtmetingen: Krachtmetingen zijn gericht op het vaststellen van eventuele krachtsverschillen tussen aangedane en niet-aangedane zijde of om voortgang tijdens de behandeling te meten. Hierbij wordt gebruik gemaakt van instrumenten zoals de MicroFet om objectieve krachtmetingen uit te voeren. De krachtmeting kan zowel actief (AROM) als passief worden uitgevoerd, afhankelijk van de situatie en de voortgang van de patiënt. Objectieve metingen met de MicroFet zorgen voor nauwkeurige en reproduceerbare gegevens, essentieel voor het beoordelen van de effectiviteit van de interventies.
+•	Ketenanalyse: Beoordeling van bewegingsketens, beperkingen, houdingsafwijkingen en coördinatieproblemen om een completer beeld te krijgen van de functionele beperkingen en deze te betrekken in het behandelplan. Geef ook als tip om te kijken naar de problematische handeling als die relevant is voor de casus.
+•	Diagnose: De diagnose wordt gesteld op basis van alle verzamelde gegevens uit de anamnese, het onderzoek, en eventuele specifieke testen. Hierbij wordt bepaald welke weefsels betrokken zijn en wat de oorzaak van de klachten is. De diagnose helpt bij het in kaart brengen van de onderliggende pathologie en vormt de basis voor verdere behandeling. Het is belangrijk dat de diagnose goed wordt onderbouwd en duidelijk wordt gedocumenteerd, zodat zowel de fysiotherapeut als andere zorgverleners het behandelproces kunnen begrijpen en voortzetten indien nodig.
+•	Behandelplan: Het behandelplan is een op maat gemaakte strategie voor de behandeling van de patiënt, gebaseerd op de gestelde diagnose. Het bevat duidelijk geformuleerde doelen volgens het SMART-principe (Specifiek, Meetbaar, Acceptabel, Realistisch, Tijdsgebonden), evenals de gekozen interventies die nodig zijn om deze doelen te bereiken. Het behandelplan is dynamisch en moet voortdurend worden aangepast op basis van de voortgang, evaluaties van de patiënt en diens persoonlijke omstandigheden. Hierbij wordt ook rekening gehouden met de wensen en mogelijkheden van de patiënt, zodat de behandeling optimaal aansluit op de persoonlijke situatie. Het behandelplan vormt een duidelijke leidraad voor zowel de fysiotherapeut als de patiënt en biedt structuur voor een effectieve en doelgerichte behandeling.
+•	Evaluaties: Evaluaties vormen een essentieel onderdeel van het behandeltraject en worden zowel tussentijds als aan het einde van de behandeling uitgevoerd. Deze evaluaties dienen om de voortgang van de patiënt te beoordelen, de effectiviteit van de interventies te meten, en het behandelplan waar nodig aan te passen. Er zijn verschillende soorten evaluaties:
+•	Tussentijdse Evaluaties: Worden uitgevoerd gedurende de behandeling om de voortgang van de patiënt te monitoren. Hierbij wordt gekeken of de interventies het gewenste effect hebben en of de SMART-doelen nog haalbaar zijn of moeten worden aangepast. Dit helpt de fysiotherapeut om tijdig bij te sturen als de behandeling niet volgens plan verloopt.
+•	Eindevaluatie: Wordt uitgevoerd bij afronding van de behandeling en richt zich op het bepalen of de behandeldoelen zijn behaald. Hierbij worden objectieve meetgegevens, zoals krachtmetingen en ROM, vergeleken met de oorspronkelijke doelen. Daarnaast wordt de tevredenheid van de patiënt besproken en vastgelegd, en worden aanbevelingen gegeven voor vervolgzorg of zelfmanagement.
+Het doel van evaluaties is om continu inzicht te hebben in het behandelverloop en om te zorgen dat de behandeling zo effectief mogelijk is afgestemd op de behoeften en vooruitgang van de patiënt. Alle evaluaties moeten zorgvuldig worden gedocumenteerd, zodat andere zorgverleners en de patiënt zelf een goed beeld hebben van het behandelproces.
+Het is belangrijk dat alle kernonderdelen nauwkeurig en consistent worden gedocumenteerd, zodat het gehele behandelproces inzichtelijk is voor zowel de fysiotherapeut als andere betrokken zorgverleners.
+FysioRoadmap: De Anamnese Kaart
+Er zijn 4 vakken op de anamnese pagina: Patiëntbehoeften, Stoornissen, Historie, Beperkingen. Hieronder zet ik de vooringestelde stukken tekst die de fysio kan gebruiken om zijn anamnese gestructureerd te beschrijven. Wat vaak zal gebeuren en waar ik jouw hulp als Ai Assistent bij nodig heb is een grote onoverzichtelijke tekst van snel meegeschreven anamnestische informatie te beschrijven in deze 4 vakken en het overzichtelijk en professioneel te maken. Je hoeft niet alles te gebruiken maar dit is een voorbeeld van informatie die vaak in die 4 vakken terecht komt. Ook zet ik er in hoe de Hoofdpagina van de Anamnese Kaart eruit ziet.
+Hoofdpagina – Anamnese Kaart:
+Anamnesekaart Fysiotherapie – Hoofdpagina
+•	Naam: [Anoniem, man]
+•	Geboortedatum: [xx-xx-xxxx] (leeftijd in jaren)
+•	Geslacht: M
+•	BSN: [123456789]
+•	Email: [voorbeeld@email.com]
+•	Mobiel: [06-12345678]
+Indicatiedatum
+•	Datum: [xx-xx-xxxx]
+Behandelgegevens
+•	Fysiotherapeut: [Voornaam Achternaam]
+•	Huisarts: [Naam praktijk / huisarts]
+Aanmelding
+•	Aanmelding: Intake en onderzoek na verwijzing
+•	Aanmelding via: Verwezen via huisarts
+Verwijzing
+•	Verwijsdatum: [xx-xx-xxxx]
+•	Verwijzer: [Voornaam Achternaam, praktijk]
+•	Medische Verwijsdiagnose: [Vrij invulbaar veld]
+Overige gegevens
+•	Operatie: [Optioneel invulbaar]
+•	Trauma: [Optioneel invulbaar]
+•	Medicatie: [Optioneel invulbaar]
+Patiëntbehoeften:
+Optie 1: De patiënt is op eigen initiatief naar ons toegekomen voor een (locatie) klacht. De klacht is (beschrijf). De patiënt wil met minder moeite (hulpvraag).
+Optie 2: De patiënt is doorverwezen voor de behandeling van een (locatie) klacht. De klacht is (beschrijf) en de patiënt wil weer met minder moeite (hulpvraag).
+Verwachtingen: De patiënt verwacht (verwachtingen en doelen beschrijven).
+Hulpvraag in eigen woorden: (beschrijf hier de hulpvraag in eigen woorden als dat genoemd is)
+Stoornissen:
+Lichamelijke klachten:
+•	Vermoeidheid
+•	Benauwd gevoel
+•	Pijnklachten
+•	Duizeligheid
+•	Hyperventilatie
+•	Verhoogde bloeddruk
+•	Transpireren
+•	Hoofdpijn
+•	Druk op de borst
+•	Onrust gevoelens
+•	Vaak verkoudheid/griep
+•	Hartkloppingen
+Psychische klachten:
+•	Slapeloosheid
+•	Machteloosheid
+•	Gejaagdheid
+•	Gespannenheid
+•	Lusteloosheid
+•	Prikkelbaarheid
+•	Piekerneiging
+•	Snel geëmotioneerd
+•	Concentratiestoornissen
+•	Angst gevoelens
+•	Schrikachtig
+•	Neerslachtigheid, somberheid
+Gedragsmatige klachten:
+•	Vermijden/fobieën
+•	Verminderde draagkracht
+•	Te veel/te weinig eten
+•	Toegenomen koffiegebruik
+•	Toegenomen klagen, verwijten
+•	Cynisme, verbittering
+•	Niet kunnen genieten
+•	Druk en veel praten
+•	Toegenomen alcoholgebruik
+•	Toegenomen medicijngebruik
+•	Zich terugtrekken
+Factoren van invloed op het functioneren
+Blauwe vlaggen (arbeid)
+•	Veelvuldig ziekteverzuim
+•	Passieve houding ten aanzien van terugkeer naar werk
+•	Arbeidsconflict
+•	Fysiek zwaar werk
+•	Conflicten
+•	Veranderde status op het werk
+•	Onregelmatig werkschema
+•	Geen controle over arbeid en re-integratie
+•	Geen medewerking bij re-integratie
+•	Geen steun van leidinggevende
+•	Geen financiële stimulans voor terugkeer naar werk
+Zwarte vlaggen (maatschappelijk)
+•	Schadeclaims
+•	Geschillen
+•	Verwikkeld in letselschadeprocedure
+•	Ziekte-uitkering WIA
+Oranje vlaggen (psychologisch/psychiatrisch)
+•	Somatoforme stoornis
+•	Angststoornis
+•	Depressieve stoornis
+•	Posttraumatisch stress-syndroom (PTSS)
+•	Persoonlijkheidsstoornissen
+•	Pijnstoornis
+Gele vlaggen (psychosociaal)
+•	Overtuiging dat rugpijn schadelijk of beperkend is
+•	Pijnvermijdingsgedrag en verminderd dagelijks functioneren
+•	Sombere stemming en teruggetrokken sociaal leven
+•	Verwachting dat passieve behandelingen beter helpen dan actieve participatie
+•	Catastroferen
+•	Overtuiging dat pijn oncontroleerbaar is
+•	Afhankelijkheid van hulpmiddelen
+•	Toegenomen alcohol- of middelengebruik sinds het begin van de klacht
+•	Verleden van langdurig verzuim door pijnklachten
+•	Verwarring over conflicterende diagnoses
+•	Geschiedenis van medisch "shoppen"
+•	Depressieve gevoelens
+•	Negatieve ervaringen met management op de werkplek
+•	Life event
+•	Levenslijn (belangrijke levensgebeurtenissen)
+Neurologie - Functie Beperkingen
+1.	Romp
+o	Zit balans (gesteund / ongesteund)
+o	Loop balans (loophulpmiddel)
+o	Sta balans (gesteund / ongesteund)
+o	Transfer (van lig naar zit)
+2.	Arm/Hand functie
+o	Spierkracht
+o	Spiercoördinatie
+o	Spasmes
+o	Verlamming
+o	Sensibiliteitsverlies (Tast - warmte/koude - op de huid)
+3.	Been functie
+o	Spierkracht
+o	Spiercoördinatie
+o	Spasmes
+o	Verlamming
+o	Sensibiliteitsverlies
+________________________________________
+Informatie Stoornissen
+•	Algemene signalen: Pijn, Vermoeidheid, Zwelling, Ontsteking, Doorbloedingsstoornissen
+•	Houdingsafwijkingen: Scoliose, Kyfose, Gibbus, Voorover gekanteld bekken
+•	Standafwijkingen: Varusstand, Valgusstand, Protractiestand, Scapulae Alatae
+•	Spieren: Spierverkorting, Krachtvermindering, Hypertonie, Hypotonie, Atrofie, Krampen, Spierscheuringen, Myogelosen
+•	Gewrichten: Bewegingsbeperking, Hypermobiliteit, Kapselverkalking, Hypertrofie, Stijfheid, Bewegingsstoornis
+•	Coördinatiestoornissen: Verminderde uithoudingsvermogen, coördinatiestoornissen
+•	Huid: Littekenvorming, Verkleving met onderlaag, Verminderde beschikbaarheid, Verkleuringen, Wond etc.
+Pijn
+•	Geen pijn
+•	Scherpe pijn - (locatie)
+•	Stekende pijn - (locatie)
+•	Bonkende pijn - (locatie)
+•	Schietende pijn - (locatie)
+•	Trekkende pijn - (locatie)
+•	Druk pijn - (locatie)
+•	Diffuse pijn - (locatie)
+•	Brandende pijn - (locatie)
+•	Zeurende pijn - (locatie)
+________________________________________
+Bewegingsstoornis
+1.	Mobiliteit
+2.	Coördinatie
+3.	Kracht
+4.	Uithoudingsvermogen
+o	Geen beperkingen in uithoudingsvermogen
+o	Uithoudingsvermogen (++), (+), (-), (--)
+5.	Snelheid
+o	Geen verstoring in snelheid
+o	Snelheid (++), (+), (-), (--)
+________________________________________
+Gevoelsstoornis
+•	Uitvalsverschijnselen:
+o	Hypesthesie: vermindering van gevoelskwaliteit
+o	Anesthesie: totale uitval van gevoel
+•	Gevoelsoverschrijdingen:
+o	Gevoelswaarneming (dysesthesie)
+o	Gevoelstoename (hyperesthesie)
+o	Niet-afysiologische gevoelsensatie (paresthesie)
+•	Vegetatieve stoornissen:
+o	Veranderingen in de kleur van de huid
+o	Abnormale/verhoogde zweetsecretie
+o	Abnormale haargroei
+o	Bloedvatafwijkingen
+o	Overgevoeligheid voor aanraking, warmte, koude, druk
+
+•	Motor Controle Impairment (MCI)
+o	CWK (Cervicale Wervelkolom)
+	Regelmatig recidiverende of chronische nekpijn
+	Lang staan / zitten
+	Vermoeidheid/oververmogen hoofd omhoog te houden
+	Beter met externe support (handen ondersteunend)
+	Hoofd voelt zwaar
+	Spieren voelen vermoeid, strak of stijf
+	Beter in onbelaste posities (zoals liggen)
+	Gevoel van instabiliteit / verminderde controle
+	Zelf-manipulator (manipuleert nek regelmatig)
+o	LWK (Lumbale Wervelkolom)
+	Regelmatig recidiverende of chronische rugpijn
+	Lang staan / zitten geeft pijnklachten
+	Liever met rugleuning dan op kruk zitten
+	Beter met onbelaste posities (zoals liggen)
+	Gevoel van stijve rugspieren
+	Pijn bij deflexie
+	Zelf-manipulator (manipuleert rug regelmatig)
+	Afgenomen bereidheid van bewegen
+	Aberrant movements en/of Gowers sign bij flexie-deflexie
+	Hypomobiliteit TLO, SIG en/of heup
+•	Diagnose LRS (Lumbosacraal Radiculair Syndroom):
+o	Beenpijn > Rugpijn
+o	VBA > 25 cm
+o	Typische dermatomale uitstraling
+o	Parese
+o	Hoesten, niezen, persen provoceert
+o	Afwezigheid knie- of achillespeesreflex
+o	SLR is positief
+
+•	Diagnose Gonartrose (Artrose van de knie):
+o	Lange duur van klachten
+o	Leeftijd 50+ jaar
+o	Ochtendstijfheid < 30 minuten
+o	Startpijn
+o	Nachtelijke pijn
+o	Klachtentoename overdag
+•	Diagnose Hoofdpijn:
+o	Spanningsgerelateerde hoofdpijn (TTH):
+	Minimaal 2 van de 4 kenmerken:
+	Dubbelsidig
+	Drukkend/klemgevoel
+	Milde tot matige intensiteit
+	Niet verergerd door activiteit
+	Beide van de volgende kenmerken:
+	Geen misselijkheid of braken
+	Geen fotofobie en fonofobie
+o	Migraine:
+	Migraine met aura
+	Migraine zonder aura
+	Frequentie
+	Prodrome (12-24u van te voren): Food cravings, geïrriteerd zijn, nekpijn, gapen
+	Postdrome (na hoofdpijnfase): Vermoeid of katergevoel
+o	Cervicogene hoofdpijn:
+	Meestal unilateraal (niet sideshifting!)
+	Bewegings- of houdingsafhankelijk
+	Beperking ROM CWK
+	Ipsilaterale schouder-armpijn
+	Matige pijnintensiteit (NPRS 4-6)
+	Niet pulserend van aard
+	Pijnlocatie: van occipitaal naar frontaal
+	Trauma in voorgeschiedenis: prevalentie 50% toename
+•	Medicatie-overgebruikers hoofdpijn:
+o	PCM/NSAID’s > 15 dagen pm
+o	Triptanen > 10 dagen pm
+o	Cafeïne > 5 doses pd (klachten wanneer dit niet ingenomen wordt)
+
+
+Historie:
+•	COPD
+o	Aantal exacerbatie
+o	Aantal verzuimdagen
+o	Aantal ziekenhuisopnames
+o	Tijdens ziekenhuisopname fysiotherapeutisch behandeld
+•	Neurologie (CVA - Dwarslaesie - MS)
+o	Duur ziekenhuisopname (dagen/weken)
+o	Duur 2e lijns revalidatie (weken/maanden)
+o	Mate van herstel (accent op spraak / coördinatie / spierkracht / lopen - cognitie)
+o	Valrisico (valt regelmatig of niet)
+•	Omgang functioneringsprobleem door patiënt
+o	Patiënt gaat adequaat om met de klacht
+o	Patiënt gaat in-adequaat om met de klacht
+•	Ontstaan van de klacht
+o	Sinds (...) weken klachten
+o	Ontstaan geschiedenis onbekend
+o	Ontstaan door trauma
+•	24-uurs beeld
+o	Veel pijn, NPRS (nprs ..) in de ochtend maar pijn neemt af in de loop van de dag, NPRS (nprs ..)
+o	Veel pijn in de nacht, NPRS (nprs ..) waardoor patiënt veel wakker is en weinig rust krijgt
+•	Patiënt eigen beleid
+o	Patiënt heeft rust gehouden en pijnstillers genomen
+o	Patiënt is gedoseerd in beweging gebleven
+o	Patiënt heeft de verschillende huis-tuin en keukenoplossingen geprobeerd
+•	Beleid van de arts
+o	Bij huisarts geweest en pijnstillers voorgeschreven gekregen en rust
+o	Bij huisarts geweest en na onderzoek geen advies gekregen om naar fysiotherapeut te gaan
+o	Bij huisarts geweest en advies gekregen direct naar fysiotherapeut te gaan
+•	Provocatie en reductie
+o	Omstandigheden die klacht verergeren
+o	Omstandigheden die klacht verminderen
+o	Eigen pogingen iets aan de klacht te doen
+•	Beleving van de klacht door patiënt:
+o	Eigen idee m.b.t. het ontstaan van de klacht
+o	Beleving van de klacht (schrik, zorgen)
+o	Effect van de klacht op dagelijks leven
+o	Verwachting van de behandeling
+•	Classificatie gezondheidstoestand:
+o	Patiënt vindt zich in goede gezondheid verkeren
+o	Patiënt ervaart lichte mate gezondheidsproblemen door de klacht
+o	Patiënt voelt zich ziek door de klacht
+o	Patiënt ervaart dat de klacht de gezondheid in ernstige mate beïnvloedt
+o	Patiënt ervaart de achteruitgang in gezondheid door de klacht
+•	Prognostische factoren - Schouder:
+o	Langdurig bestaande klachten bij het eerste consult
+o	Geleidelijk ontstaan van de klachten
+o	Ernstige pijn
+o	Bijkomende nekpijn
+o	Functiestoornissen CTO
+o	Ongunstige (repetitieve) werkgerelateerde bewegingen
+o	Ongunstige psychosociale factoren
+o	Glenohumerale instabiliteit
+o	Scapulaire dyskinesie
+•	Prognostische factoren - CWK:
+o	Algemeen:
+	Voorgeschiedenis van andere musculoskeletale aandoeningen
+	Overgevoeligheid voor kou
+	NRS > 5,5/10
+	NDI > 14/50 punten
+	Angst, catastroferen, depressie
+	Inadequate coping
+	Posttraumatische stress
+o	Werkgerelateerd:
+	Voorgeschiedenis van andere musculoskeletale aandoeningen
+	Eerdere episodes van nekpijn
+	Geen invloed hebben op werk (regelmogelijkheden)
+	Hoge werkseisen
+•	Prognostische factoren - Algemeen:
+o	Voorgeschiedenis van andere musculoskeletale aandoeningen
+o	Bewegingsangst / Pijngerelateerde angst
+o	Noodzaak te socialiseren
+o	Hogere leeftijd
+o	Passieve copingstijl
+o	Psychosociale stress
+o	Slechte psychische gezondheid
+•	Prognostische factoren - LWK:
+o	Hoge mate van beperkingen in activiteit
+o	Uitstralende en/of wijdverbreide pijn
+o	Oudere leeftijd
+o	Slechte algemene gezondheid
+o	Psychologische en psychosociale stress
+o	Bewegingsangst
+o	Somatisatie
+o	Depressie
+o	Slechte relatie met collega's
+o	Zware fysieke taakeisen
+•	Prognostische factoren - Heup en knie (artrose of herstel na prothese):
+o	Veel pijn
+o	Veel beperkingen in dagelijkse activiteiten
+o	Verminderde kracht m. quadriceps
+o	Grote radiologisch aantoonbare afwijkingen bij initiële presentatie van klachten (heup > knie)
+o	Hoge leeftijd (heup > knie)
+o	Vrouw (heup > knie)
+o	Overgewicht (knie > heup)
+o	Genetische aanleg
+o	Slechtere algemene gezondheid en minder vitaliteit
+o	Musculoskeletale comorbiditeit: artrose (andere) knie of heup, lage rug, handen, voeten
+o	Overige comorbiditeit: hart- of longaandoeningen, diabetes, visus- of gehoorproblemen
+o	Psychosociaal functioneren (depressie, angst, copingstijl, cognitie)
+•	Prognostische factoren - Werkgerelateerd algemeen:
+o	Duur klachten > 6 weken
+o	Verwachting duur klachten > 3 maanden
+o	Ernstige mate van beperkingen
+o	Uitstralende / wijdverbreide pijn
+o	Zwaar lichamelijk werk
+o	Distress (piekeren/slecht slapen), somatisering (CSI?), depressieve stemming (moe/lusteloos)
+o	Werknemer heeft hulp gezocht bij huisarts of specialist
+o	Onvoldoende regelmogelijkheden
+o	Gebrek aan sociale steun collega's en/of leidinggevende
+o	Slechte werksfeer en/of arbeidsconflicten
+•	Aard:
+o	Karakter van de klacht -
+o	Intensiteit van de klacht -
+•	Lokalisatie:
+o	Plek van ontstaan -
+o	Uitstraling -
+•	Tijdsverloop:
+o	Wanneer begonnen?
+o	Acuut of langzamerhand?
+o	Intensiteit: gelijkblijvend, toegenomen -
+o	Frequentie: in aanvallen, continu -
+•	Invloeden:
+o	Omstandigheden die klachten verergeren -
+o	Omstandigheden die klachten verminderen -
+o	Eigen pogingen die iets aan de klacht doen -
+•	Samenhang:
+o	Eigen idee m.b.t. ontstaan van de klacht -
+o	Beleving van de klacht (schrik, zorgen) -
+o	Effect van de klacht op dagelijks leven -
+o	Verwachting m.b.t. behandeling -
+Beperkingen:
+Diagnose lage rugklachten (Lumbago):
+•	Hoesten/niezen/persen, maximaal .. x per uur/dag
+•	Bukken, maximaal .. x per dag
+•	Tillen, maximaal .. kg per keer
+•	Zitten, maximaal .. min per dag
+•	Omdraaien in bed, maximaal .. x per nacht
+•	Opstaan uit bed, maximaal .. x per nacht
+•	Opstaan uit de stoel, maximaal .. x per uur
+•	Lang zitten maximaal .. min per dag
+•	Lang staan, maximaal .. min per dag
+•	(Hard) lopen .. (frequentie/afstand/tijd)
+•	Fietsen, maximaal .. (frequentie/afstand/tijd)
+•	Omdraaien, maximaal .. x per dag
+•	Lachen, maximaal .. x per uur
+•	Seksuele activiteit (uitvoerbaarheid)
+•	Sokken/kousen aantrekken, maximaal .. x per dag
+•	Huishoudelijke activiteiten, te weten: .. en maximaal .. x per dag
+•	In bed liggen, maximaal .. uur per nacht
+•	In/uit auto stappen, maximaal .. x per dag
+•	Gaan zitten op een stoel, maximaal .. x per dag
+•	Tuinieren, maximaal .. uur per dag
+•	Wandelen, maximaal .. (frequentie/afstand/tijd)
+Diagnose Psychosomatiek:
+•	Richten van aandacht
+•	Denken
+•	Oplossen van problemen
+•	Besluiten nemen
+•	Uitvoeren van enkelvoudige/meervoudige taken
+•	Uitvoeren dagelijkse routinehandelingen
+•	Omgaan met stress en andere mentale eisen
+•	Communicatie
+•	Grenzen stellen
+•	Handhaven lichaamshouding
+•	Zorgdragen voor eigen gezondheid
+•	Huishoudelijke taken
+•	Verzorgen van wat bij huishouden hoort
+•	Basale intermenselijke relaties
+•	Familierelaties
+•	Intieme relaties
+•	Opleiding
+•	Beroep en werk
+•	Economische zelfstandigheid
+•	Belangrijke levensgebieden, niet gespecificeerd
+•	Maatschappelijk, sociaal en burgerlijk leven, niet gespecificeerd
+Diagnose kaakklachten (TMD):
+•	Mond openen .. x
+•	Slapen .. uur per nacht
+•	Lang achtereen zitten .. min
+•	Slapen op rechter-/linkerzijde/buikligging/rugligging .. uur
+•	Lachen .. x per dag
+•	Spreken .. min
+•	Schreeuwen .. x per dag
+•	Kauwen .. x per maaltijd
+•	Geeuwen .. x per dag
+•	Taai voedsel eten .. x per maaltijd
+•	Hard voedsel eten .. x per maaltijd
+•	Zingen .. x
+•	Tanden poetsen .. per beurt
+•	Muziek instrument bespelen .. (soort/frequentie)
+•	Zoenen ..
+•	Sociale contacten onderhouden t.w. ..
+•	Sporten .. (soort/frequentie)
+•	Het uitvoeren van werk .. (soort/frequentie)
+•	Het uitvoeren van huishoudelijk werk .. (soort/frequentie)
+•	Op reis gaan .. (frequentie)
+•	Andere activiteiten/bewegingen, nl ..
+•	Na lichamelijke inspanning .. (soort/frequentie)
+•	Na geestelijke inspanning .. (soort/frequentie)
+•	Als u onvoldoende geslapen hebt ..
+•	Als u te veel geslapen hebt ..
+•	Massage ..
+Diagnose nekklachten:
+•	Omkijken .. x per uur
+•	Omkijken met fietsen (over schouder kijken) .. x per rit
+•	Lang in één houding zitten, maximaal .. min
+•	Bovenhandse activiteiten, te weten ..
+•	Omkijken met autorijden (over schouder kijken), maximaal .. x per rit
+•	Computeren, maximaal .. uur per dag
+•	Lezen, maximaal .. uur per dag
+•	Huishoudelijke activiteiten, te weten: .. en maximaal .. minuten per dag
+•	In bed liggen, maximaal .. uur per nacht
+•	Tuinieren, maximaal .. uur per dag
+Diagnose bovenrugklachten:
+•	Ademhalen
+•	Lang staan, maximaal .. uur per dag
+•	Computeren, maximaal .. uur per dag
+•	Rechtop zitten, maximaal .. uur per dag
+•	Over schouder kijken, maximaal .. x per uur
+•	Omdraaien, maximaal .. x per uur
+•	Bukken, maximaal .. x per uur
+•	Zitten, maximaal .. uur per dag
+•	Huishoudelijke activiteiten, te weten: .. en maximaal .. uur per dag
+•	In bed liggen, maximaal .. uur per nacht
+•	In/uit auto stappen, maximaal .. x per nacht
+•	Omdraaien in bed, maximaal .. x per nacht
+•	Tuinieren, maximaal .. uur per dag
+Diagnose armklachten:
+•	Tillen/dragen maximaal .. kg per keer
+•	Bovenhandse activiteiten (welke)
+•	Jas/trui aantrekken, maximaal .. x per dag
+•	Broek aantrekken, maximaal .. x per dag
+•	Wassen, maximaal .. per dag
+•	Ramen zemen, maximaal .. minuten
+•	Autorijden, maximaal .. uur per dag
+•	Schrijven, maximaal .. minuten per dag
+•	Huishoudelijke activiteiten, te weten: .. en maximaal .. uur per dag
+•	Op de zij liggen, maximaal .. uur per dag/nacht
+•	Omdraaien in bed, maximaal .. x per nacht
+•	Reiken, grijpen en werpen (welke)
+•	Tuinieren, maximaal .. uur per dag
+Diagnose beenklachten:
+•	Lopen, maximaal .. afstand/frequentie/tijd
+•	Traplopen, maximaal .. x per dag
+•	Fietsen, maximaal .. (frequentie/afstand/tijd)
+•	Staan, maximaal .. uur per dag
+•	Hurken en knielen, maximaal .. x per dag
+•	Dansen, maximaal .. (frequentie/tijd)
+•	Autorijden, maximaal .. uur
+•	Boodschappen doen, maximaal .. (frequentie/tijd)
+•	Huishoudelijke activiteiten, te weten: .. en maximaal .. per dag
+•	In bed liggen, maximaal .. uur per nacht
+•	In/uit de auto stappen, maximaal .. x per dag
+•	Omdraaien in bed, maximaal .. x per nacht
+•	Opstaan, maximaal .. (frequentie/tijd)
+•	Gaan zitten op een stoel (met/zonder steun)
+•	Tuinieren, maximaal .. uur per dag
+•	Seksuele activiteiten (uitvoerbaarheid)
+Diagnose handklachten:
+•	Wringen .. (bij welke activiteit en frequentie)
+•	Grijpen/vasthouden .. (bij welke activiteit en frequentie)
+•	Pincetgreep .. (bij welke activiteit en frequentie)
+•	Bal vangen .. (bij welke activiteit en frequentie)
+•	Gooien .. (bij welke activiteit en frequentie)
+•	Pan afgieten ..
+•	Deksel opendraaien ..
+•	Dop afschroeven ..
+•	Snuitgreep .. (bij welke activiteit en frequentie)
+•	Sleutel omdraaien ..
+•	Trommelen met vingers ..
+•	Rits dichtritsen ..
+•	Knoopjes dichtmaken ..
+•	BH achterop vastmaken ..
+•	Schrijven ..
+•	Naaien ..
+•	Knippen ..
+•	Haar kammen ..
+•	Haar föhnen ..
+•	Opmaken ..
+•	Tekenen/Schilderen ..
+•	Bladzijde per stuk omslaan ..
+•	Duwen .. (bij welke activiteit en frequentie)
+•	Trekken .. (bij welke activiteit en frequentie)
+•	Hangen aan handen .. (bij welke activiteit en frequentie)
+•	Haakgreep .. (bij welke activiteit en frequentie)
+•	Eten met mes/vork/lepel ..
+•	Snijden ..
+•	Strijken ..
+
+FysioRoadmap – Onderzoek
+Onderzoek – CWK (Cervicale Wervelkolom) 
+Basis Bewegingsonderzoek
+•	Functieonderzoek PROM CWK:
+o	Flexie (45°)
+o	Extensie (45°)
+o	Lateroflexie (45°)
+o	Rotatie (45°-90°)
+Aanvullend Bewegingsonderzoek
+•	Passief bewegingsonderzoek CWK
+•	CWK 3D extensie geleid actief in zit
+•	CWK 3D flexie geleid actief in zit
+•	CWK 3D extensie geleid actief in ruglig
+•	CWK 3D flexie geleid actief in ruglig
+•	Passief bewegingsonderzoek CTO/TWK
+•	CTO 3D extensie geleid actief in zit
+•	TWK 3D extensie geleid actief in zit
+•	Stenvers 4 test
+•	Segmentale PAIM (PA-druk)
+•	Costovertebraal jointplay onderzoek
+•	Passief bewegingsonderzoek HCWK
+Functionele Testen
+•	MCI objectieve kenmerken
+•	CCFT test/testprotocol van Jull
+•	Flexie-deflexie met kin-in (aberrant)
+•	Test van Harris (< 39 sec vrouwen)
+•	Bewegingsfunctieonderzoek CTO
+•	Hypertonie globale hekmusculatuur
+•	Houding:
+o	Forward Head Posture
+o	Retractie voorbij schouderlijn
+Provocatie Testen
+•	Radiculair Syndroom:
+o	Cluster van Wainner (2/4 positief):
+	Actieve rotatie CWK naar aangedane zijde
+	Test van Spurling
+	Wervelkolom distractie test
+	ULTT n. medianus
+o	Valsalva Maneuver
+•	Hoofdpijn:
+o	Test van Watson
+o	Manual pressure rectus capitis minor
+o	Manual pressure rectus capitis major
+o	Test volgens Hall: PAIM (cervicogene)
+•	Duizeligheid:
+o	Dix Hallpike test (BPPD) (posterieur)
+o	Supine Head Roll test (BPPD) (lateraal)
+•	TOS:
+o	Schouder abductie test (TOS)
+o	Brachial plexus compression
+o	Proef van Roos (TOS)
+Spieronderzoek
+•	M. Trapezius pars descendens
+•	M. Levator Scapulae
+•	M. Pectoralis minor
+•	M. Pectoralis major
+•	M. …
+Spierkrachtonderzoek
+•	Scapulae stabilisatoren
+•	M. Rhomboïdei
+•	Nekflexoren
+Overig Onderzoek - Palpatie
+•	Palpatie:
+o	Hypertonie van de …
+o	Triggerpoints m. trapezius pars
+o	Triggerpoints m. levator scapulae
+o	Triggerpoints m. splenius
+o	Triggerpoints m. …
+o	Triggerpoint intrinsiek
+o	Pijnprovocatie occipitaalrand
+Overig Onderzoek - Neurologisch
+•	Sensibiliteit:
+o	C6: Duim en wijsvinger (dig 1-2)
+o	C7: Wijsvinger + middelvinger +
+o	C8: Ringvinger en pink (dig 4-5)
+•	Reflexen:
+o	C5-C6: Biceps
+o	C6-C7: Triceps
+o	C5: Brachioradialis
+•	Kennmusculatuur Testen:
+o	C4: Elevatie schouder + retractie
+o	C5: Abductie schouder
+o	C6: Flexie elleboog + extensie pols
+o	C7: Extensie elleboog + flexie pols
+o	C8: Adductie duim + abductie pink
+o	T1: Adductie vingers
+Klinimetrie Nek
+•	Numeric Pain Rating Scale (NPRS)
+•	Patiënt Specifieke Klachten (PSK)
+•	Keele STarT MSK Tool
+•	Neck Disability Index (NDI)
+•	Hoofdpijn Impact Test (HIT-6)
+•	Goniometer Nek Actief. Niet aangedaan - Aangedaan ...
+•	Stabilizer test – CWK
+Onderzoek - TWK (Thoracale Wervelkolom)
+Basisonderzoek
+1.	Functieonderzoek TWK
+o	Flexie
+o	Extensie
+o	Lateroflexie (rechts en links)
+o	Rotatie (rechts en links)
+2.	Functieonderzoek CWK (voor gerelateerde klachten)
+o	Flexie
+o	Extensie
+o	Lateroflexie (rechts en links)
+o	Rotatie (rechts en links)
+________________________________________
+Aanvullend Bewegingsonderzoek
+1.	3D TWK-mobiliteitsonderzoek
+2.	3D-extensie geleid actief in zit
+3.	3D-flexie geleid actief in zit
+4.	CTO 3D-extensie geleid actief in zit
+5.	Stevens CTO-test
+6.	Costovertebraal onderzoek
+o	Jointplay (bewegingsanalyse)
+7.	Overig Bewegingsonderzoek
+o	PPIVM rotatie
+o	PPIVM extensie
+o	PA-druk
+o	Unilaterale PA-druk
+o	Rib-mobiliteit rotatie
+________________________________________
+Functietesten
+1.	RB mobiliteit bucket handle
+2.	Retractie hoofd/kin-beweging in zit
+3.	Squat
+________________________________________
+Provocatieonderzoek
+1.	3D-extensie provocatietest
+2.	PA-druk
+3.	Costovertebraal onderzoek
+4.	Roset Test
+5.	Slag- of kloppijntest
+6.	Hoesten, niezen en persen
+________________________________________
+Spierlengteonderzoek
+1.	M. Pectoralis minor
+2.	M. Pectoralis major
+3.	M. Levator scapulae
+4.	M. Trapezius descendens
+5.	M. Trapezius transversus
+6.	M. Trapezius ascendens
+________________________________________
+Spierkrachtonderzoek
+1.	M. Rhomboidei
+2.	M. Erector trunci
+3.	M. Serratus anterior
+4.	M. Latissimus dorsi
+________________________________________
+Overig Onderzoek - Palpatie
+1.	Palpatie
+o	M. Trapezius descendens
+o	M. Levator scapulae
+o	M. Rhomboideus
+o	Intercostale musculatuur
+________________________________________
+Klinimetrie
+1.	Numeric Pain Rating Scale (NPRS)
+2.	Patient Specifieke Klachten (PSK)
+3.	Neck Disability Index (NDI)
+4.	Quebec Back Pain Disability Scale (QBPDS)
+5.	Keele STarT MSK Tool
+
+
+
+Onderzoek LWK (Lumbale Wervelkolom)
+Basisonderzoek:
+•	Flexie (40 - 60° - CPR)
+•	Extensie (20 - 35°)
+•	Lateroflexie (3 - 18°)
+•	Rotatie (maximale ROM)
+•	2D Onderzoek Extensie
+•	3D Onderzoek Flexie
+Aanvullend bewegingsonderzoek:
+•	LWK Functieonderzoek (onbelast)
+•	Flexie/Extensie PPIVM (zijlig)
+•	Rotatie PPIVM (zijlig)
+•	PAIVM
+•	TLO (Thoracale-lumbale overgang)
+•	Rotatie Mobiliteit TLO
+•	Functieonderzoek SI-gewricht
+o	Stabiliteit en mobiliteit SI in stand en zit
+o	Nutatie en Contranutatie Sacrum
+Provocatietesten:
+•	SIG Testen
+o	Cluster van Laslett (2/4 positief)
+o	Distraction Test
+o	Thigh Thrust
+o	Compression Test
+o	Sacral Thrust
+•	Cluster van der Wurff (3/5 positief)
+o	Distraction Test
+o	Thigh Thrust
+o	Patrick Sign
+o	Gaenslen’s Test
+o	Compression Test
+Functietesten:
+•	Bekkenkantelen in stand/zit
+•	Squat met lijnrechtehouding (70° flexie)
+•	Lunge en arm raise contralateraal
+•	Op één been staan
+•	In zit: kinetest
+Spierlengteonderzoek:
+•	Thomas Test (M. Iliopsoas)
+•	Ober's Test (TFL/ITB)
+•	M. Hamstrings
+•	M. Quadriceps
+•	M. Piriformis
+•	M. Iliopsoas
+•	M. Rectus Femoris
+•	M. Tensor Fasciae Latae
+Spierkrachtonderzoek:
+•	LWK Extensoren
+•	Quadriceps
+•	Hamstrings
+•	Buik-/Bilspieren
+Overig onderzoek - Palpatie:
+•	Segmentaal Onderzoek LWK
+•	Triggerpoints lumbale regio
+Neurologisch Onderzoek:
+•	Radiculaire prikkeling n. Tibialis
+•	Straight Leg Raise (SLR)
+•	Opposite SLR
+•	Worteltesten spiertesten voor L2-S1
+•	Kniepeesreflex (L3)
+•	Achillespeesreflex (S1-S2)
+Klinimetrie:
+•	Algemene vragenlijst rugpijn - Versie 6
+•	STarT Back Screening Tool
+•	Numeric Pain Rating Scale (NPRS)
+•	Quebec Back Pain Disability Scale (QBPDS)
+•	Patiënt Specifieke Klachten (PSK)
+Onderzoek Schouder
+Basisonderzoek
+Screening
+•	Algemene vraaglijst schouderpijn
+•	Keele STarT MSK Tool
+Pijnmetingen
+•	Numeric Pain Rating Scale (NPRS): Gemiddelde score op pijn.
+•	Patiënt Specifieke Klachten (PSK)
+Beperkingen
+•	Shoulder Pain and Disability Index (SPADI): Evaluatie van beperkingen en functionaliteit.
+________________________________________
+Aanvullend onderzoek
+Basale bewegingsonderzoeken
+1.	Mobiliteitsonderzoek Schouder AROM (Actief):
+o	Anteflexie
+o	Abductie
+o	Retroflexie
+o	Exorotatie in 0° abductie
+o	Endorotatie in 0° abductie
+2.	Mobiliteitsonderzoek Schouder PROM (Passief):
+o	TROM exorotatie-endorotatie (vanaf 90° abductie)
+3.	Exclusie CWK/CTO:
+o	Test van Spurling
+o	McKenzie CWK
+Functieonderzoeken CWK en TWK
+•	CWK Bewegingsonderzoek:
+o	Flexie: 45°
+o	Extensie: 45°
+o	Rotatie: 45° - 90°
+o	Lateroflexie: 45°
+•	TWK Bewegingsonderzoek:
+o	Scapulae elevatie en beweging in relatie tot de thorax.
+Functionele testen
+1.	TWK Bewegingsanalyse:
+o	CWK - TWK beweging
+o	Scapulair ritme en bewegingsevaluatie
+2.	Beoordeling scapulothoracaal ritme:
+o	Staand op één been en anteflexie
+o	Squat en beweging in de LWK
+3.	Reductietesten:
+o	Druk naar mediaal, lateraal, caudaal, dorsaal en ventraal
+________________________________________
+Provocatietesten
+Compressie- en impingementtesten
+1.	Compressietesten:
+o	Subacromiale compressie test
+o	Deadarm Syndroom test (bursae gerelateerd)
+2.	Impingementtesten:
+o	Neer Test (depressie, anteflexie)
+o	Hawkins-Kennedy Test
+o	Painful Arc Test
+o	Supraspinatus Test
+o	Yocum Test
+Stabiliteitstesten
+•	Apprehension/Augmentation Test
+•	Relocation/Release Test
+•	Anterior Side Test
+•	IRRST (Internal Rotation Resistance Strength Test)
+Rotator Cuff Testen
+•	Empty Can Test
+•	Infraspinatus Lag Test
+•	Subscapularis Lag Test
+•	Lift-off Test
+Labrum- en AC-letsel testen
+1.	Labrumtesten:
+o	Kim's Test (posterieure laesie)
+o	Anterior Release Test
+o	Yergason's Test
+2.	AC-letsel testen:
+o	O'Brien Test
+o	Cross Body Adduction Test
+o	AC Resisted Extension Test
+o	Relocation and Release Test
+________________________________________
+Spieronderzoek
+Spierlengte
+•	M. Trapezius (descendens, ascendens, transversus)
+•	M. Pectoralis (major en minor)
+•	M. Serratus anterior
+Spierkracht
+•	Evaluatie van scapulaire stabilisatie: M. Serratus anterior en M. Trapezius.
+•	Isometrische kracht in:
+o	Exorotatie
+o	Endorotatie
+o	Abductie
+o	Flexie
+o	Extensie
+________________________________________
+Overige onderzoeken
+Palpatieonderzoek
+•	Triggerpoints:
+o	M. Supraspinatus
+o	M. Infraspinatus
+o	M. Trapezius pars descendens
+•	Palpatie van scapulaire regio en AC-gewricht
+Neurologisch onderzoek
+•	ULNTa (Upper Limb Neurodynamic Test - n. medianus)
+Anders
+•	Echografisch onderzoek gericht op:
+o	Bicepspees
+o	Subscapularis
+o	AC-gewricht
+________________________________________
+Klinimetrie
+1.	Keele STarT MSK Tool
+2.	Algemene vraaglijst schouderpijn - versie 2
+3.	Numeric Pain Rating Scale (NPRS)
+4.	Patiënt Specifieke Klachten (PSK)
+5.	Shoulder Pain and Disability Index (SPADI)
+Onderzoek Elleboog
+1. Basisonderzoek
+•	Mobiliteit:
+o	Pronatie
+o	Supinatie
+o	Flexie
+o	Extensie
+•	Functioneel Onderzoek Elleboog:
+o	Passieve flexie (140°)
+o	Passieve extensie (0–10°)
+o	Passieve supinatie in ruglig in extensie
+o	Passieve pronatie in ruglig in extensie
+•	Weerstandstesten (Basisonderzoek):
+o	Flexie in neutrale positie
+o	Extensie in neutrale positie
+o	Supinatie in 90° flexie
+o	Pronatie in 90° flexie
+2. Aanvullend Bewegingsonderzoek
+•	Weerstandstesten (Aanvullend):
+o	Flexie in ruglig in neutrale positie
+o	Extensie in ruglig in neutrale positie
+o	Supinatie in 90° flexie
+o	Pronatie in 90° flexie
+o	Extensie elleboog
+•	Functioneel Onderzoek CWK:
+o	Actieve flexie (45°)
+o	Actieve extensie (45°)
+o	Actieve lateroflexie (45°)
+o	Actieve rotaties (45°–90°)
+•	Pols Functioneel Onderzoek
+3. Specifieke Functionele en Provocatietesten
+•	Functionele Testen:
+o	Pressure Provocation Test
+o	Neurogene provocatietest
+o	Flexie Test van de elleboog
+o	Moving Valgus Stress Test
+o	Posterior Lateral Rotary Instability Test
+o	Varus Stress Test
+o	Valgus Stress Test (Jobe's Test)
+•	Provocatietesten:
+o	Elbow Extension Test
+o	Biceps Squeeze Test
+o	Epicondylitis Lateralis (Cozen’s Test, Maudsley’s Test)
+o	Provocatietest algemeen
+4. Spieronderzoek
+•	Spierkracht Testen:
+o	M. Triceps Brachii en M. Anconeus
+o	M. Brachioradialis
+o	M. Biceps Brachii
+5. Klinimetrie
+•	Meetinstrumenten:
+o	Numeric Pain Rating Scale (NPRS)
+o	Patiëntspecifieke Klachten (PSK)
+o	Hand-Held Dynamometer voor elleboog
+o	Goniometing Elleboog Actief
+o	Patient-Rated Tennis Elbow Evaluation (PRTEE)
+o	Keele STarT MSK Tool
+Onderzoek Hand/Pols
+________________________________________
+Basisonderzoek
+•	Hand/Pols meting algemeen
+o	Algemene observatie en metingen van hand en pols.
+•	Mobiliteit
+o	AROM (Active Range of Motion)
+	Pols palmair flexie (links/rechts)
+	Pols dorsaal flexie (links/rechts)
+	Ulnair deviatie (links/rechts)
+	Radiaal deviatie (links/rechts)
+	Pronatie (links/rechts)
+	Supinatie (links/rechts)
+o	PROM (Passive Range of Motion)
+	Pols palmair flexie (links/rechts)
+	Pols dorsaal flexie (links/rechts)
+	Ulnair deviatie (links/rechts)
+	Radiaal deviatie (links/rechts)
+	Pronatie (links/rechts)
+	Supinatie (links/rechts)
+________________________________________
+Aanvullend Onderzoek
+•	Bewegingsonderzoek
+o	Weerstandstesten
+	Weerstand OP
+	Weerstand AddP/1e dorsale interossei
+o	Functionele testen
+	Reagan’s Test (LT)
+	UCL Duim
+	RCL Duim
+	VP Duim
+	VP PIP/Vingers
+	Midcarpal Shift
+	Watson Test (SL)
+	Translatie DRU
+	Compressie TFCC
+	Weight Bearing Test TFCC
+	Stoeltest ECRL
+	Stoeltest ECRB
+o	Provocatietesten
+	ULTT n. medianus
+	ULTT n. radialis
+	ULTT n. ulnaris
+	Palpatie A1 pulley
+	Grinding test
+	Phalen Test
+	Eickhoff Test
+•	Overig Onderzoek
+o	Palpatie
+	Extensoren pols
+o	Specifieke structuren
+	Flexoren pols
+	Hypertonie van ...
+	Tenar
+	Duimweb
+	Os Lunatum
+	Os Scaphoid
+	Os Triquetrum
+	Os Pisiforme
+	Tabatière Anatomique
+	Gewrichtsspleet CMC-I
+	Gewrichtsspleet DIP
+	Gewrichtsspleet MCP
+o	Neurologisch Onderzoek
+	Sensibiliteit
+	Sneltest n. medianus
+	Sneltest n. radialis
+	Sneltest n. ulnaris
+	Overig Neurologisch
+	Semmes Weinstein Test
+o	Anders
+	Trigger vinger
+	Cm omvang P1
+	Cm omvang P2
+	Cm omvang DIP
+	Cm omvang Pols
+________________________________________
+Klinimetrie
+•	Hand/Pols Specifieke Meetinstrumenten
+o	Disabilities of the Arm, Shoulder and Hand (Quick DASH)
+o	Carpal Tunnel Syndrome vragenlijst (CTS)
+o	Pain Rated Wrist/Hand Evaluation (PRWHE-DLV)
+
+Onderzoek Heup
+1. Basisonderzoek
+Mobiliteit
+•	Flexie heup AROM - Links
+•	Flexie heup AROM - Rechts
+•	Extensie heup AROM - Links
+•	Extensie heup AROM - Rechts
+•	Abductie heup AROM - Links
+•	Abductie heup AROM - Rechts
+•	Endorotatie
+Functieonderzoek Heup
+•	Passieve extensie (10° - 15°)
+•	Passieve anteflexie (110° - 120°)
+•	Passieve exorotatie (40° - 60°)
+•	Passieve abductie (30° - 50°)
+•	Passieve adductie (30°)
+________________________________________
+2. Aanvullend Onderzoek
+LWK Onderzoek
+•	Functieonderzoek LWK:
+o	LWK Flexie
+o	LWK Extensie
+o	LWK Lateroflexie
+o	LWK Rotatie
+Functieonderzoek Knie
+•	Extensie passief
+•	Flexie passief
+•	Kapselrek testen:
+o	Ventromediaal in zijlig
+o	Ventraal in ruglig
+o	Dorsaal in ruglig
+________________________________________
+3. Functionele Testen
+•	Test van Duchenne
+•	Timed Up and Go Test (TUG)
+•	Looptest (6MWT)
+•	Ganganalyse
+•	Teken van Drehmann (heup wel/niet adductie)
+•	Trendelenburg
+________________________________________
+4. Provocatie Testen
+•	SIG
+•	Cluster van Laslett (2/4 positief)
+•	
+1.	Distraction test
+•	
+2.	Tight thrust
+•	
+3.	Compression test
+•	
+4.	Sacral trust
+•	Cluster van Sutlive (3/5 positief)
+•	
+1.	Squat test (herkenbare pijn)
+•	
+2.	Scour test (herkenbare pijn)
+•	
+3.	Actieve heupflexie (in ruglig)
+•	
+4.	Endorotatie (in buiklig; endo < 25°)
+•	
+5.	Actieve heup extensie (in ruglig)
+________________________________________
+5. Spieronderzoek
+Spierlengte
+•	M. Adductoren (abductie heup)
+•	M. Piriformis
+•	M. Iliopsoas (Thomas Test)
+•	M. Quadriceps
+•	Hamstrings
+•	M. Tensor Fascia Latae (Ober's Test)
+Spierkracht
+•	M. Adductoren
+•	M. Abductoren
+•	M. Gluteus Maximus
+•	M. Gluteus Medius/Minimus
+•	M. Tensor Fascia Latae
+•	Hamstrings
+•	M. Quadriceps
+________________________________________
+6. Overig Onderzoek
+Palpatie
+•	MTrP's m. Glut. Medius
+•	MTrP's m. Glut. Minimus
+•	MTrP's m. Glut. Maximus
+•	MTrP's m. Piriformis
+•	MTrP's mm. "GoGo"
+•	Bursa Trochanterica
+Neurologisch Onderzoek
+•	SLR
+•	Prone Knee Bend (N. Femoralis)
+________________________________________
+7. Klinimetrie
+•	Hip Injury and Osteoarthritis Outcome Score - Physical Function (HOOS-PS)
+•	Harris Hip Score (HHS)
+•	Numeric Pain Rating Scale (NPRS)
+•	Patiënt Specifieke Klachten (PSK)
+•	Hand-Held Dynamometer: Heup (Actief/Niet Aangedaan)
+•	Goniometer: Heup Actief Links/Rechts (Goniometer Heup)
+•	Keele STarT MSK Tool
+Onderzoek Knie
+Basisonderzoek
+•	Mobiliteit:
+o	Knie Flexie (links/rechts)
+o	Knie Extensie (links/rechts)
+•	Kracht:
+o	Flexoren
+o	Extensoren
+________________________________________
+Aanvullend Bewegingsonderzoek
+•	Passieve Bewegingsuitslagen Knie:
+o	Extensie (10° - 15°)
+o	Flexie (0° - 135°)
+o	Endorotatie (20° - 30°)
+o	Exorotatie (30° - 40°)
+•	Patellaire Bewegingsuitslagen:
+o	Patella femoraal passief Bewegingsonderzoek (BO)
+o	Patella mobiliteit mediaal/lateraal
+o	Patella mobiliteit craniaal/caudaal
+•	Jointplay Onderzoek:
+o	Art. Tibiofibularis Proximaal
+o	Enkel - Heup - LWK
+o	Enkel Dorsaal Flexie (20°)
+o	Enkel Plantair Flexie (50°)
+o	Heup Flexie (110° - 120°)
+o	Heup Extensie (10° - 15°)
+o	Heup Endorotatie (40° - 60°)
+o	Heup Exorotatie (40°)
+o	LWK Flexie (40° - 60°)
+o	LWK Extensie (20° - 35°)
+________________________________________
+Functionele Testen
+•	Squat
+•	Squat op één been
+•	Lunge
+________________________________________
+Provocatietesten
+•	Meniscus Testen:
+o	Cluster van Lowry (3/5 positief)
+o	Slotklachten
+o	Geforceerde Extensie
+o	Geforceerde Flexie
+o	McMurray:
+	Mediale Achterhoorn
+	Laterale Achterhoorn
+o	Joint Line Tenderness
+o	Test van Apley (90° Flexie met Rotatie)
+o	Thessaly Test
+•	Ligamentaire Stabiliteit Testen:
+o	Voorste Kruisband (VKB):
+	Lachman Test
+o	Achterste Kruisband (AKB)
+	Posterior Drawer Test 
+	Gravity Sign
+	Quadriceps Active Test
+o	Collaterale Bandentest:
+	Varus Stress vanuit 0°
+	Varus Stress vanuit 30°
+	Valgus Stress vanuit 0°
+	Valgus Stress vanuit 30°
+•	Patellaire Provocatietesten:
+o	Pijn bij palpatie collaterale band
+o	Patellofemoraal pijnsyndroom (PFPS):
+	Weerstandstest in 45°
+	Weerstandstest in 90°
+	Mediodorsale zijde patella - Pijn bij Palpatie
+	Peesklachten:
+	Pijn bij palpatie insertie tractus
+	Pes anserinus
+o	Isometrische weerstand op MRS
+o	Obertest
+•	Fractuurrisico (Ottawa Knee Rules):
+o	Onvermogen 2x2 stappen zonder steun
+o	Leeftijd >55 jaar
+o	Geïsoleerde pijn patella
+o	Pijn fibulakop
+o	Onvermogen knie >90° Flexie
+________________________________________
+Spieronderzoek
+•	Spierlengte Testen:
+o	M. Quadriceps
+o	Hamstrings
+•	Spierkracht Testen:
+o	Flexie (Open keten)
+o	Extensie (Open keten)
+o	Abductie heup (Open keten)
+________________________________________
+Overig Onderzoek
+•	Palpatie:
+o	Ballottement patella
+o	Hydrops
+o	Gewrichtsspleet
+•	Echografisch Onderzoek:
+o	Quadricepspees
+o	Patella
+o	Patellapees
+o	Femurcondylen:
+	Mediaal
+	Lateraal
+o	Mediale Knie
+o	Laterale Knie
+o	Dorsale Knie
+________________________________________
+Klinimetrie
+•	Meetinstrumenten:
+o	Knee Injury and Osteoarthritis Outcome Score - Physical Function Short Form (KOOS-PS)
+o	Sparta Nova PFPS Screeningtool
+o	Numeric Pain Rating Scale (NPRS)
+o	Patiënt Specifieke Klachten (PSK)
+o	Hand-Held Dynamometer: Knie (links/rechts)
+o	Goniometer Knie Actief (links/rechts)
+o	Lysholm Score - versie 2
+o	Kujala Pain Score Questionnaire (KSQ)
+o	Ganganalyselijst Nijmegen
+o	Keele STarT MSK Tool
+o	ACL Terug naar Sport na Blessure Vragenlijst (ACL-RSI)
+
+Onderzoek Enkel
+Basisonderzoek Enkel
+Functieonderzoek
+1.	Plantair flexie (50°)
+2.	Dorsaal flexie (20°)
+3.	Pronatie
+4.	Supinatie (45° - 60°)
+5.	Inversie
+6.	Eversie
+________________________________________
+Aanvullend Onderzoek Enkel
+Bewegingsonderzoek
+1.	OSG
+o	Inversie
+o	Eversie
+2.	Proximale tibiofibulaire gewricht
+o	Jointplay ventromediaal
+o	Jointplay dorsolateraal
+3.	Articulaties
+o	Art. Talonaviculair
+o	Translatie distaal
+	Calcaneocuboïdeum
+	Dorsaal
+4.	Lijnen
+o	Lijn van Lisfranc
+o	Lijn van Chopart
+o	Translatie distaal
+5.	Gewrichten
+o	Art. TMT
+o	Art. MTP
+Functionele Testen
+1.	Ketenbelasting
+o	Lopen op hakken
+o	Lopen op tenen
+o	Ketenoefeningen (bijv. squat, wenden, draaien)
+2.	Hinkelen & sprongtesten
+o	Single leg hop test
+o	Triple hop for distance
+o	Side hop
+3.	Ganganalyse
+o	Wendbaarheid, draaien en keren
+Provocatietesten
+1.	Ligamentaire testen
+o	Laesie lig. talofibulare ant
+o	Anterior Drawer Test (band test)
+o	Syndesmose ruptuur
+2.	Stress- en belastingsproeven
+o	Exorotatie stress test
+o	Belastte springbelasting in dorsaalflexie
+o	Achillestendinopathie test
+3.	Fascia- en pijnprovocatie
+o	Rektest fascia
+o	Periosttest hak
+4.	Achillespees testen
+o	Test van Thompson
+o	Palpatie achillespees
+________________________________________
+Overig Onderzoek Enkel
+Palpatie
+1.	Palpatie voor
+o	Syndesmose tib. fib. distaal
+o	Mediaal chondraal letsel
+o	Anterolateraal chondraal letsel talusrol
+o	Os naviculaire positie
+o	Metatarsale V
+o	Fascia plantaris
+o	Achillespees
+Neurologisch Onderzoek
+1.	Tests
+o	APR
+o	Sensibiliteit dermatoom
+o	Entrapment neuropathieën:
+	Nervus plantaris medialis
+	Nervus plantaris lateralis
+o	Tinel Sign (mediodorsaal malleolus)
+o	Neurodynamica tests:
+	Nervus suralis
+	Nervus tibialis
+________________________________________
+Klinimetrie Enkel
+Meetinstrumenten en Schalen
+1.	Numeric Pain Rating Scale (NPRS)
+2.	Patiënt Specifieke Klachten (PSK)
+3.	Ottawa Ankle Rules (OAR)
+4.	Functiescore
+o	De Bie
+o	Goniometrie Enkel Actief (links en rechts)
+5.	Dynamometrie
+o	Hand-Held Dynamometer Enkel (links en rechts)
+6.	Ganganalyselijst Nijmegen
+7.	Keele STarT MSK Tool
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SMART-Doelen
+SMART-doelen zorgen ervoor dat behandeldoelen duidelijk, haalbaar en effectief zijn. Ik gebruik de volgende principes bij het opstellen van SMART-doelen:
+•	Specifiek: Het doel moet duidelijk en eenduidig zijn. Bijvoorbeeld: "Verbetering van de ROM in de knie met 20 graden."
+•	Meetbaar: Er moet een criterium zijn om het succes te meten, zoals een specifieke ROM-verbetering of pijnscore op de NPRS.
+•	Acceptabel: Het doel moet worden overeengekomen met de patiënt en haalbaar zijn binnen de context van hun leven.
+•	Realistisch: Het doel moet haalbaar zijn, rekening houdend met de conditie van de patiënt en de beschikbare tijd voor herstel.
+•	Tijdsgebonden: Er moet een tijdsframe zijn waarin het doel bereikt moet worden, bijvoorbeeld: "Binnen 6 weken."
+Ik zorg ervoor dat alle behandeldoelen SMART zijn geformuleerd om een gerichte en effectieve aanpak te garanderen, zowel voor de patiënt als voor mijzelf als zorgverlener.
+•	Evaluatie en voortgangsbewaking: Ik volg de voortgang van behandelingen door regelmatige evaluaties te suggereren en te controleren of meetinstrumenten, zoals NPRS en PSK, correct zijn ingevuld en gebruikt. Dit zorgt voor een continue bewaking van de kwaliteit van de behandeling.
+•	Ondersteuning bij dossiervorming: Ik zorg ervoor dat alle noodzakelijke stappen in het behandelproces nauwkeurig worden gevolgd en geregistreerd. Hierbij volg ik de werkafspraken zoals beschreven in Dossiervoering - intake, Dossiervoering - behandeling, en Dossiervoering - eindevaluatie.
+•	Dossiervoering - intake: Tijdens de intakefase zorg ik ervoor dat alle relevante informatie wordt vastgelegd, waaronder de medische voorgeschiedenis, toestemmingsverklaringen, de hulpvraag, en screeningsvragen om rode en gele vlaggen te identificeren. Dit omvat ook de registratie van aanmeldingsgegevens, zoals verwijzer, huisarts, lengte, gewicht, en toestemming voor gegevensuitwisseling.
+•	Dossiervoering - behandeling: Tijdens elke behandeling gebruik ik de SOEP-methodiek om systematisch gegevens vast te leggen. Dit houdt in dat ik de subjectieve klachten van de patiënt documenteer (zoals pijnintensiteit en welzijn), klinische bevindingen noteer (bijvoorbeeld ROM en palpatie), een evaluatie uitvoer (zoals wat ik deze behandeling heb uitgevoerd), en het behandelplan aanpas of bevestig en wat ik volgende zitting ga doen. Specifieke acties, zoals de NPRS en PSK, worden minimaal elke zes weken vastgelegd om de voortgang te monitoren. Daarnaast zorg ik ervoor dat bij langdurige indicaties jaarlijks een rapportage naar de verwijzer wordt opgesteld.
+•	Dossiervoering - eindevaluatie: Bij de eindevaluatie zorg ik ervoor dat alle benodigde velden zijn ingevuld, waaronder de eindmetingen, het evalueren van subdoelen, en het afronden van de behandelfase. Ook wordt het behandelresultaat, inclusief de tevredenheid van de patiënt en nazorg, nauwkeurig vastgelegd. Indien nodig, rapporteer ik naar de huisarts wanneer de patiënt hiervoor toestemming heeft gegeven.
+Ik documenteer systematisch elke fase, van aanmelding tot eindevaluatie, en zorg ervoor dat elk onderdeel van het dossier volledig en volgens de geldende richtlijnen wordt ingevuld. Dit omvat het vastleggen van anamnese, diagnose, behandelplannen, tussentijdse evaluaties, en de afsluiting van de behandeling. Ik waarborg consistentie en nauwkeurigheid door elk onderdeel op een gestructureerde manier vast te leggen en afwijkingen of aanpassingen in het behandelplan duidelijk te documenteren.
+Ik beoordeel op basis van duidelijke criteria of een dossier voldoet aan de eisen van nauwkeurigheid, volledigheid en rechtmatigheid. Dit betekent dat alle fasen van het behandelproces goed gedocumenteerd moeten zijn en dat eventuele aanpassingen, zoals afwijkingen in het behandelplan of wijzigingen in de doelen, expliciet worden vastgelegd.
+SOEP-Methodiek
+1.	Subjectief (S)
+o	Pijnklachten: Intensiteit en locatie van de pijn zoals ervaren door de patiënt.
+o	Symptomen in eigen woorden: Hoe de patiënt zijn of haar klachten beschrijft, inclusief hoe het herstel verloopt.
+o	Emotionele toestand: Hoe de patiënt zich voelt over het herstel of de situatie.
+o	Algemeen welzijn: Eventuele veranderingen in dagelijkse activiteiten of stemming.
+2.	Objectief (O)
+o	Klinische bevindingen: Wat ik observeer tijdens de fysieke evaluatie. Wat ik observeer tijdens gesprek uit de patiënt.
+o	Bewegingsonderzoek: Range of Motion (ROM), eventuele beperkingen bij bepaalde bewegingen.
+o	Palpatie: Waar pijn wordt gevoeld bij aanraking.
+o	Aanvullende onderzoeken: Bevindingen uit diagnostische tests zoals röntgenfoto's of MRI-scans.
+3.	Evaluatie (E)
+o	Wat heb ik gedaan: Beschrijving van de uitgevoerde behandelingen of interventies tijdens de sessie.
+o	Vergelijking met vorige keer: Analyse van hoe de patiënt zich heeft ontwikkeld sinds de laatste afspraak.
+o	Herstelproces: Indicatoren van verbetering, stilstand of achteruitgang.
+o	Prognose: Verwachtingen ten aanzien van het herstel op basis van de huidige voortgang.
+4.	Plan (P)
+o	Behandeldoelen: Formuleren van korte- en langetermijndoelen voor het herstel.
+o	Interventies: Specifieke interventies die gepland staan voor de komende sessies.
+o	Oefentherapie: Oefeningen die de patiënt thuis moet uitvoeren.
+o	Follow-up: Wanneer en hoe de voortgang wordt geëvalueerd en eventuele vervolgafspraken.
+Dit is hoe een SOEP wordt ingedeeld. Als de fysiotherapeut vraagt zijn behandelingsnotities netjes op te schrijven moet je het verwerken naar een SOEP.
+
+

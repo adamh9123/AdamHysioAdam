@@ -1,0 +1,69 @@
+Visie – Hysio Medical Scribe v3: 
+Van Eén Pagina naar een Gestructureerde Multi-Workflow Applicatie
+Adam's kernvisie is om de Hysio Medical Scribe te transformeren van de huidige, ietwat simpele, één-pagina-applicatie naar een geavanceerde, meerzijdige (multi-page) applicatie. Deze nieuwe opzet moet de gebruiker (de fysiotherapeut) door specifieke, logische workflows leiden op basis van het type workflow. De huidige gebruikerservaring is te beperkt en niet intuïtief. Hij wil een duidelijke structuur, betere begeleiding voor de gebruiker, en een slimmere, modulaire opbouw die wordt weerspiegeld in de URL's van de applicatie. Verschillende pagina’s dus ook.
+Hieronder volgt een stapsgewijze uitsplitsing van elk onderdeel van zijn visie.
+________________________________________
+1. De Startpagina (Patiëntinformatie)
+Dit is de eerste pagina die de gebruiker ziet. Hoewel Adam deze pagina "in principe prima" vindt, heeft hij een aantal duidelijke wensen voor verbetering.
+•	Meer Context: De pagina is nu erg kaal. Adam zou graag zien dat er klein beetje meer informatie wordt getoond over wat Hysio Medical Scribe is en wat het doet. Dit geeft de pagina meer body en fungeert als een betere introductie. De Input hoeft niet te veranderen, Voorletters, Geboortejaar, Geslacht en Hoofdklacht is genoeg. Optioneels dus nog een document met context.
+•	Velden Aanpassen:
+o	Hoofdklacht: Dit veld is nu gemarkeerd als (optioneel), maar dit is incorrect. De hoofdklacht is een verplicht veld voor de verdere verwerking. Het label (optioneel) moet hier dus verwijderd worden.
+o	Context Document: Dit veld is correct gemarkeerd als (optioneel). Dit mag blijven zoals het is.
+•	Knoptekst Aanpassen:
+o	De huidige knoptekst is "Ga verder naar intake workflow". Dit is te lang, te specifiek en te technisch.
+o	Adam wil dat de knop simpelweg "Ga verder" heet. Dit is gebruiksvriendelijker en past beter in de nieuwe, stapsgewijze visie waarbij de gebruiker nog niet weet welke workflow hij gaat kiezen.
+________________________________________
+2. De Kern van de Verandering: Een Nieuwe Tussenpagina "Kies uw Workflow"
+Dit is de meest fundamentele verandering die Adam voorstelt. Nadat de therapeut op "Ga verder" heeft geklikt op de patiëntinformatiepagina, wil hij niet direct in een workflow belanden. In plaats daarvan moet de gebruiker naar een volledig nieuwe, centrale keuzepagina geleid worden.
+•	Doel van de Pagina: Deze pagina, met de titel "Kies uw Workflow", fungeert als een hub van waaruit de therapeut de juiste procedure voor het consult kan selecteren.
+•	URL Structuur: De URL van deze pagina moet dit ook reflecteren, bijvoorbeeld: localhost:3000/scribe/workflow
+•	De Drie Workflows: Op deze pagina moeten de drie primaire workflows prominent en duidelijk worden gepresenteerd:
+1.	Hysio Intake (Volledig Automatisch): Voor een complete intake die in één keer (automatisch) wordt verwerkt.
+2.	Hysio Intake (Stapsgewijs): Voor een uitgebreide intake waarbij de therapeut stap voor stap door de onderdelen (anamnese, onderzoek, klinische conclusie) wordt geleid met betere afgestemde voorbereiding.
+3.	Hysio Consult (Vervolgconsult): Een specifieke workflow voor vervolgconsulten, gericht op de SOEP-methodiek niet de HHSB-anamnesekaart of onderzoeksbevindingen. Vervolgconsult i.p.v. intake dus.
+•	Uitgebreide Omschrijvingen: Adam benadrukt dat elke workflow een veel uitgebreidere omschrijving nodig heeft dan wat er nu te zien is. De therapeut moet precies begrijpen waarvoor elke workflow dient, wat de voordelen zijn en wanneer deze gebruikt moet worden.
+________________________________________
+3. De Architectuur: Een Echte Multi-Page Applicatie
+Een cruciaal technisch aspect van Adam's visie is de overstap naar een multi-page architectuur, waarbij elke stap in een workflow zijn eigen unieke URL heeft. Dit creëert een logische en navigeerbare structuur.
+•	Dynamische URL's: De URL moet veranderen op basis van de keuzes van de gebruiker.
+o	Keuze "Volledig Automatisch" leidt naar: .../intake-automatisch
+o	Keuze "Stapsgewijs" leidt naar: .../intake-stapsgewijs
+o	Keuze "Vervolgconsult" leidt naar: .../consult
+Hieronder de uitwerking per specifieke workflow:
+Workflow 1: Hysio Intake (Volledig Automatisch)
+Deze workflow is voor de efficiënte therapeut die snel tot een eindresultaat wil komen.
+•	Gebruikersflow: De gebruiker kiest deze optie, uploadt of start een opname, en de applicatie verwerkt alles in één keer na klikken van verwerk volledige intake.
+•	Resultaat: Na de verwerking moet de gebruiker direct naar de eindpagina worden geleid. Waar HHSB Anamnesekaart, Onderzoeksbevindingen en Klinische Conclusie netjes verwerkt staan; Netjes, Hysio Brand Style, Inklapbaar, Kopieerbaar, Bewerkbaar
+•	URL: .../intake-automatisch/conclusie
+•	Backend Voorbereiding Koppeling: Er is een mogelijkheid om bij binnenkomst /intake-automatisch, een Voorbereiding Intake te genereren, dit is niet net zoals Workflow 2 per Fase maken van voorbereiding maar gelijk de Anamnese & Onderzoek voorbereiding iets algemener en minder gepersonaliseerd op basis van patienteninformatie. De logica hiervoor komt uit een document genaamd "Stap 0 - Hysio Intake Automatisch - Voorbereiding Intake.txt". Dat zich in "Claude Code" omgeving bevindt op: C:\Users\adamh\Desktop\AdamHysioAdam\docs\VariableDocumente\Stap 0 - Hysio Intake Automatisch - Voorbereiding Intake.txt
+Workflow 2: Hysio Intake (Stapsgewijs)
+Dit is de meest gedetailleerde workflow en vereist een opdeling in meerdere, afzonderlijke pagina's of secties. Dit geeft de therapeut maximale controle en ondersteuning.
+Dus na de patienteninformatie te hebben ingevuld en dan op Hysio Intake (Stapsgewijs) te hebben geklikt kom je op:
+•	Stap A: Anamnese
+o	URL: .../intake-stapsgewijs/anamnese
+o	Functionaliteit: Op deze pagina moet een functie zijn om een "voorbereiding voor de anamnesekaart" te genereren. Deze gegenereerde inhoud dient als leidraad voor de therapeut tijdens het vraaggesprek. Na anamnesegespreg en de context d.m.v live recorded/audiobestand/handmatige notities is na verwerking een HHSB-Anamnesekaart zichtbaar. Netjes, Hysio Brand Style, Inklapbaar, Kopieerbaar, Bewerkbaar
+o	Backend Voorbereiding Koppeling: De logica voor deze generatie moet komen uit een specifiek document dat Adam " Stap 1 - Hysio Intake Stapsgewijs - Voorbereiding Anamnese.txt" noemt, dat zich in "Claude Code" omgeving bevindt op: C:\Users\adamh\Desktop\AdamHysioAdam\docs\VariableDocumente\Stap 1 - Hysio Intake Stapsgewijs - Voorbereiding Anamnese.txt Deze logica gebruikt de eerder ingevoerde patiëntinformatie (zoals hoofdklacht, geslacht en leeftijd).
+•	Stap B: Onderzoek
+o	URL: .../intake-stapsgewijs/onderzoek
+o	Functionaliteit: Na de anamnese volgt het onderzoek. Op deze pagina moet een functie zijn om "onderzoeksvoorstel" op te stellen. Na onderzoek en de context d.m.v live recorded/audiobestand/handmatige notities is na verwerking een onderzoeksbevindingen zichtbaar. Netjes, Hysio Brand Style, Inklapbaar, Kopieerbaar, Bewerkbaar
+o	Backend Voorbereiding Koppeling: De logica hiervoor komt uit een document genaamd " Stap 3 - Hysio Intake Stapsgewijs – Onderzoeksvoorbereiding.txt". Dat zich in "Claude Code" omgeving bevindt op: C:\Users\adamh\Desktop\AdamHysioAdam\docs\VariableDocumente\Stap 3 - Hysio Intake Stapsgewijs - Onderzoeksvoorbereiding.txt
+•	Stap C: Klinische Conclusie
+o	URL: .../intake-stapsgewijs/klinische-conclusie
+o	Functionaliteit: Dit is de laatste stap waar alle informatie samenkomt in een eindconclusie. Netjes, Hysio Brand Style, Inklapbaar, Kopieerbaar, Bewerkbaar
+o	Backend Koppeling: De logica hiervoor komt uit een document genaamd "Stap 5 - Hysio Intake Stapsgewijs - Klinische Conclusie.txt". Dat zich in "Claude Code" omgeving bevindt op: C:\Users\adamh\Desktop\AdamHysioAdam\docs\VariableDocumente\Stap 5 - Hysio Intake Stapsgewijs - Klinische Conclusie.txt
+(Noot: Adam noemt ook "Stap 2", het structureren van de anamnese volgens een HHSB-format en “Stap 4”, het structureren van de onderzoeksbevindingen. Dit lijkt een proces o.b.v. de transcriptie/live recording te zijn dat plaatsvindt na de Voorbereidingsgeneratie.). Fase 1 is dus Anamnese voorbereiding + input anamnese transcriptie (live recording, audiobestand of handmatige notities) + verwerking in HHSB anamnesekaart achteraf, Fase 2 is Onderzoeksvoorbereiding o.b.v. Patienteninformatie en HHSB anamnesekaart + input onderzoek transcriptie (live recording, audiobestand of handmatige notities) + verwerking van Onderzoeksconclusie achteraf. Fase 3 is Klinische conclusie.
+In beide intake workflows MOET FysioRoadmap of “PHSB” veranderd worden naar HHSB, we werken namelijk niet meer met PHSB idee maar met HHSB. De P van Patiëntenbehoefte is veranderd naar de H van Hulpvraag. Verder mag er geen woord over FysioRoadmap meer in de website.
+Workflow 3: Hysio Consult (Vervolgconsult)
+Deze workflow is specifiek ontworpen voor vervolgconsulten en maakt gebruik van de SOEP-methodiek (Subjectief, Objectief, Evaluatie, Plan).
+•	Gebruikersflow: Dit is een snelle en gerichte workflow. De gebruiker kiest deze optie en de data wordt verwerkt.
+•	Resultaat: Het eindproduct van deze workflow moet een "SOEP verslag" zijn. De gebruiker moet direct naar een pagina worden geleid waar dit verslag overzichtelijk en netjes wordt getoond. Netjes, Hysio Brand Style, Inklapbaar, Kopieerbaar, Bewerkbaar
+•	URL: .../consult/soep-verslag
+•	Backend Voorbereiding Koppeling: De logica voor het genereren van dit SOEP-verslag moet komen uit de documentatie in de "Claude Code" die de stappen voor de SOEP-voorbereiding beschrijft. Namelijk te vinden in: C:\Users\adamh\Desktop\AdamHysioAdam\docs\VariableDocumente\Stap 0 - Hysio Consult - Voorbereiding Consult.txt
+Samenvatting van de Vraag aan de Ontwikkelaar
+1.	Herstructureer de applicatie van een enkele pagina naar een multi-page, workflow-gebaseerd systeem.
+2.	Creëer een nieuwe centrale keuzepagina ("Kies uw Workflow") met duidelijke, uitgebreide omschrijvingen voor de drie workflows.
+3.	Implementeer de drie afzonderlijke workflows (Automatisch, Stapsgewijs, Consult) met de bijbehorende logica en unieke URL-structuren.
+4.	Bouw de "Stapsgewijs" workflow op uit meerdere pagina's (Anamnese, Onderzoek, Conclusie) en koppel de generatie-functies aan de specifieke backend-documenten ("Stap 1" en "Stap 3").
+•	Configureer de "Vervolgconsult" workflow om direct een SOEP-verslag te genereren, gebaseerd op de bijbehorende backend-logica. Op een mooie nieuwe pagina die van .../consult waar al het opnemen gebeurd in 2-panel UI met rechts input en link voorbereiding staan, naar URL: .../consult/soep-verslag waar heel netjes het hele SOEP verslag staat. Met Export opties, HTML/TXT/DOCX/PDF
+5.	Verbeter de UI/UX van de startpagina door context toe te voegen, velden aan te passen en de knoptekst te versimpelen. Allemaal binnen de Hysio Brand Style.
+

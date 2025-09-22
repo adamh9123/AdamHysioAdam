@@ -7,11 +7,11 @@ import { Mail, Phone, MapPin, Clock, MessageSquare, Headphones, Calendar } from 
 
 export default function Contact() {
   return (
-    <div className="min-h-screen bg-hysio-off-white">
+    <div className="min-h-screen bg-hysio-mint">
       <MarketingNavigation />
 
       {/* Hero Section */}
-      <section className="py-20 bg-gradient-to-br from-hysio-mint via-hysio-off-white to-white">
+      <section className="py-20 bg-gradient-to-br from-hysio-mint to-hysio-mint/80">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-5xl font-bold text-hysio-deep-green mb-6">
@@ -26,7 +26,7 @@ export default function Contact() {
       </section>
 
       {/* Contact Form & Info */}
-      <section className="py-16">
+      <section className="py-16 bg-hysio-off-white">
         <div className="container mx-auto px-6">
           <div className="max-w-6xl mx-auto">
             <div className="grid lg:grid-cols-2 gap-12">
@@ -274,10 +274,11 @@ export default function Contact() {
               <Card className="border-hysio-mint/20">
                 <CardContent className="p-6">
                   <h3 className="font-semibold text-hysio-deep-green mb-2">
-                    Hoe snel krijg ik antwoord op mijn vraag?
+                    Hoe snel kan ik Hysio implementeren in mijn praktijk?
                   </h3>
                   <p className="text-hysio-deep-green/70">
-                    We streven ernaar om binnen 4 uur te reageren op werkdagen, vaak eerder.
+                    Onboarding duurt gemiddeld 2 werkdagen. Binnen 1 week bent u volledig operationeel
+                    met meetbare tijdbesparingen.
                   </p>
                 </CardContent>
               </Card>
@@ -285,10 +286,11 @@ export default function Contact() {
               <Card className="border-hysio-mint/20">
                 <CardContent className="p-6">
                   <h3 className="font-semibold text-hysio-deep-green mb-2">
-                    Kan ik een demo aanvragen?
+                    Wat is de verwachte ROI van Hysio voor mijn praktijk?
                   </h3>
                   <p className="text-hysio-deep-green/70">
-                    Ja, we bieden gratis persoonlijke demo's aan. Klik op "Plan Demo" om een afspraak in te plannen.
+                    Gemiddeld 12 uur tijdsbesparing per week per therapeut, resulterend in
+                    25-40% verhoogde patiëntcapaciteit binnen 3 maanden.
                   </p>
                 </CardContent>
               </Card>
@@ -296,10 +298,11 @@ export default function Contact() {
               <Card className="border-hysio-mint/20">
                 <CardContent className="p-6">
                   <h3 className="font-semibold text-hysio-deep-green mb-2">
-                    Bieden jullie technische ondersteuning?
+                    Hoe zit het met training van mijn team?
                   </h3>
                   <p className="text-hysio-deep-green/70">
-                    Ja, alle abonnementen bevatten technische ondersteuning. Enterprise klanten krijgen priority support.
+                    Persoonlijke training ter plaatse of online, inclusief change management
+                    ondersteuning voor optimale acceptatie door uw team.
                   </p>
                 </CardContent>
               </Card>

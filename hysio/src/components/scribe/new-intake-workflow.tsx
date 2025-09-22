@@ -8,6 +8,8 @@ import { PHSBResultsPanel } from '@/components/ui/phsb-results-panel';
 import { ExaminationResultsPanel } from '@/components/ui/examination-results-panel';
 import { ClinicalConclusionView } from '@/components/ui/clinical-conclusion-view';
 import { CollapsibleSection } from '@/components/ui/collapsible-section';
+import { StreamlinedIntakeWorkflow } from './streamlined-intake-workflow';
+import { StreamlinedFollowupWorkflow } from './streamlined-followup-workflow';
 import { AnonymousExportService } from '@/lib/utils/anonymous-export-service';
 import { apiCall, API_ENDPOINTS } from '@/lib/api';
 import { transcribeAudio } from '@/lib/api/transcription';
@@ -28,11 +30,25 @@ import type {
   PatientInfo,
   AudioTranscription,
   AudioRecording,
-  PHSBStructure
+  PHSBStructure,
+  SOEPStructure
 } from '@/lib/types';
 
 // Parse PHSB structured text into individual sections
 const parsePHSBText = (fullText: string): PHSBStructure => {
+  // Input validation and error handling
+  if (!fullText || typeof fullText !== 'string') {
+    console.warn('parsePHSBText: Invalid input provided, returning empty structure');
+    return {
+      patientNeeds: '',
+      history: '',
+      disorders: '',
+      limitations: '',
+      redFlags: [],
+      fullStructuredText: '',
+    };
+  }
+
   const result: PHSBStructure = {
     patientNeeds: '',
     history: '',
@@ -41,6 +57,8 @@ const parsePHSBText = (fullText: string): PHSBStructure => {
     redFlags: [],
     fullStructuredText: fullText,
   };
+
+  try {
 
   // Define section patterns with multiple variations
   const patterns = [
@@ -97,7 +115,7 @@ const parsePHSBText = (fullText: string): PHSBStructure => {
 
   // Extract red flags
   const redFlagPatterns = [
-    /\*\*Rode\s*Vlagen:?\*\*([\s\S]*?)$/i,
+    /\*\*Rode\s*Vlagen:?\*\*([\s\S]*?)$/gi, // Fixed: Added global flag
     /\[RODE\s*VLAG:?([^\]]+)\]/gi
   ];
   
@@ -123,10 +141,529 @@ const parsePHSBText = (fullText: string): PHSBStructure => {
     }
   }
 
-  // Remove duplicates from red flags
-  result.redFlags = [...new Set(result.redFlags)];
+    // Remove duplicates from red flags
+    result.redFlags = [...new Set(result.redFlags)];
 
-  return result;
+    return result;
+  } catch (error) {
+    console.error('Critical error in parsePHSBText:', error);
+    // Return a safe fallback structure
+    return {
+      patientNeeds: '',
+      history: '',
+      disorders: '',
+      limitations: '',
+      redFlags: [],
+      fullStructuredText: fullText,
+    };
+  }
+};
+
+// NEW: Full Intake Input Panel component for single-action processing
+interface FullIntakeInputPanelProps {
+  onRecordingComplete?: (blob: Blob, duration: number) => void;
+  onManualNotesChange?: (notes: string) => void;
+  onProcessClick?: () => void;
+  manualNotes?: string;
+  disabled?: boolean;
+  isProcessing?: boolean;
+  recording?: AudioRecording | null;
+  canProcess?: boolean;
+  automationProgress?: {
+    step: string;
+    progress: number;
+    isComplete: boolean;
+  };
+}
+
+const FullIntakeInputPanel: React.FC<FullIntakeInputPanelProps> = ({
+  onRecordingComplete,
+  onManualNotesChange,
+  onProcessClick,
+  manualNotes = '',
+  disabled = false,
+  isProcessing = false,
+  recording,
+  canProcess = false,
+  automationProgress = { step: 'Wachtend...', progress: 0, isComplete: false }
+}) => {
+  const [uploadKey, setUploadKey] = React.useState(0);
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    event.target.value = '';
+    setUploadKey(prev => prev + 1);
+
+    if (!file.type.startsWith('audio/')) {
+      console.error('Selecteer een audio bestand');
+      return;
+    }
+
+    if (file.size > 25 * 1024 * 1024) {
+      console.error('Audio bestand is te groot (max 25MB)');
+      return;
+    }
+
+    try {
+      const blob = new Blob([await file.arrayBuffer()], { type: file.type });
+      const estimatedDuration = file.size / 16000;
+      onRecordingComplete?.(blob, estimatedDuration);
+    } catch (error) {
+      console.error('Fout bij uploaden van audio bestand');
+    }
+  };
+
+  return (
+    <div className="h-full overflow-auto p-6 space-y-6">
+      {/* Progress Display during Processing */}
+      {isProcessing && (
+        <div className="bg-hysio-mint/10 border-2 border-hysio-mint/30 rounded-lg p-6">
+          <div className="text-center space-y-4">
+            <div className="w-16 h-16 bg-hysio-mint/20 rounded-full flex items-center justify-center mx-auto">
+              <div className="w-8 h-8 border-4 border-hysio-deep-green border-t-transparent rounded-full animate-spin"></div>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-hysio-deep-green mb-2">
+                Volledige Intake Verwerken
+              </h3>
+              <p className="text-sm text-hysio-deep-green/80 mb-4">
+                {automationProgress.step}
+              </p>
+              <div className="w-full bg-gray-200 rounded-full h-3">
+                <div
+                  className="bg-hysio-mint h-3 rounded-full transition-all duration-300 ease-out"
+                  style={{ width: `${automationProgress.progress}%` }}
+                ></div>
+              </div>
+              <p className="text-xs text-hysio-deep-green/60 mt-2">
+                {automationProgress.progress}% voltooid
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Input Interface - Hidden during processing */}
+      {!isProcessing && (
+        <>
+          {/* Live Opname voor Volledige Intake */}
+          <CollapsibleSection
+            title="Volledige Intake Opname"
+            defaultOpen={true}
+            className="border-2 border-hysio-mint/30"
+          >
+            <div className="space-y-4">
+              <AudioRecorder
+                onRecordingComplete={onRecordingComplete}
+                autoTranscribe={false}
+                transcriptionOptions={{
+                  language: 'nl',
+                  prompt: 'Dit is een complete fysiotherapie intake inclusief anamnese en lichamelijk onderzoek in het Nederlands. Transcribeer accuraat alle medische termen, patiënt uitspraken, en onderzoeksbevindingen.',
+                  temperature: 0.0,
+                }}
+                disabled={disabled || isProcessing}
+                maxDuration={1800000}
+              />
+
+              {/* File upload within Live Opname section */}
+              <div className="pt-4 border-t border-hysio-mint/20">
+                <input
+                  key={uploadKey}
+                  type="file"
+                  accept="audio/*"
+                  onChange={handleFileUpload}
+                  disabled={disabled || isProcessing}
+                  className="w-full text-sm text-hysio-deep-green-900 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-hysio-mint/20 file:text-hysio-deep-green hover:file:bg-hysio-mint/30 disabled:opacity-50"
+                />
+                <p className="text-xs text-hysio-deep-green-900/60 mt-2">
+                  Ondersteunde formaten: MP3, WAV, M4A, MP4. Maximaal 25MB.
+                </p>
+              </div>
+            </div>
+          </CollapsibleSection>
+
+          {/* Handmatige Notities voor Volledige Intake */}
+          <CollapsibleSection
+            title="Volledige Intake Notities"
+            defaultOpen={true}
+            className="border-2 border-hysio-mint/30"
+          >
+            <div className="space-y-4">
+              <textarea
+                value={manualNotes}
+                onChange={(e) => onManualNotesChange?.(e.target.value)}
+                placeholder="Voer hier uw complete intake in (anamnese, lichamelijk onderzoek, bevindingen, etc.)..."
+                disabled={disabled || isProcessing}
+                rows={8}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-hysio-mint focus:border-hysio-mint resize-y disabled:opacity-50"
+              />
+              <p className="text-xs text-gray-500">
+                Typ hier alle intake informatie. Deze wordt automatisch gecombineerd met audio transcriptie.
+              </p>
+            </div>
+          </CollapsibleSection>
+
+          {/* Hysio Assistant */}
+          <CollapsibleSection
+            title="Hysio Assistant"
+            defaultOpen={false}
+            className="border-2 border-hysio-mint/30"
+          >
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <MessageSquare size={18} className="text-hysio-deep-green" />
+                <span className="text-sm font-medium text-hysio-deep-green">
+                  AI Assistent voor Intake
+                </span>
+              </div>
+              <AssistantIntegration
+                isCollapsed={false}
+                className="border-0 bg-transparent p-0"
+              />
+            </div>
+          </CollapsibleSection>
+        </>
+      )}
+
+      {/* Process Button - Always visible at bottom */}
+      {canProcess && (
+        <div className="sticky bottom-0 bg-white p-4 border-t border-hysio-mint/20 -mx-6">
+          <Button
+            onClick={onProcessClick}
+            disabled={disabled || isProcessing || !canProcess}
+            size="lg"
+            className="w-full bg-hysio-deep-green hover:bg-hysio-deep-green/90 text-white px-8 py-4 text-lg font-semibold"
+          >
+            {isProcessing ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-3" />
+                Volledige Intake Verwerken...
+              </>
+            ) : (
+              <>
+                <FileText size={24} className="mr-3" />
+                Verwerk Volledige Intake
+              </>
+            )}
+          </Button>
+          {!isProcessing && (
+            <p className="text-center text-xs text-hysio-deep-green/60 mt-2">
+              Genereert automatisch: Anamnesekaart → Onderzoeksbevindingen → Klinische Conclusie
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// NEW: Unified Results Display Component
+interface UnifiedResultsDisplayProps {
+  phsbResults?: PHSBStructure | null;
+  examinationFindings?: string;
+  clinicalConclusion?: string;
+  isProcessing?: boolean;
+  automationProgress?: {
+    step: string;
+    progress: number;
+    isComplete: boolean;
+  };
+  patientInfo: PatientInfo;
+  onExportPDF?: () => void;
+  onExportWord?: () => void;
+  isExporting?: boolean;
+  disabled?: boolean;
+}
+
+const UnifiedResultsDisplay: React.FC<UnifiedResultsDisplayProps> = ({
+  phsbResults,
+  examinationFindings,
+  clinicalConclusion,
+  isProcessing = false,
+  automationProgress = { step: 'Wachtend...', progress: 0, isComplete: false },
+  patientInfo,
+  onExportPDF,
+  onExportWord,
+  isExporting = false,
+  disabled = false
+}) => {
+
+  const hasResults = phsbResults || examinationFindings || clinicalConclusion;
+  const isCompleted = automationProgress.isComplete && hasResults;
+
+  if (isProcessing) {
+    return (
+      <div className="w-full max-w-6xl mx-auto p-6">
+        <div className="bg-hysio-mint/10 border-2 border-hysio-mint/30 rounded-lg p-8">
+          <div className="text-center space-y-6">
+            <div className="w-20 h-20 bg-hysio-mint/20 rounded-full flex items-center justify-center mx-auto">
+              <div className="w-10 h-10 border-4 border-hysio-deep-green border-t-transparent rounded-full animate-spin"></div>
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-hysio-deep-green mb-3">
+                Volledige Intake Verwerken
+              </h2>
+              <p className="text-lg text-hysio-deep-green/80 mb-6">
+                {automationProgress.step}
+              </p>
+              <div className="w-full max-w-md mx-auto bg-gray-200 rounded-full h-4">
+                <div
+                  className="bg-hysio-mint h-4 rounded-full transition-all duration-500 ease-out"
+                  style={{ width: `${automationProgress.progress}%` }}
+                ></div>
+              </div>
+              <p className="text-sm text-hysio-deep-green/60 mt-3">
+                {automationProgress.progress}% voltooid - Alle secties worden automatisch gegenereerd
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!hasResults) {
+    return (
+      <div className="w-full max-w-4xl mx-auto p-6">
+        <div className="text-center py-12">
+          <div className="w-20 h-20 bg-hysio-mint/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <FileText size={40} className="text-hysio-deep-green" />
+          </div>
+          <h2 className="text-2xl font-bold text-hysio-deep-green mb-4">
+            Volledige Intake Workflow
+          </h2>
+          <p className="text-hysio-deep-green-900/70 mb-8 max-w-md mx-auto">
+            Voer uw intake gegevens in en klik op "Verwerk Volledige Intake" om automatisch alle drie secties te genereren.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full max-w-7xl mx-auto p-6 space-y-6">
+      {/* Success Banner */}
+      {isCompleted && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
+          <div className="flex items-center gap-3">
+            <CheckCircle size={24} className="text-green-600" />
+            <div>
+              <h3 className="text-lg font-semibold text-green-800">
+                Intake Volledig Verwerkt!
+              </h3>
+              <p className="text-green-700">
+                Alle drie secties zijn automatisch gegenereerd: Anamnesekaart, Onderzoeksbevindingen en Klinische Conclusie.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Export Actions */}
+      {isCompleted && (
+        <div className="bg-white border border-hysio-mint/30 rounded-lg p-6 mb-6">
+          <h3 className="text-lg font-semibold text-hysio-deep-green mb-4">Export Opties</h3>
+          <div className="flex flex-wrap gap-4">
+            <Button
+              onClick={onExportPDF}
+              disabled={disabled || isExporting}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {isExporting ? (
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+              ) : (
+                <FileText size={16} className="mr-2" />
+              )}
+              Export als PDF
+            </Button>
+            <Button
+              onClick={onExportWord}
+              disabled={disabled || isExporting}
+              variant="outline"
+              className="border-blue-600 text-blue-600 hover:bg-blue-50"
+            >
+              {isExporting ? (
+                <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mr-2" />
+              ) : (
+                <FileText size={16} className="mr-2" />
+              )}
+              Export als Word
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Unified Results - Single Column Layout */}
+      <div className="space-y-6">
+
+        {/* Anamnesekaart Section - Custom Collapsible */}
+        <div className="border-2 border-[#A5E1C5]/40 bg-[#F8F8F5] rounded-lg">
+          <div className="p-4 border-b border-[#A5E1C5]/30 bg-[#A5E1C5]/10">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <FileText size={20} className="text-[#004B3A]" />
+                <h3 className="text-lg font-semibold text-[#004B3A]">Anamnesekaart (PHSB)</h3>
+              </div>
+              <div className="flex items-center gap-3">
+                {phsbResults && (
+                  <>
+                    <CopyToClipboard text={phsbResults.fullStructuredText} size="sm" />
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-[#004B3A] text-[#004B3A] hover:bg-[#004B3A]/10"
+                      onClick={() => {/* Edit functionality */}}
+                    >
+                      ✏️ Bewerk
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+          {phsbResults ? (
+            <div className="space-y-4">
+              <PHSBResultsPanel
+                phsbData={phsbResults}
+                showSources={false}
+                audioSource={false}
+                manualSource={false}
+                className="border-0 p-0"
+              />
+
+              {/* Samenvattend Section - Additional summary for anamnesis */}
+              <div className="border-t border-[#A5E1C5]/30 pt-4 mt-6">
+                <div className="bg-white border border-[#A5E1C5]/30 rounded-lg p-4">
+                  <h4 className="text-sm font-semibold text-[#004B3A] mb-3 flex items-center gap-2">
+                    <CheckCircle size={16} className="text-[#10B981]" />
+                    Samenvattend
+                  </h4>
+                  <div className="text-sm text-[#003728] leading-relaxed">
+                    <p className="mb-2">
+                      <strong>Kernproblematiek:</strong> {phsbResults.patientNeeds || 'Nog niet gespecificeerd'}
+                    </p>
+                    <p className="mb-2">
+                      <strong>Primaire Bevindingen:</strong> Combinatie van {phsbResults.disorders || 'functionele stoornissen'}
+                      {phsbResults.limitations && ` met impact op ${phsbResults.limitations}`}
+                    </p>
+                    {phsbResults.redFlags && phsbResults.redFlags.length > 0 && (
+                      <p className="mb-2 text-red-600">
+                        <strong>Aandachtspunten:</strong> {phsbResults.redFlags.join(', ')}
+                      </p>
+                    )}
+                    <p className="text-xs text-[#003728]/70 mt-3 italic">
+                      Deze samenvatting geeft een overzicht van de belangrijkste bevindingen uit de anamnese.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <FileText size={48} className="mx-auto mb-4 opacity-50" />
+              <p>Wachtend op verwerking...</p>
+            </div>
+          )}
+        </div>
+
+        {/* Onderzoeksbevindingen Section - Custom Collapsible */}
+        <div className="border-2 border-[#A5E1C5]/40 bg-[#F8F8F5] rounded-lg">
+          <div className="p-4 border-b border-[#A5E1C5]/30 bg-[#A5E1C5]/10">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Stethoscope size={20} className="text-[#004B3A]" />
+                <h3 className="text-lg font-semibold text-[#004B3A]">Onderzoeksbevindingen</h3>
+              </div>
+              <div className="flex items-center gap-3">
+                {examinationFindings && (
+                  <>
+                    <CopyToClipboard text={examinationFindings} size="sm" />
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-[#004B3A] text-[#004B3A] hover:bg-[#004B3A]/10"
+                      onClick={() => {/* Edit functionality */}}
+                    >
+                      ✏️ Bewerk
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="p-6">
+          {examinationFindings ? (
+            <div className="space-y-4">
+              <div className="bg-white p-4 rounded-md border border-[#A5E1C5]/30">
+                <pre className="whitespace-pre-wrap font-inter text-sm leading-relaxed text-[#003728]">
+                  {examinationFindings}
+                </pre>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <Stethoscope size={48} className="mx-auto mb-4 opacity-50" />
+              <p>Wachtend op verwerking...</p>
+            </div>
+          )}
+          </div>
+        </div>
+
+        {/* Klinische Conclusie Section - Custom Collapsible */}
+        <div className="border-2 border-[#A5E1C5]/40 bg-[#F8F8F5] rounded-lg">
+          <div className="p-4 border-b border-[#A5E1C5]/30 bg-[#A5E1C5]/10">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <CheckCircle size={20} className="text-[#004B3A]" />
+                <h3 className="text-lg font-semibold text-[#004B3A]">Klinische Conclusie</h3>
+              </div>
+              <div className="flex items-center gap-3">
+                {clinicalConclusion && (
+                  <>
+                    <CopyToClipboard text={clinicalConclusion} size="sm" />
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-[#004B3A] text-[#004B3A] hover:bg-[#004B3A]/10"
+                      onClick={() => {/* Edit functionality */}}
+                    >
+                      ✏️ Bewerk
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="p-6">
+          {clinicalConclusion ? (
+            <div className="space-y-4">
+              <div className="bg-white p-4 rounded-md border border-[#A5E1C5]/30">
+                <pre className="whitespace-pre-wrap font-inter text-sm leading-relaxed text-[#003728]">
+                  {clinicalConclusion}
+                </pre>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <CheckCircle size={48} className="mx-auto mb-4 opacity-50" />
+              <p>Wachtend op verwerking...</p>
+            </div>
+          )}
+          </div>
+        </div>
+      </div>
+
+      {/* Patient Info Summary */}
+      <div className="bg-[#F8F8F5] border-2 border-[#A5E1C5]/30 rounded-lg p-4 mt-6">
+        <h4 className="text-sm font-medium text-[#004B3A] mb-2">Patiënt Informatie</h4>
+        <p className="text-sm text-[#003728]">
+          {patientInfo.initials} ({patientInfo.age} jaar, {patientInfo.gender}) - {patientInfo.chiefComplaint}
+        </p>
+      </div>
+    </div>
+  );
 };
 
 // New Anamnesis Input Panel component
@@ -295,45 +832,78 @@ const NewAnamnesisInputPanel: React.FC<NewAnamnesisInputPanelProps> = ({
 
 type AnamnesisState = 'initial' | 'preparation-generated' | 'anamnesis-processed';
 type ExaminationState = 'initial' | 'proposal-generated' | 'examination-processed';
+type AutomationState = 'initial' | 'processing' | 'completed' | 'error';
 
 export interface NewIntakeWorkflowProps {
   patientInfo: PatientInfo;
   onComplete: (intakeData: IntakeData) => void;
+  onSOEPComplete?: (soepData: SOEPStructure, sessionPreparation?: string) => void;
   onBack: () => void;
   initialData?: Partial<IntakeData>;
   disabled?: boolean;
   className?: string;
+  sessionState?: any;
 }
 
 export const NewIntakeWorkflow: React.FC<NewIntakeWorkflowProps> = ({
   patientInfo,
   onComplete,
+  onSOEPComplete,
   onBack,
   initialData = {},
   disabled = false,
   className,
+  sessionState,
 }) => {
+  // Workflow selection management
+  const [selectedWorkflow, setSelectedWorkflow] = React.useState<'intake' | 'intake-plus' | 'consult'>('intake-plus'); // Default to intake-plus (Stapsgewijs)
+
   // Phase management
   const [currentPhase, setCurrentPhase] = React.useState<WorkflowPhase>('anamnesis');
   const [completedPhases, setCompletedPhases] = React.useState<WorkflowPhase[]>([]);
-  
+
+  // NEW: Workflow mode selection
+
+  // NEW: Full automation state (MOVED BEFORE useEffect)
+  const [automationState, setAutomationState] = React.useState<AutomationState>('initial');
+  const [fullIntakeInput, setFullIntakeInput] = React.useState<string>('');
+  const [fullIntakeRecording, setFullIntakeRecording] = React.useState<AudioRecording | null>(null);
+  const [automationProgress, setAutomationProgress] = React.useState<{
+    step: string;
+    progress: number;
+    isComplete: boolean;
+  }>({ step: 'Wachtend...', progress: 0, isComplete: false });
+
+  // NEW: Redirect to clinical conclusion view for automation mode after processing
+  React.useEffect(() => {
+    if (selectedWorkflow === 'intake' && automationState === 'processing') {
+      setCurrentPhase('clinical-conclusion');
+    }
+  }, [selectedWorkflow, automationState]);
+
   // Anamnesis state management
   const [anamnesisState, setAnamnesisState] = React.useState<AnamnesisState>('initial');
   const [intakePreparation, setIntakePreparation] = React.useState<string>('');
   const [anamnesisRecording, setAnamnesisRecording] = React.useState<AudioRecording | null>(null);
   const [anamnesisNotes, setAnamnesisNotes] = React.useState<string>('');
   const [phsbResults, setPhsbResults] = React.useState<PHSBStructure | null>(null);
-  
+
   // Examination state management
   const [examinationState, setExaminationState] = React.useState<ExaminationState>('initial');
   const [examinationProposal, setExaminationProposal] = React.useState<string>('');
   const [examinationRecording, setExaminationRecording] = React.useState<AudioRecording | null>(null);
   const [examinationNotes, setExaminationNotes] = React.useState<string>('');
   const [examinationFindings, setExaminationFindings] = React.useState<string>('');
-  
+
+  // SOEP state for vervolgconsult workflow
+  const [soepState, setSOEPState] = React.useState<'initial' | 'processing' | 'processed'>('initial');
+  const [soepRecording, setSOEPRecording] = React.useState<AudioRecording | null>(null);
+  const [soepNotes, setSOEPNotes] = React.useState<string>('');
+  const [soepResults, setSOEPResults] = React.useState<SOEPStructure | null>(null);
+
   // Clinical conclusion
   const [clinicalConclusion, setClinicalConclusion] = React.useState<string>('');
-  
+
   // Loading states
   const [isGeneratingPreparation, setIsGeneratingPreparation] = React.useState(false);
   const [isProcessingAnamnesis, setIsProcessingAnamnesis] = React.useState(false);
@@ -363,7 +933,7 @@ export const NewIntakeWorkflow: React.FC<NewIntakeWorkflowProps> = ({
     });
   }, [currentPhase, anamnesisState, examinationState]);
   
-  // Generate intake preparation using intelligent preparation system
+  // Generate intake preparation for manual (stepwise) workflow - using intelligent preparation system
   const handleGeneratePreparation = async () => {
     setIsGeneratingPreparation(true);
     try {
@@ -412,7 +982,7 @@ export const NewIntakeWorkflow: React.FC<NewIntakeWorkflowProps> = ({
           ? detectAnatomicalRegion(preparationRequest.patientInfo.chiefComplaint)
           : null;
 
-        let fallbackPreparation = `**🎯 Gerichte Intake Voorbereiding**
+        let fallbackPreparation = `**🎯 Gerichte Anamnese Voorbereiding**
 Hoofdklacht: ${preparationRequest.patientInfo.chiefComplaint || 'Uit geüpload document'}
 ${detectedRegion ? `Gedetecteerde regio: ${detectedRegion.name}` : ''}
 
@@ -479,7 +1049,7 @@ ${detectedRegion ? `Gedetecteerde regio: ${detectedRegion.name}` : ''}
       console.error('Error generating preparation:', error);
 
       // Create error fallback
-      const errorFallback = `**Intake Voorbereiding**
+      const errorFallback = `**Anamnese Voorbereiding**
 
 Er is een technisch probleem opgetreden bij het genereren van de voorbereiding.
 
@@ -490,10 +1060,88 @@ Er is een technisch probleem opgetreden bij het genereren van de voorbereiding.
 - Relevante lichamelijk onderzoek planning
 - Werkhypothese en differentiaaldiagnoses opstellen
 
-*Technische fout: Intake voorbereiding kon niet automatisch worden gegenereerd.*`;
+*Technische fout: Anamnese voorbereiding kon niet automatisch worden gegenereerd.*`;
 
       setIntakePreparation(errorFallback);
       setAnamnesisState('preparation-generated');
+    } finally {
+      setIsGeneratingPreparation(false);
+    }
+  };
+
+  // NEW: Generate simplified intake preparation for automation workflow
+  const handleGenerateIntakePreparation = async () => {
+    setIsGeneratingPreparation(true);
+    try {
+      // Use the simplified prompts specified in requirements
+      const systemPrompt = `Je bent een ervaren fysiotherapeut die intake-voorbereidingen maakt. Genereer een beknopte, algemene voorbereiding voor een intake gesprek.`;
+
+      const userPrompt = `Hoofdklacht: ${patientInfo.chiefComplaint}
+
+Genereer een beknopte voorbereiding (maximaal 250 woorden) met:
+- Mogelijke vragen om uit te diepen (voor de Intake - Anamnese gedeelte)
+- Relevante onderzoeken om te overwegen (voor de Intake - Onderzoek gedeelte)
+- Aandachtspunten tijdens het consult
+
+Antwoord in het Nederlands, professioneel en praktisch.`;
+
+      // Call API with the new simplified prompts
+      const response = await apiCall(API_ENDPOINTS.GENERATE_CONTENT, {
+        method: 'POST',
+        body: JSON.stringify({
+          systemPrompt,
+          userPrompt,
+          options: {
+            model: HYSIO_LLM_MODEL,
+            temperature: 1.0,
+          },
+        }),
+      });
+
+      if (response.success && response.data?.content) {
+        setIntakePreparation(response.data.content);
+      } else {
+        console.warn('Intake preparation generation failed, using fallback:', response.error);
+        const fallbackPreparation = `**Intake Voorbereiding**
+
+**Hoofdklacht:** ${patientInfo.chiefComplaint}
+
+**Anamnese Vragen:**
+- Wanneer zijn de klachten begonnen?
+- Wat maakt de klachten erger/beter?
+- Hoe beïnvloeden de klachten dagelijkse activiteiten?
+- Eerdere behandelingen of onderzoeken?
+
+**Onderzoek Overwegingen:**
+- ROM en functionaliteit testen
+- Palpatie en inspectie
+- Specifieke provocatietesten
+- Kracht en stabiliteit beoordeling
+
+**Aandachtspunten:**
+- Red flags uitsluitingen
+- Functionele doelen vaststellen
+- Verwachtingen afstemmen
+
+*Gegenereerd op basis van hoofdklacht: ${patientInfo.chiefComplaint}*`;
+
+        setIntakePreparation(fallbackPreparation);
+      }
+    } catch (error) {
+      console.error('Error generating intake preparation:', error);
+      const errorFallback = `**Intake Voorbereiding - Fout**
+
+Er kon geen automatische voorbereiding worden gegenereerd.
+
+**Basis Aandachtspunten:**
+- Anamnese: LOFTIG systematiek
+- Onderzoek: ROM, kracht, functionaliteit
+- Red flags screening
+- Behandelplan opstellen
+
+*Hoofdklacht: ${patientInfo.chiefComplaint}*`;
+
+      setIntakePreparation(errorFallback);
     } finally {
       setIsGeneratingPreparation(false);
     }
@@ -813,13 +1461,547 @@ ${combinedInput || 'Geen onderzoeksinput beschikbaar'}
       setIsProcessingExamination(false);
     }
   };
-  
+
+  // SOEP handlers for vervolgconsult workflow
+  const handleSOEPRecording = (blob: Blob, duration: number) => {
+    const recording: AudioRecording = {
+      id: `soep-${Date.now()}`,
+      blob,
+      duration,
+      timestamp: new Date().toISOString(),
+      phase: 'followup',
+    };
+    setSOEPRecording(recording);
+  };
+
+  const handleSOEPProcessing = async () => {
+    setSOEPState('processing');
+    try {
+      let transcriptionText = '';
+
+      // Transcribe audio if available
+      if (soepRecording) {
+        const transcriptionResult = await transcribeAudio(
+          soepRecording.blob,
+          `SOEP vervolgconsult voor ${patientInfo.initials}`
+        );
+
+        if (transcriptionResult.success && transcriptionResult.transcript) {
+          transcriptionText = transcriptionResult.transcript;
+        } else {
+          throw new Error(transcriptionResult.error || 'Transcription failed');
+        }
+      }
+
+      // Combine transcription and manual notes
+      const combinedInput = [transcriptionText, soepNotes].filter(Boolean).join('\n\n');
+
+      if (!combinedInput.trim()) {
+        throw new Error('Geen input gedetecteerd voor SOEP verwerking');
+      }
+
+      // Process SOEP data using streamlined workflow
+      const soepResponse = await apiCall(API_ENDPOINTS.GENERATE_CONTENT, {
+        method: 'POST',
+        body: JSON.stringify({
+          systemPrompt: `Je bent een ervaren fysiotherapeut gespecialiseerd in SOEP-documentatie. Verwerk de verstrekte consultnotes in gestructureerde SOEP-format (Subjectief, Objectief, Evaluatie, Plan).`,
+          userPrompt: `Patient: ${patientInfo.initials} (${patientInfo.birthYear})
+Consultnotes: ${combinedInput}
+
+Maak een gestructureerde SOEP-rapportage met duidelijke secties.`,
+          options: {
+            model: HYSIO_LLM_MODEL,
+            temperature: 1.0,
+          },
+        }),
+      });
+
+      if (soepResponse.success && soepResponse.data?.content) {
+        const soepStructure: SOEPStructure = {
+          subjective: '',
+          objective: '',
+          evaluation: '',
+          plan: '',
+          redFlags: [],
+          fullStructuredText: soepResponse.data.content,
+          consultSummary: 'SOEP vervolgconsult samenvatting'
+        };
+
+        setSOEPResults(soepStructure);
+        setSOEPState('processed');
+
+        // Call the completion handler
+        if (onSOEPComplete) {
+          onSOEPComplete(soepStructure);
+        }
+      } else {
+        throw new Error('Failed to process SOEP data');
+      }
+    } catch (error) {
+      console.error('[SOEP Processing Error]', error);
+      setSOEPState('initial');
+    }
+  };
+
+  // Clinical conclusion handlers
+  const [clinicalState, setClinicalState] = React.useState<'initial' | 'processing' | 'processed'>('initial');
+  const [clinicalConclusionRecording, setClinicalConclusionRecording] = React.useState<AudioRecording | null>(null);
+  const [clinicalConclusionNotes, setClinicalConclusionNotes] = React.useState<string>('');
+
+  const handleClinicalConclusionRecording = (blob: Blob, duration: number) => {
+    const recording: AudioRecording = {
+      id: `clinical-${Date.now()}`,
+      blob,
+      duration,
+      timestamp: new Date().toISOString(),
+      phase: 'examination',
+    };
+    setClinicalConclusionRecording(recording);
+  };
+
+  const handleClinicalConclusionProcessing = async () => {
+    setClinicalState('processing');
+    try {
+      let transcriptionText = '';
+
+      // Transcribe audio if available
+      if (clinicalConclusionRecording) {
+        const transcriptionResult = await transcribeAudio(
+          clinicalConclusionRecording.blob,
+          `Klinische conclusie voor ${patientInfo.initials}`
+        );
+
+        if (transcriptionResult.success && transcriptionResult.transcript) {
+          transcriptionText = transcriptionResult.transcript;
+        } else {
+          throw new Error(transcriptionResult.error || 'Transcription failed');
+        }
+      }
+
+      // Combine transcription and manual notes
+      const combinedInput = [transcriptionText, clinicalConclusionNotes].filter(Boolean).join('\n\n');
+
+      if (!combinedInput.trim()) {
+        throw new Error('Geen input gedetecteerd voor klinische conclusie');
+      }
+
+      // Process clinical conclusion
+      setClinicalConclusion(combinedInput);
+      setClinicalState('processed');
+
+      // Call completion handler
+      const intakeData: IntakeData = {
+        patientInfo,
+        preparation: intakePreparation,
+        anamnesisRecording,
+        anamnesisTranscript: '',
+        phsbStructure: phsbResults,
+        examinationPlan: '',
+        examinationRecording,
+        examinationFindings: examinationFindings,
+        clinicalConclusion: combinedInput,
+        diagnosis: '',
+        treatmentPlan: '',
+        redFlags: [],
+        recommendations: '',
+        followUpPlan: '',
+        notes: '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      onComplete(intakeData);
+    } catch (error) {
+      console.error('[Clinical Conclusion Error]', error);
+      setClinicalState('initial');
+    }
+  };
+
+  // Anamnesis processing
+  const handleAnamnesisProcessing = async () => {
+    setAnamnesisState('processing');
+    try {
+      let transcriptionText = '';
+
+      // Transcribe audio if available
+      if (anamnesisRecording) {
+        const transcriptionResult = await transcribeAudio(
+          anamnesisRecording.blob,
+          `Anamnese voor ${patientInfo.initials}`
+        );
+
+        if (transcriptionResult.success && transcriptionResult.transcript) {
+          transcriptionText = transcriptionResult.transcript;
+        } else {
+          throw new Error(transcriptionResult.error || 'Transcription failed');
+        }
+      }
+
+      // Combine transcription and manual notes
+      const combinedInput = [transcriptionText, anamnesisNotes].filter(Boolean).join('\n\n');
+
+      if (!combinedInput.trim()) {
+        throw new Error('Geen input gedetecteerd voor anamnese verwerking');
+      }
+
+      // Process anamnesis using existing logic
+      const response = await apiCall(API_ENDPOINTS.GENERATE_CONTENT, {
+        method: 'POST',
+        body: JSON.stringify({
+          systemPrompt: `Je bent een ervaren fysiotherapeut gespecialiseerd in anamnese-documentatie volgens PHSB-methodiek.`,
+          userPrompt: `Patient: ${patientInfo.initials} (${patientInfo.birthYear})
+Anamnese input: ${combinedInput}
+
+Verwerk deze anamnese volgens PHSB-structuur.`,
+          options: {
+            model: HYSIO_LLM_MODEL,
+            temperature: 1.0,
+          },
+        }),
+      });
+
+      if (response.success && response.data?.content) {
+        const phsb: PHSBStructure = {
+          patientNeeds: '',
+          history: '',
+          disorders: '',
+          limitations: '',
+          redFlags: [],
+          fullStructuredText: response.data.content,
+          anamneseSummary: 'Anamnese samenvatting'
+        };
+
+        setPhsbResults(phsb);
+        setAnamnesisState('anamnesis-processed');
+        setCompletedPhases(prev => [...prev, 'anamnesis']);
+      } else {
+        throw new Error('Failed to process anamnesis');
+      }
+    } catch (error) {
+      console.error('[Anamnesis Processing Error]', error);
+      setAnamnesisState('initial');
+    }
+  };
+
+  // Examination processing
+  const handleExaminationProcessing = async () => {
+    setExaminationState('processing');
+    try {
+      let transcriptionText = '';
+
+      // Transcribe audio if available
+      if (examinationRecording) {
+        const transcriptionResult = await transcribeAudio(
+          examinationRecording.blob,
+          `Onderzoek voor ${patientInfo.initials}`
+        );
+
+        if (transcriptionResult.success && transcriptionResult.transcript) {
+          transcriptionText = transcriptionResult.transcript;
+        } else {
+          throw new Error(transcriptionResult.error || 'Transcription failed');
+        }
+      }
+
+      // Combine transcription and manual notes
+      const combinedInput = [transcriptionText, examinationNotes].filter(Boolean).join('\n\n');
+
+      if (!combinedInput.trim()) {
+        throw new Error('Geen input gedetecteerd voor onderzoek verwerking');
+      }
+
+      // Process examination
+      setExaminationFindings(combinedInput);
+      setExaminationState('examination-processed');
+      setCompletedPhases(prev => [...prev, 'examination']);
+    } catch (error) {
+      console.error('[Examination Processing Error]', error);
+      setExaminationState('initial');
+    }
+  };
+
   // Navigate to clinical conclusion
   const handleNavigateToClinicalConclusion = () => {
     setCurrentPhase('clinical-conclusion');
     // Do NOT auto-generate - user must click the button
   };
-  
+
+  // NEW: Full Automation Processing Function
+  const handleFullIntakeProcessing = async () => {
+    if (automationState === 'processing') return; // Prevent double-processing
+
+    setAutomationState('processing');
+    setCurrentPhase('clinical-conclusion'); // Switch to results view immediately
+
+    try {
+      // Step 1: Process transcription if audio available
+      setAutomationProgress({ step: 'Audio transcriptie verwerken...', progress: 10, isComplete: false });
+
+      let transcriptionText = '';
+      if (fullIntakeRecording) {
+        const transcriptionResult = await transcribeAudio(
+          fullIntakeRecording.blob,
+          'nl',
+          'Dit is een complete fysiotherapie intake inclusief anamnese en lichamelijk onderzoek in het Nederlands. Transcribeer accuraat alle medische termen, patiënt uitspraken, en onderzoeksbevindingen.'
+        );
+
+        // FIXED: Better transcript detection - don't fail if transcript is empty
+        if (transcriptionResult.success && transcriptionResult.transcript && transcriptionResult.transcript.trim()) {
+          transcriptionText = transcriptionResult.transcript;
+        } else {
+          console.warn('Transcription failed or empty, using manual input only');
+        }
+      }
+
+      // Combine transcription and manual notes
+      const combinedInput = [transcriptionText, fullIntakeInput].filter(text => text && text.trim()).join('\n\n');
+
+      if (!combinedInput.trim()) {
+        throw new Error('Geen intake gegevens beschikbaar voor verwerking');
+      }
+
+      // Step 2: Generate PHSB Anamnese structure
+      setAutomationProgress({ step: 'Anamnesekaart genereren...', progress: 25, isComplete: false });
+
+      const anamnesisSystemPrompt = `Je bent een ervaren fysiotherapeut die PHSB anamnese kaarten maakt volgens de FysioRoadmap methodiek.`;
+
+      const anamnesisUserPrompt = `Analyseer de volgende intake input en genereer een gestructureerde FysioRoadmap PHSB anamnese kaart.
+
+Patiënt context:
+- Leeftijd: ${patientInfo.age || 'Onbekend'} jaar
+- Geslacht: ${patientInfo.gender}
+- Hoofdklacht: ${patientInfo.chiefComplaint}
+
+Volledige intake input:
+${combinedInput}
+
+Genereer een professionele PHSB structuur:
+
+**P - Patiënt Probleem/Hulpvraag:**
+[Wat is de hoofdreden van komst en wat wil de patiënt bereiken?]
+
+**H - Historie:**
+[Ontstaan, beloop, eerdere behandelingen, relevante voorgeschiedenis]
+
+**S - Stoornissen in lichaamsfuncties en anatomische structuren:**
+[Pijn, bewegingsbeperking, kracht, sensibiliteit, etc.]
+
+**B - Beperkingen in activiteiten en participatie:**
+[ADL, werk, sport, hobby's die beïnvloed zijn]
+
+Antwoord in het Nederlands, professioneel geformatteerd.`;
+
+      const anamnesisResponse = await apiCall(API_ENDPOINTS.GENERATE_CONTENT, {
+        method: 'POST',
+        body: JSON.stringify({
+          systemPrompt: anamnesisSystemPrompt,
+          userPrompt: anamnesisUserPrompt,
+          options: {
+            model: HYSIO_LLM_MODEL,
+            temperature: 1.0,
+          },
+        }),
+      });
+
+      let phsbStructure: PHSBStructure;
+      if (anamnesisResponse.success && anamnesisResponse.data?.content) {
+        phsbStructure = parsePHSBText(anamnesisResponse.data.content);
+      } else {
+        // Fallback PHSB structure
+        phsbStructure = {
+          patientNeeds: combinedInput,
+          history: 'Automatische verwerking mislukt - handmatige invoer vereist',
+          disorders: 'Automatische verwerking mislukt - handmatige invoer vereist',
+          limitations: 'Automatische verwerking mislukt - handmatige invoer vereist',
+          redFlags: [],
+          fullStructuredText: `**P - Patiënt Probleem/Hulpvraag:**\n${combinedInput}\n\n**H - Historie:**\nAutomatische verwerking mislukt - handmatige invoer vereist\n\n**S - Stoornissen:**\nAutomatische verwerking mislukt - handmatige invoer vereist\n\n**B - Beperkingen:**\nAutomatische verwerking mislukt - handmatige invoer vereist`
+        };
+      }
+
+      setPhsbResults(phsbStructure);
+
+      // Step 3: Generate Examination Findings
+      setAutomationProgress({ step: 'Onderzoeksbevindingen genereren...', progress: 50, isComplete: false });
+
+      const examinationSystemPrompt = `Je bent een ervaren fysiotherapeut die onderzoeksbevindingen analyseert en structureert op basis van intake gegevens.`;
+
+      const examinationUserPrompt = `Genereer gestructureerde onderzoeksbevindingen op basis van de volledige intake input.
+
+Patiënt context:
+- Leeftijd: ${patientInfo.age || 'Onbekend'} jaar
+- Geslacht: ${patientInfo.gender}
+- Hoofdklacht: ${patientInfo.chiefComplaint}
+
+Anamnese (PHSB):
+${phsbStructure.fullStructuredText}
+
+Volledige intake input (inclusief onderzoeksgegevens):
+${combinedInput}
+
+Genereer een professionele samenvatting van onderzoeksbevindingen inclusief:
+1. Inspectie bevindingen
+2. Palpatie resultaten
+3. Bewegingsonderzoek (actief/passief ROM, kracht)
+4. Specifieke testen en uitkomsten
+5. Functionele beperkingen
+6. Objectieve metingen
+
+Let op: Als er geen specifieke onderzoeksgegevens zijn, genereer dan aanbevelingen voor nog uit te voeren onderzoek.
+
+Antwoord in het Nederlands, professioneel gestructureerd.`;
+
+      const examinationResponse = await apiCall(API_ENDPOINTS.GENERATE_CONTENT, {
+        method: 'POST',
+        body: JSON.stringify({
+          systemPrompt: examinationSystemPrompt,
+          userPrompt: examinationUserPrompt,
+          options: {
+            model: HYSIO_LLM_MODEL,
+            temperature: 1.0,
+          },
+        }),
+      });
+
+      let examinationFindingsResult = '';
+      if (examinationResponse.success && examinationResponse.data?.content) {
+        examinationFindingsResult = examinationResponse.data.content;
+      } else {
+        examinationFindingsResult = `**ONDERZOEKSBEVINDINGEN - AUTOMATISCHE VERWERKING MISLUKT**
+
+**Input Ontvangen:**
+${combinedInput}
+
+**Aanbevolen Onderzoek:**
+- **Inspectie:** Bekijk houding, asymmetrieën, zwelling
+- **Palpatie:** Beoordeel gevoeligheid, spanning, temperatuur
+- **ROM:** Meet actief/passief bereik per gewricht
+- **Kracht:** Voer MMT krachttesting uit
+- **Functioneel:** Test ADL beperkingen en bewegingspatronen
+- **Specifieke Tests:** Voer relevante provocatietesten uit
+
+*Let op: Vul onderzoeksbevindingen handmatig aan na fysiek onderzoek.*`;
+      }
+
+      setExaminationFindings(examinationFindingsResult);
+
+      // Step 4: Generate Clinical Conclusion
+      setAutomationProgress({ step: 'Klinische conclusie genereren...', progress: 75, isComplete: false });
+
+      const conclusionSystemPrompt = `Je bent een ervaren fysiotherapeut die klinische conclusies schrijft op basis van intake bevindingen.`;
+
+      const conclusionUserPrompt = `Genereer een uitgebreide klinische conclusie voor deze fysiotherapie intake.
+
+Patiënt informatie:
+- Leeftijd: ${patientInfo.age || 'Onbekend'} jaar
+- Geslacht: ${patientInfo.gender}
+- Hoofdklacht: ${patientInfo.chiefComplaint}
+
+Anamnese (PHSB):
+${phsbStructure.fullStructuredText}
+
+Onderzoeksbevindingen:
+${examinationFindingsResult}
+
+Genereer een professionele klinische conclusie inclusief:
+
+**SAMENVATTING:**
+[Korte samenvatting van de casus]
+
+**WERKHYPOTHESE/DIAGNOSE:**
+[Meest waarschijnlijke diagnose met onderbouwing]
+
+**BEHANDELINDICATIE:**
+[Aanbevolen behandeling en rationale]
+
+**PROGNOSE:**
+[Verwachte uitkomst en tijdslijn]
+
+**EVALUATIEPLAN:**
+[Follow-up en herbeoordelingsstrategie]
+
+**AANBEVELINGEN:**
+[Specifieke aanbevelingen voor patiënt]
+
+Antwoord in het Nederlands, professioneel en evidence-based.`;
+
+      const conclusionResponse = await apiCall(API_ENDPOINTS.GENERATE_CONTENT, {
+        method: 'POST',
+        body: JSON.stringify({
+          systemPrompt: conclusionSystemPrompt,
+          userPrompt: conclusionUserPrompt,
+          options: {
+            model: HYSIO_LLM_MODEL,
+            temperature: 1.0,
+          },
+        }),
+      });
+
+      let clinicalConclusionResult = '';
+      if (conclusionResponse.success && conclusionResponse.data?.content) {
+        clinicalConclusionResult = conclusionResponse.data.content;
+      } else {
+        clinicalConclusionResult = `**KLINISCHE CONCLUSIE - AUTOMATISCHE VERWERKING MISLUKT**
+
+**PATIËNT:** ${patientInfo.initials} (${patientInfo.age} jaar, ${patientInfo.gender})
+**HOOFDKLACHT:** ${patientInfo.chiefComplaint}
+
+**TE COMPLETEREN:**
+
+**SAMENVATTING:**
+[Handmatig in te vullen op basis van anamnese en onderzoek]
+
+**WERKHYPOTHESE/DIAGNOSE:**
+[Handmatig in te vullen - meest waarschijnlijke diagnose]
+
+**BEHANDELINDICATIE:**
+[Handmatig in te vullen - aanbevolen behandeling]
+
+**PROGNOSE:**
+[Handmatig in te vullen - verwachte uitkomst]
+
+**EVALUATIEPLAN:**
+[Handmatig in te vullen - follow-up strategie]
+
+**AANBEVELINGEN:**
+[Handmatig in te vullen - patiënt aanbevelingen]
+
+*Let op: AI-verwerking was niet beschikbaar. Vul handmatig in.*`;
+      }
+
+      setClinicalConclusion(clinicalConclusionResult);
+
+      // Step 5: Mark as completed
+      setAutomationProgress({ step: 'Intake volledig verwerkt!', progress: 100, isComplete: true });
+      setAutomationState('completed');
+
+      // Mark all phases as completed
+      setCompletedPhases(['anamnesis', 'examination', 'clinical-conclusion']);
+      setAnamnesisState('anamnesis-processed');
+      setExaminationState('examination-processed');
+
+    } catch (error) {
+      console.error('Full automation processing failed:', error);
+      setAutomationState('error');
+      setAutomationProgress({
+        step: `Fout: ${error instanceof Error ? error.message : 'Onbekende fout tijdens verwerking'}`,
+        progress: 0,
+        isComplete: false
+      });
+    }
+  };
+
+  // Handle full intake recording
+  const handleFullIntakeRecording = (blob: Blob, duration: number) => {
+    const recording: AudioRecording = {
+      id: `full-intake-${Date.now()}`,
+      blob,
+      duration,
+      timestamp: new Date().toISOString(),
+      phase: 'full-intake' as any, // Extend the phase type
+    };
+    setFullIntakeRecording(recording);
+  };
+
   // Generate clinical conclusion
   const generateClinicalConclusion = async () => {
     setIsGeneratingConclusion(true);
@@ -995,435 +2177,464 @@ AI-verwerking van klinische gegevens was niet beschikbaar.
     }
   };
   
-  // Render phase content
+  // Render unified workflow content with dynamic sections based on selectedWorkflow
   const renderPhaseContent = () => {
-    switch (currentPhase) {
-      case 'anamnesis':
-        return (
-          <React.Fragment>
-            <TwoPanelLayout
-              leftPanel={
-                <div className="h-full overflow-auto p-6 space-y-6">
-                  {/* Anamnesekaart - Initially collapsed, expanded after processing */}
-                  <CollapsibleSection 
-                    title="Anamnesekaart"
-                    defaultOpen={anamnesisState === 'anamnesis-processed'}
-                    className="border-2 border-hysio-mint/30"
-                  >
-                    {anamnesisState === 'anamnesis-processed' && phsbResults ? (
-                      <PHSBResultsPanel
-                        phsbData={phsbResults}
-                        showSources={true}
-                        audioSource={!!anamnesisRecording}
-                        manualSource={!!anamnesisNotes.trim()}
-                        className="border-0 p-0"
-                      />
-                    ) : (
-                      <div className="text-center py-8 text-gray-500">
-                        <FileText size={48} className="mx-auto mb-4 opacity-50" />
-                        <p>Anamnesekaart wordt hier getoond na verwerking</p>
-                      </div>
-                    )}
-                  </CollapsibleSection>
-                  
-                  {/* Intake Voorbereiding (Referentie) - Always collapsible, stays below anamnesekaart */}
-                  <CollapsibleSection 
-                    title="Intake Voorbereiding (Referentie)"
-                    defaultOpen={true}
-                    className="border-2 border-amber-200 bg-amber-50/30"
-                  >
-                    {intakePreparation ? (
-                      <div className="space-y-4">
-                        <div className="bg-white p-4 rounded-lg border border-amber-200">
-                          <pre className="whitespace-pre-wrap font-inter text-sm leading-relaxed text-gray-800">
-                            {intakePreparation}
-                          </pre>
+    // Always show the unified interface with the workflow selector at the top
+      return (
+        <React.Fragment>
+          <TwoPanelLayout
+            leftPanel={
+              <div className="h-full overflow-auto p-6 space-y-6">
+                {/* Unified Workflow Selector */}
+                <div className="bg-[#F8F8F5] border-2 border-[#A5E1C5]/30 rounded-lg p-6">
+                  <div className="mb-4">
+                    <h3 className="text-lg font-semibold text-[#004B3A] mb-2">
+                      Kies uw Werkwijze
+                    </h3>
+                    <p className="text-sm text-[#003728]">
+                      Voor {patientInfo.initials} ({patientInfo.birthYear}) - Selecteer de workflow die het beste past bij uw consultdoelen
+                    </p>
+                  </div>
+
+                  <div className="grid gap-3">
+                    {/* Hysio Intake (Volledig Automatisch) */}
+                    <div
+                      className={cn(
+                        "p-4 border-2 rounded-lg cursor-pointer transition-all",
+                        selectedWorkflow === 'intake'
+                          ? 'border-[#A5E1C5] bg-[#E6F5F3] shadow-md'
+                          : 'border-[#A5E1C5]/30 bg-white hover:border-[#A5E1C5]/60 hover:bg-[#F8F8F5]'
+                      )}
+                      onClick={() => setSelectedWorkflow('intake')}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className={cn(
+                            "w-6 h-6 rounded-full border-2 flex items-center justify-center",
+                            selectedWorkflow === 'intake'
+                              ? 'border-[#004B3A] bg-[#004B3A]'
+                              : 'border-[#A5E1C5]'
+                          )}>
+                            {selectedWorkflow === 'intake' && (
+                              <div className="w-2 h-2 bg-white rounded-full" />
+                            )}
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-[#004B3A]">Hysio Intake (Volledig Automatisch)</h4>
+                            <p className="text-xs text-[#003728] mt-1">Complete intake in één gestroomlijnde stap • 15-20 min</p>
+                          </div>
                         </div>
-                        <div className="flex justify-end">
-                          <Button
-                            onClick={() => navigator.clipboard.writeText(intakePreparation)}
-                            variant="outline"
-                            size="sm"
-                            className="gap-2 text-amber-700 border-amber-200 hover:bg-amber-50"
-                          >
-                            <Copy size={14} />
-                            Kopiëren
-                          </Button>
-                        </div>
+                        <span className="text-2xl">🚀</span>
                       </div>
-                    ) : (
-                      <div className="text-center py-8 space-y-4">
-                        <div className="flex gap-3 justify-center">
+                    </div>
+
+                    {/* Hysio Intake (Stapsgewijs) */}
+                    <div
+                      className={cn(
+                        "p-4 border-2 rounded-lg cursor-pointer transition-all",
+                        selectedWorkflow === 'intake-plus'
+                          ? 'border-[#A5E1C5] bg-[#E6F5F3] shadow-md'
+                          : 'border-[#A5E1C5]/30 bg-white hover:border-[#A5E1C5]/60 hover:bg-[#F8F8F5]'
+                      )}
+                      onClick={() => setSelectedWorkflow('intake-plus')}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className={cn(
+                            "w-6 h-6 rounded-full border-2 flex items-center justify-center",
+                            selectedWorkflow === 'intake-plus'
+                              ? 'border-[#004B3A] bg-[#004B3A]'
+                              : 'border-[#A5E1C5]'
+                          )}>
+                            {selectedWorkflow === 'intake-plus' && (
+                              <div className="w-2 h-2 bg-white rounded-full" />
+                            )}
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-[#004B3A]">Hysio Intake (Stapsgewijs)</h4>
+                            <p className="text-xs text-[#003728] mt-1">Uitgebreide drie-fase intake workflow • 45-60 min</p>
+                          </div>
+                        </div>
+                        <span className="text-2xl">👥</span>
+                      </div>
+                    </div>
+
+                    {/* Hysio Consult (Vervolgconsult) */}
+                    <div
+                      className={cn(
+                        "p-4 border-2 rounded-lg cursor-pointer transition-all",
+                        selectedWorkflow === 'consult'
+                          ? 'border-[#A5E1C5] bg-[#E6F5F3] shadow-md'
+                          : 'border-[#A5E1C5]/30 bg-white hover:border-[#A5E1C5]/60 hover:bg-[#F8F8F5]'
+                      )}
+                      onClick={() => setSelectedWorkflow('consult')}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className={cn(
+                            "w-6 h-6 rounded-full border-2 flex items-center justify-center",
+                            selectedWorkflow === 'consult'
+                              ? 'border-[#004B3A] bg-[#004B3A]'
+                              : 'border-[#A5E1C5]'
+                          )}>
+                            {selectedWorkflow === 'consult' && (
+                              <div className="w-2 h-2 bg-white rounded-full" />
+                            )}
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-[#004B3A]">Hysio Consult (Vervolgconsult)</h4>
+                            <p className="text-xs text-[#003728] mt-1">SOEP-methodiek voor vervolgconsulten • 20-30 min</p>
+                          </div>
+                        </div>
+                        <span className="text-2xl">🩺</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Dynamic Mode Description Based on Selection */}
+                {selectedWorkflow === 'intake' && (
+                  <div className="bg-[#A5E1C5]/20 border-2 border-[#A5E1C5]/40 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <CheckCircle size={20} className="text-[#10B981] mt-0.5" />
+                      <div>
+                        <h4 className="text-sm font-semibold text-[#004B3A] mb-2">
+                          Volledig Geautomatiseerde Workflow
+                        </h4>
+                        <ul className="text-xs text-[#003728] space-y-1 list-disc list-inside">
+                          <li>Voer complete intake in via één opname of tekstveld</li>
+                          <li>Klik één keer op "Verwerk Volledige Intake"</li>
+                          <li>Systeem genereert automatisch de Anamnesekaart, Onderzoeksbevindingen en Klinische Conclusie</li>
+                          <li>Resultaten worden direct getoond</li>
+                          <li>Export direct mogelijk na verwerking</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {selectedWorkflow === 'intake-plus' && (
+                  <div className="bg-[#A5E1C5]/20 border-2 border-[#A5E1C5]/40 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <Target size={20} className="text-[#10B981] mt-0.5" />
+                      <div>
+                        <h4 className="text-sm font-semibold text-[#004B3A] mb-2">
+                          Stapsgewijze Workflow
+                        </h4>
+                        <ul className="text-xs text-[#003728] space-y-1 list-disc list-inside">
+                          <li>Ideaal voor complexe casuïstiek en grondige documentatie</li>
+                          <li>Zorgt voor nauwkeuriger onderzoek door gefaseerde benadering</li>
+                          <li>Elke stap bouwt voort op de vorige voor optimale kwaliteit</li>
+                          <li>Volledige controle over het intake proces</li>
+                          <li>Professionele voorbereiding voor elk onderdeel</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {selectedWorkflow === 'consult' && (
+                  <div className="bg-[#A5E1C5]/20 border-2 border-[#A5E1C5]/40 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <Stethoscope size={20} className="text-[#10B981] mt-0.5" />
+                      <div>
+                        <h4 className="text-sm font-semibold text-[#004B3A] mb-2">
+                          SOEP Vervolgconsult
+                        </h4>
+                        <ul className="text-xs text-[#003728] space-y-1 list-disc list-inside">
+                          <li>Gestructureerde vervolgconsultatie volgens SOEP-methodiek</li>
+                          <li>Systematische evaluatie van behandelvoortgang</li>
+                          <li>Subjectief, Objectief, Evaluatie, Plan documentatie</li>
+                          <li>Efficiënte behandelaanpassingen en vervolgplanning</li>
+                          <li>Professionele rapportage voor vervolgbehandeling</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Dynamic Content Based on Selected Workflow */}
+
+                {/* Volledig Automatisch: Show Intake Voorbereiding */}
+                {selectedWorkflow === 'intake' && (
+                  <>
+                    <CollapsibleSection
+                      title="Intake Voorbereiding (Optioneel)"
+                      defaultOpen={false}
+                      className="border-2 border-[#A5E1C5]/30 bg-[#F8F8F5]"
+                    >
+                      {intakePreparation ? (
+                        <div className="space-y-4">
+                          <div className="bg-white p-4 rounded-lg border border-[#A5E1C5]/30">
+                            <pre className="whitespace-pre-wrap font-inter text-sm leading-relaxed text-[#003728]">
+                              {intakePreparation}
+                            </pre>
+                          </div>
+                          <div className="flex justify-end">
+                            <Button
+                              onClick={() => navigator.clipboard.writeText(intakePreparation)}
+                              variant="outline"
+                              size="sm"
+                              className="gap-2 text-[#004B3A] border-[#A5E1C5] hover:bg-[#A5E1C5]/10"
+                            >
+                              <Copy size={14} />
+                              Kopiëren
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-center py-6">
                           <Button
-                            onClick={handleGeneratePreparation}
+                            onClick={handleGenerateIntakePreparation}
                             disabled={isGeneratingPreparation}
-                            className="bg-hysio-mint hover:bg-hysio-mint/90"
+                            className="bg-[#A5E1C5] hover:bg-[#5BC49E] text-[#004B3A]"
                           >
                             {isGeneratingPreparation ? (
                               <>
-                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                                <div className="w-4 h-4 border-2 border-[#004B3A] border-t-transparent rounded-full animate-spin mr-2" />
                                 Voorbereiden...
                               </>
                             ) : (
                               <>
                                 <Lightbulb size={16} className="mr-2" />
-                                Genereer Voorbereiding
+                                Genereer Intake Voorbereiding
                               </>
                             )}
                           </Button>
-                          <Button
-                            onClick={() => {
-                              setIntakePreparation(''); // Set empty preparation to indicate skipped
-                              setAnamnesisState('preparation-generated'); // Move to next state
-                            }}
-                            variant="outline"
-                            disabled={isGeneratingPreparation}
-                            className="border-amber-200 text-amber-700 hover:bg-amber-50"
-                          >
-                            <ChevronRight size={16} className="mr-2" />
-                            Overslaan
-                          </Button>
                         </div>
-                      </div>
-                    )}
-                  </CollapsibleSection>
-                </div>
-              }
-              rightPanel={
-                <NewAnamnesisInputPanel
-                  onRecordingComplete={handleAnamnesisRecording}
-                  onManualNotesChange={setAnamnesisNotes}
-                  onProcessClick={handleProcessAnamnesis}
-                  processButtonLabel="Verwerk Anamnese"
-                  manualNotes={anamnesisNotes}
-                  disabled={disabled}
-                  isProcessing={isProcessingAnamnesis}
-                  recording={anamnesisRecording}
-                  showProcessButton={true}
-                  canProcess={!!anamnesisRecording || !!anamnesisNotes.trim()}
-                />
-              }
-            />
-            
-          </React.Fragment>
-        );
-        
-      case 'examination':
-        return (
-          <React.Fragment>
-            <TwoPanelLayout
-              leftPanel={
-                <div className="h-full overflow-auto p-6 space-y-6">
-                  {/* Onderzoeksbevindingen - Initially collapsed, expanded after processing */}
-                  <CollapsibleSection 
-                    title="Onderzoeksbevindingen"
-                    defaultOpen={examinationState === 'examination-processed'}
-                    className="border-2 border-hysio-mint/30"
-                  >
-                    {examinationState === 'examination-processed' && examinationFindings ? (
-                      <div className="space-y-4">
-                        <div className="bg-white p-4 rounded-lg border border-hysio-mint/20">
-                          <div className="flex justify-between items-start mb-3">
-                            <div className="flex items-center gap-2">
-                              <Stethoscope size={18} className="text-hysio-deep-green" />
-                              <h4 className="font-semibold text-hysio-deep-green">Bevindingen</h4>
-                            </div>
-                            <CopyToClipboard text={examinationFindings} size="sm" />
-                          </div>
-                          <pre className="whitespace-pre-wrap font-inter text-sm leading-relaxed text-gray-800">
-                            {examinationFindings}
-                          </pre>
-                        </div>
-                      </div>
-                    ) : (
+                      )}
+                    </CollapsibleSection>
+
+                    {/* Progress or Instructions for Volledig Automatisch */}
+                    {automationState === 'initial' && (
                       <div className="text-center py-8 text-gray-500">
-                        <Stethoscope size={48} className="mx-auto mb-4 opacity-50" />
-                        <p>Onderzoeksbevindingen worden hier getoond na verwerking</p>
+                        <FileText size={48} className="mx-auto mb-4 opacity-50" />
+                        <p>Voer uw intake gegevens in aan de rechterkant</p>
+                        <p className="text-xs mt-2">Alle resultaten verschijnen na verwerking</p>
                       </div>
                     )}
-                  </CollapsibleSection>
-                  
-                  {/* Onderzoeksvoorstel - Initially expanded, collapsed after processing */}
-                  <CollapsibleSection 
-                    title="Onderzoeksvoorstel"
-                    defaultOpen={examinationState !== 'examination-processed'}
-                    className="border-2 border-hysio-mint/30"
-                  >
-                    {examinationProposal ? (
-                      <div className="space-y-4">
-                        <div className="bg-white p-4 rounded-lg border border-hysio-mint/20">
-                          <div className="flex justify-between items-start mb-3">
-                            <div className="flex items-center gap-2">
-                              <Target size={18} className="text-hysio-deep-green" />
-                              <h4 className="font-semibold text-hysio-deep-green">Onderzoeksplan</h4>
-                            </div>
-                            <CopyToClipboard text={examinationProposal} size="sm" />
-                          </div>
-                          <pre className="whitespace-pre-wrap font-inter text-sm leading-relaxed text-gray-800">
-                            {examinationProposal}
-                          </pre>
+                  </>
+                )}
+
+                {/* Stapsgewijs: Show Traditional Multi-Step Interface */}
+                {selectedWorkflow === 'intake-plus' && (
+                  <>
+                    {/* Anamnesekaart - Initially collapsed, expanded after processing */}
+                    <CollapsibleSection
+                      title="Anamnesekaart"
+                      defaultOpen={anamnesisState === 'anamnesis-processed'}
+                      className="border-2 border-hysio-mint/30"
+                    >
+                      {anamnesisState === 'anamnesis-processed' && phsbResults ? (
+                        <PHSBResultsPanel
+                          phsbData={phsbResults}
+                          showSources={true}
+                          audioSource={!!anamnesisRecording}
+                          manualSource={!!anamnesisNotes.trim()}
+                          className="border-0 p-0"
+                        />
+                      ) : (
+                        <div className="text-center py-8 text-gray-500">
+                          <MessageSquare size={48} className="mx-auto mb-4 opacity-50" />
+                          <p>Anamnese resultaten verschijnen hier na verwerking</p>
+                          <p className="text-xs mt-2">Voer uw anamnese gegevens in aan de rechterkant</p>
                         </div>
-                        <div className="flex justify-end">
-                          <Button
-                            onClick={handleGenerateExaminationProposal}
-                            disabled={isGeneratingProposal}
-                            variant="outline"
-                            size="sm"
-                            className="gap-2"
-                          >
-                            <RotateCcw size={14} />
-                            Vernieuwen
-                          </Button>
+                      )}
+                    </CollapsibleSection>
+
+                    {/* Onderzoeksbevindingen */}
+                    <CollapsibleSection
+                      title="Onderzoeksbevindingen"
+                      defaultOpen={examinationState === 'examination-processed'}
+                      className="border-2 border-hysio-mint/30"
+                    >
+                      {examinationState === 'examination-processed' && examinationFindings ? (
+                        <ExaminationResultsPanel
+                          examinationData={examinationFindings}
+                          showSources={true}
+                          audioSource={!!examinationRecording}
+                          manualSource={!!examinationNotes.trim()}
+                          className="border-0 p-0"
+                        />
+                      ) : (
+                        <div className="text-center py-8 text-gray-500">
+                          <Stethoscope size={48} className="mx-auto mb-4 opacity-50" />
+                          <p>Onderzoeksbevindingen verschijnen hier na verwerking</p>
+                          <p className="text-xs mt-2">Beschikbaar na voltooiing van de anamnese fase</p>
                         </div>
-                      </div>
-                    ) : (
-                      <div className="text-center py-8">
-                        <Button
-                          onClick={handleGenerateExaminationProposal}
-                          disabled={isGeneratingProposal}
-                          className="bg-hysio-mint hover:bg-hysio-mint/90"
-                        >
-                          {isGeneratingProposal ? (
-                            <>
-                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                              Genereren...
-                            </>
-                          ) : (
-                            <>
-                              <Target size={16} className="mr-2" />
-                              Genereer Onderzoeksvoorstel
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    )}
-                  </CollapsibleSection>
-                </div>
-              }
-              rightPanel={
-                <InputPanel
-                  phase="examination"
-                  onRecordingComplete={handleExaminationRecording}
-                  onManualNotesChange={setExaminationNotes}
-                  onProcessClick={handleProcessExamination}
-                  processButtonLabel="Verwerk Onderzoek"
-                  manualNotes={examinationNotes}
-                  disabled={disabled}
-                  isProcessing={isProcessingExamination}
-                  recording={examinationRecording}
-                  showProcessButton={true}
-                  hasProcessed={examinationState === 'examination-processed'}
-                />
-              }
-            />
-            
-          </React.Fragment>
-        );
-        
-      case 'clinical-conclusion':
-        // If no clinical conclusion generated yet, show the generation button
-        if (!clinicalConclusion) {
-          return (
-            <div className="w-full max-w-4xl mx-auto p-6">
-              <div className="text-center py-12">
-                <div className="w-20 h-20 bg-hysio-mint/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <CheckCircle size={40} className="text-hysio-deep-green" />
-                </div>
-                <h2 className="text-2xl font-bold text-hysio-deep-green mb-4">
-                  Fase 3: Klinische Conclusie
-                </h2>
-                <p className="text-hysio-deep-green-900/70 mb-8 max-w-md mx-auto">
-                  Genereer de definitieve klinische conclusie op basis van de anamnese en onderzoeksbevindingen.
-                </p>
-                <Button
-                  onClick={generateClinicalConclusion}
-                  disabled={isGeneratingConclusion || disabled}
-                  size="lg"
-                  className="bg-hysio-deep-green hover:bg-hysio-deep-green/90 px-12 py-4 text-lg"
-                >
-                  {isGeneratingConclusion ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-3" />
-                      Klinische Conclusie Genereren...
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle size={24} className="mr-3" />
-                      Genereer Klinische Conclusie
-                    </>
-                  )}
-                </Button>
+                      )}
+                    </CollapsibleSection>
+
+                    {/* Klinische Conclusie */}
+                    <CollapsibleSection
+                      title="Klinische Conclusie"
+                      defaultOpen={currentPhase === 'clinical-conclusion'}
+                      className="border-2 border-hysio-mint/30"
+                    >
+                      {clinicalConclusion ? (
+                        <ClinicalConclusionView
+                          conclusionData={clinicalConclusion}
+                          patientInfo={patientInfo}
+                          showSources={true}
+                          className="border-0 p-0"
+                        />
+                      ) : (
+                        <div className="text-center py-8 text-gray-500">
+                          <FileText size={48} className="mx-auto mb-4 opacity-50" />
+                          <p>Klinische conclusie verschijnt hier na verwerking</p>
+                          <p className="text-xs mt-2">Beschikbaar na voltooiing van onderzoek en evaluatie</p>
+                        </div>
+                      )}
+                    </CollapsibleSection>
+                  </>
+                )}
+
+                {/* Vervolgconsult: Show SOEP Interface */}
+                {selectedWorkflow === 'consult' && (
+                  <div className="text-center py-8 text-[#004B3A]">
+                    <Stethoscope size={48} className="mx-auto mb-4 opacity-70" />
+                    <h3 className="text-lg font-semibold mb-2">SOEP Vervolgconsult</h3>
+                    <p className="text-sm opacity-80">Voer uw vervolgconsult gegevens in aan de rechterkant</p>
+                    <p className="text-xs mt-2 opacity-60">Systematische documentatie volgens SOEP-methodiek</p>
+                  </div>
+                )}
               </div>
-            </div>
-          );
-        }
+            }
+            rightPanel={
+              <>
+                {/* Dynamic Right Panel Based on Selected Workflow */}
 
-        // If clinical conclusion is generated, show the full view
-        const intakeData: IntakeData = {
-          patientInfo,
-          preparation: intakePreparation,
-          anamnesisRecording,
-          anamnesisTranscript: '',
-          phsbStructure: phsbResults,
-          examinationPlan: examinationProposal,
-          examinationRecording,
-          examinationFindings,
-          clinicalConclusion,
-          diagnosis: '',
-          treatmentPlan: '',
-          redFlags: phsbResults?.redFlags || [],
-          recommendations: '',
-          followUpPlan: '',
-          notes: '',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-        
-        return (
-          <ClinicalConclusionView
-            intakeData={intakeData}
-            patientInfo={patientInfo}
-            onExportPDF={handleExportPDF}
-            onExportWord={handleExportWord}
-            isExporting={isExporting}
-            disabled={disabled}
+                {/* Volledig Automatisch: Full Intake Input Panel */}
+                {selectedWorkflow === 'intake' && (
+                  <FullIntakeInputPanel
+                    onRecordingComplete={handleFullIntakeRecording}
+                    onManualNotesChange={setFullIntakeInput}
+                    onProcessClick={handleFullIntakeProcessing}
+                    manualNotes={fullIntakeInput}
+                    disabled={disabled}
+                    isProcessing={automationState === 'processing'}
+                    recording={fullIntakeRecording}
+                    canProcess={!!fullIntakeRecording || !!fullIntakeInput.trim()}
+                    automationProgress={automationProgress}
+                  />
+                )}
+
+                {/* Stapsgewijs: Phase-specific Input Panel */}
+                {selectedWorkflow === 'intake-plus' && (
+                  <>
+                    {currentPhase === 'anamnesis' && (
+                      <InputPanel
+                        title="Anamnese"
+                        icon={MessageSquare}
+                        onRecordingComplete={handleAnamnesisRecording}
+                        onManualNotesChange={setAnamnesisNotes}
+                        onProcessClick={handleAnamnesisProcessing}
+                        manualNotes={anamnesisNotes}
+                        disabled={disabled}
+                        isProcessing={anamnesisState === 'processing'}
+                        recording={anamnesisRecording}
+                        canProcess={!!anamnesisRecording || !!anamnesisNotes.trim()}
+                        patientInfo={patientInfo}
+                        showPreparation={true}
+                        preparationData={intakePreparation}
+                        onPreparationGenerate={handleGenerateIntakePreparation}
+                        isGeneratingPreparation={isGeneratingPreparation}
+                      />
+                    )}
+
+                    {currentPhase === 'examination' && (
+                      <InputPanel
+                        title="Lichamelijk Onderzoek"
+                        icon={Stethoscope}
+                        onRecordingComplete={handleExaminationRecording}
+                        onManualNotesChange={setExaminationNotes}
+                        onProcessClick={handleExaminationProcessing}
+                        manualNotes={examinationNotes}
+                        disabled={disabled}
+                        isProcessing={examinationState === 'processing'}
+                        recording={examinationRecording}
+                        canProcess={!!examinationRecording || !!examinationNotes.trim()}
+                        patientInfo={patientInfo}
+                        phaseContext="examination"
+                      />
+                    )}
+
+                    {currentPhase === 'clinical-conclusion' && (
+                      <InputPanel
+                        title="Klinische Conclusie"
+                        icon={FileText}
+                        onRecordingComplete={handleClinicalConclusionRecording}
+                        onManualNotesChange={setClinicalConclusionNotes}
+                        onProcessClick={handleClinicalConclusionProcessing}
+                        manualNotes={clinicalConclusionNotes}
+                        disabled={disabled}
+                        isProcessing={clinicalState === 'processing'}
+                        recording={clinicalConclusionRecording}
+                        canProcess={!!clinicalConclusionRecording || !!clinicalConclusionNotes.trim()}
+                        patientInfo={patientInfo}
+                        phaseContext="clinical-conclusion"
+                      />
+                    )}
+                  </>
+                )}
+
+                {/* Vervolgconsult: SOEP Input Panel */}
+                {selectedWorkflow === 'consult' && (
+                  <InputPanel
+                    title="SOEP Vervolgconsult"
+                    icon={Stethoscope}
+                    onRecordingComplete={handleSOEPRecording}
+                    onManualNotesChange={setSOEPNotes}
+                    onProcessClick={handleSOEPProcessing}
+                    manualNotes={soepNotes}
+                    disabled={disabled}
+                    isProcessing={soepState === 'processing'}
+                    recording={soepRecording}
+                    canProcess={!!soepRecording || !!soepNotes.trim()}
+                    patientInfo={patientInfo}
+                    phaseContext="soep"
+                    showSOEPGuidance={true}
+                  />
+                )}
+              </>
+            }
           />
-        );
-        
-      default:
-        return null;
-    }
+        </React.Fragment>
+      );
   };
-  
-  // Calculate navigation state
-  const canNavigateToExamination = anamnesisState === 'anamnesis-processed' && currentPhase === 'anamnesis';
-  const canNavigateToConclusion = examinationState === 'examination-processed' && currentPhase === 'examination';
-  const showBottomNavigation = canNavigateToExamination || canNavigateToConclusion;
 
-  // DEBUG: Comprehensive navigation state logging
-  React.useEffect(() => {
-    console.log('[HYSIO NAVIGATION DEBUG] Current navigation state:', {
-      currentPhase,
-      anamnesisState,
-      examinationState,
-      canNavigateToExamination,
-      canNavigateToConclusion,
-      showBottomNavigation,
-      completedPhases,
-      timestamp: new Date().toISOString()
-    });
-  }, [currentPhase, anamnesisState, examinationState, canNavigateToExamination, canNavigateToConclusion, showBottomNavigation, completedPhases]);
-
+  // Render the unified interface with workflow selector and dynamic content
   return (
-    <div className={cn('w-full min-h-screen', className)}>
-      {/* Global Stepper Navigation - Always visible */}
-      <div className="bg-white border-b border-hysio-mint/20 p-6 mb-6">
-        <div className="w-full px-6">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-2xl font-semibold text-hysio-deep-green">
-                Intake Workflow
-              </h1>
-              <p className="text-sm text-hysio-deep-green-900/70">
-                {patientInfo.initials} ({patientInfo.birthYear}) - {patientInfo.chiefComplaint}
-              </p>
+    <div className="min-h-screen bg-[#F8F8F5]">
+      {/* Header with Back Button */}
+      <div className="bg-white border-b border-[#A5E1C5]/20 p-4 mb-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                onClick={onBack}
+                className="text-[#004B3A] hover:bg-[#A5E1C5]/10"
+              >
+                ← Terug naar patiënt info
+              </Button>
             </div>
-            <Button
-              variant="ghost"
-              onClick={onBack}
-              disabled={disabled}
-            >
-              Terug naar patiënt info
-            </Button>
-          </div>
-          
-          {/* Workflow Stepper */}
-          <WorkflowStepper
-            currentPhase={currentPhase}
-            completedPhases={completedPhases}
-            onPhaseClick={handleStepperNavigation}
-            disabled={disabled}
-          />
-        </div>
-      </div>
-      
-      {/* Main content with bottom padding for navigation */}
-      <div className={cn('pb-32', { 'pb-8': !showBottomNavigation })}>
-        {renderPhaseContent()}
-      </div>
-      
-      {/* UNIVERSAL BOTTOM NAVIGATION - Always positioned, conditionally visible */}
-      {showBottomNavigation ? (
-        <div 
-          className="fixed bottom-0 left-0 right-0 bg-white border-t border-hysio-mint/20 shadow-2xl z-[9999]"
-          style={{ 
-            position: 'fixed',
-            zIndex: 9999,
-            bottom: 0,
-            left: 0,
-            right: 0,
-            boxShadow: '0 -10px 25px -3px rgba(0, 0, 0, 0.1), 0 -4px 6px -2px rgba(0, 0, 0, 0.05)'
-          }}
-        >
-          <div className="max-w-6xl mx-auto p-6">
-            {canNavigateToExamination && (
-              <>
-                <Button
-                  onClick={() => {
-                    console.log('[HYSIO DEBUG] Navigation button clicked - Examination');
-                    handleNavigateToExamination();
-                  }}
-                  disabled={disabled}
-                  size="lg"
-                  className="w-full bg-hysio-deep-green hover:bg-hysio-deep-green/90 text-white py-4 text-xl font-semibold mb-3"
-                >
-                  <Stethoscope size={24} className="mr-3" />
-                  Ga naar Onderzoek
-                  <ChevronRight size={24} className="ml-3" />
-                </Button>
-                <p className="text-center text-sm text-hysio-deep-green-900/60">
-                  ✅ Anamnese voltooid - Ga door naar de onderzoeksfase
-                </p>
-              </>
-            )}
-            
-            {canNavigateToConclusion && (
-              <>
-                <Button
-                  onClick={() => {
-                    console.log('[HYSIO DEBUG] Navigation button clicked - Conclusion');
-                    handleNavigateToClinicalConclusion();
-                  }}
-                  disabled={disabled}
-                  size="lg"
-                  className="w-full bg-hysio-deep-green hover:bg-hysio-deep-green/90 text-white py-4 text-xl font-semibold mb-3"
-                >
-                  <CheckCircle size={24} className="mr-3" />
-                  Ga naar Klinische Conclusie
-                  <ChevronRight size={24} className="ml-3" />
-                </Button>
-                <p className="text-center text-sm text-hysio-deep-green-900/60">
-                  ✅ Onderzoek voltooid - Ga door naar de conclusiefase
-                </p>
-              </>
+
+            {/* Workflow Stepper - Only visible in stapsgewijs mode */}
+            {selectedWorkflow === 'intake-plus' && (
+              <WorkflowStepper
+                currentPhase={currentPhase}
+                completedPhases={completedPhases}
+                onPhaseClick={handleStepperNavigation}
+                disabled={disabled}
+              />
             )}
           </div>
         </div>
-      ) : (
-        /* DEBUG: Show why navigation is not visible */
-        process.env.NODE_ENV === 'development' && (anamnesisState === 'anamnesis-processed' || examinationState === 'examination-processed') && (
-          <div 
-            className="fixed bottom-4 right-4 bg-red-500 text-white p-3 rounded-lg shadow-lg z-[9999] max-w-sm"
-            style={{ fontSize: '12px' }}
-          >
-            <div className="font-bold mb-1">🔍 DEBUG: Navigation Hidden</div>
-            <div>Phase: {currentPhase}</div>
-            <div>Anamnesis: {anamnesisState}</div>
-            <div>Examination: {examinationState}</div>
-            <div>Can Navigate: {canNavigateToExamination ? 'Exam ✓' : ''} {canNavigateToConclusion ? 'Conclusion ✓' : ''}</div>
-          </div>
-        )
-      )}
+      </div>
+
+      {/* Main Content */}
+      {renderPhaseContent()}
     </div>
   );
 };

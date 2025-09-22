@@ -1,9 +1,8 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
-import { formatDuration } from '@/lib/utils';
 import { Conversation } from '@/lib/types/assistant';
 import { Button } from '@/components/ui/button';
-import { Plus, MessageCircle, Trash2, MoreVertical } from 'lucide-react';
+import { Plus, MessageCircle, Trash2 } from 'lucide-react';
 
 export interface ConversationSidebarProps {
   conversations: Conversation[];
@@ -62,26 +61,26 @@ const ConversationSidebar: React.FC<ConversationSidebarProps> = ({
 
   return (
     <div className={cn(
-      'flex flex-col h-full bg-white border-r border-hysio-mint/20',
+      'flex flex-col h-full bg-gradient-to-b from-white to-hysio-mint/5 border-r border-hysio-mint/30 shadow-xl',
       className
     )}>
       {/* Header */}
-      <div className="p-4 border-b border-hysio-mint/20">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-8 h-8 bg-sky-500 rounded-full flex items-center justify-center">
-            <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center">
-              <span className="text-sky-500 font-bold text-xs">H</span>
+      <div className="p-6 border-b border-hysio-mint/30 bg-white/80 backdrop-blur-sm">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 bg-gradient-to-br from-hysio-mint to-hysio-mint-dark rounded-xl flex items-center justify-center shadow-lg">
+            <div className="w-5 h-5 bg-white rounded-lg flex items-center justify-center shadow-inner">
+              <span className="text-hysio-deep-green font-bold text-sm">H</span>
             </div>
           </div>
-          <h1 className="font-semibold text-hysio-deep-green">Assistant</h1>
+          <h1 className="font-bold text-hysio-deep-green text-lg tracking-tight">Assistant</h1>
         </div>
         
         <Button
           onClick={onNewConversation}
           disabled={isLoading}
-          className="w-full gap-2 bg-sky-500 hover:bg-sky-600"
+          className="w-full gap-3 bg-gradient-to-r from-hysio-mint-dark to-hysio-emerald hover:from-hysio-emerald hover:to-hysio-mint-dark shadow-lg hover:shadow-xl transition-all duration-200 text-white font-semibold py-3 rounded-xl"
         >
-          <Plus size={16} />
+          <Plus size={18} />
           Nieuw gesprek
         </Button>
       </div>
@@ -89,12 +88,15 @@ const ConversationSidebar: React.FC<ConversationSidebarProps> = ({
       {/* Conversations List */}
       <div className="flex-1 overflow-y-auto">
         {conversations.length === 0 ? (
-          <div className="p-4 text-center text-hysio-deep-green-900/50">
-            <MessageCircle size={32} className="mx-auto mb-2 opacity-50" />
-            <p className="text-sm">Nog geen gesprekken</p>
+          <div className="p-6 text-center text-hysio-deep-green-900/60">
+            <div className="w-16 h-16 bg-hysio-mint/20 rounded-2xl mx-auto mb-4 flex items-center justify-center">
+              <MessageCircle size={32} className="text-hysio-mint-dark" />
+            </div>
+            <p className="text-sm font-medium">Nog geen gesprekken</p>
+            <p className="text-xs text-hysio-deep-green-900/50 mt-1">Start je eerste gesprek hierboven</p>
           </div>
         ) : (
-          <div className="space-y-1 p-2">
+          <div className="space-y-2 p-3">
             {conversations.map((conversation) => {
               const isActive = currentConversation?.id === conversation.id;
               const isDeleting = deletingId === conversation.id;
@@ -103,13 +105,13 @@ const ConversationSidebar: React.FC<ConversationSidebarProps> = ({
                 <div
                   key={conversation.id}
                   className={cn(
-                    'group relative rounded-lg cursor-pointer transition-colors',
-                    'hover:bg-hysio-mint/10',
-                    isActive && 'bg-hysio-mint/20'
+                    'group relative rounded-xl cursor-pointer transition-all duration-200',
+                    'hover:bg-hysio-mint/15 hover:shadow-md hover:scale-[1.02]',
+                    isActive && 'bg-gradient-to-r from-hysio-mint/25 to-hysio-mint/15 shadow-md border border-hysio-mint/40'
                   )}
                   onClick={() => !isDeleting && onSelectConversation(conversation)}
                 >
-                  <div className="p-3">
+                  <div className="p-4">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
                         <h3 className={cn(
@@ -139,8 +141,8 @@ const ConversationSidebar: React.FC<ConversationSidebarProps> = ({
                         onClick={(e) => handleDelete(conversation.id, e)}
                         disabled={isDeleting}
                         className={cn(
-                          'w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity',
-                          'hover:bg-red-100 hover:text-red-600',
+                          'w-7 h-7 opacity-0 group-hover:opacity-100 transition-all duration-200 rounded-lg',
+                          'hover:bg-red-100 hover:text-red-600 hover:scale-110',
                           isDeleting && 'opacity-100'
                         )}
                       >
@@ -171,12 +173,12 @@ const ConversationSidebar: React.FC<ConversationSidebarProps> = ({
       </div>
 
       {/* Footer */}
-      <div className="p-4 border-t border-hysio-mint/20">
-        <p className="text-xs text-hysio-deep-green-900/50 text-center">
-          Hysio Assistant v1.0
+      <div className="p-4 border-t border-hysio-mint/30 bg-gradient-to-r from-hysio-mint/5 to-hysio-mint/10">
+        <p className="text-xs text-hysio-deep-green-900/60 text-center font-medium">
+          Hysio Assistant v2.0
         </p>
-        <p className="text-xs text-hysio-deep-green-900/50 text-center mt-1">
-          <strong>Altijd nazien door een bevoegd fysiotherapeut</strong>
+        <p className="text-xs text-hysio-deep-green-900/70 text-center mt-2 bg-hysio-mint/10 px-3 py-2 rounded-lg">
+          <strong>⚠️ Altijd nazien door een bevoegd fysiotherapeut</strong>
         </p>
       </div>
     </div>

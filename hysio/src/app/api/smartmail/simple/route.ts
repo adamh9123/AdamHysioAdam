@@ -87,8 +87,8 @@ ${userInstruction}`;
         body: JSON.stringify({
           model: HYSIO_LLM_MODEL,
           messages: [{ role: 'user', content: finalPrompt }],
-          max_tokens: 800, // Increased for document context
-          temperature: 1.0, // GPT-5-mini only supports temperature = 1
+          max_tokens: 1500, // Sufficient tokens for email generation
+          temperature: 0.6, // Lower temperature for consistent formal email style
         }),
       });
 

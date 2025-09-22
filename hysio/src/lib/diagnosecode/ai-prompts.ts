@@ -5,8 +5,8 @@ import { HYSIO_LLM_MODEL } from '@/lib/api/openai';
 export interface AIPromptConfig {
   systemPrompt: string;
   temperature: number;
-  max_tokens: number;
-  /** @deprecated Gebruik max_tokens. Alleen voor terugwaartse compatibiliteit. */
+  max_tokens: number; // Maximum tokens for GPT-4.1-mini
+  /** @deprecated Use max_tokens. Supported for backwards compatibility. */
   maxTokens?: number;
   model: string;
 }
@@ -97,8 +97,8 @@ export const COMMON_SYMPTOM_PATTERNS = {
 
 export const AI_MODEL_CONFIG: AIPromptConfig = {
   systemPrompt: DCSPH_SYSTEM_PROMPT,
-  temperature: 1.0, // GPT-5-mini only supports temperature = 1
-  max_tokens: 1000,
+  temperature: 0.7, // Lower temperature for precise diagnostic coding
+  max_tokens: 1000, // Sufficient for structured JSON responses
   model: HYSIO_LLM_MODEL
 };
 

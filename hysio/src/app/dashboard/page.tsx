@@ -280,7 +280,7 @@ export default function DashboardPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 <Link href="/scribe">
                   <Button variant="outline" className="w-full h-20 flex-col gap-2 hover:bg-hysio-mint/10 border-hysio-mint/30">
                     <FileText size={20} className="text-hysio-deep-green" />
@@ -306,6 +306,13 @@ export default function DashboardPage() {
                   <Button variant="outline" className="w-full h-20 flex-col gap-2 hover:bg-emerald-50 border-emerald-200">
                     <Brain size={20} className="text-emerald-600" />
                     <span className="text-sm font-medium">Diagnose Code</span>
+                  </Button>
+                </Link>
+
+                <Link href="/edupack">
+                  <Button variant="outline" className="w-full h-20 flex-col gap-2 hover:bg-orange-50 border-orange-200">
+                    <Target size={20} className="text-orange-600" />
+                    <span className="text-sm font-medium">EduPack</span>
                   </Button>
                 </Link>
               </div>
