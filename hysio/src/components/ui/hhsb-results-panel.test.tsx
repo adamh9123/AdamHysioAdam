@@ -1,12 +1,12 @@
 /**
- * Tests for enhanced PHSB Results Panel
+ * Tests for enhanced HHSB Results Panel
  */
 
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { PHSBResultsPanel } from './phsb-results-panel';
-import { PHSBStructure } from '@/lib/types';
+import { HHSBResultsPanel } from './hhsb-results-panel';
+import { HHSBStructure } from '@/lib/types';
 
 // Mock clipboard API
 Object.assign(navigator, {
@@ -15,17 +15,17 @@ Object.assign(navigator, {
   },
 });
 
-describe('Enhanced PHSB Results Panel', () => {
-  const mockPHSBData: PHSBStructure = {
-    personalFactors: 'Leeftijd: 45 jaar, geslacht: vrouw, beroep: verpleegkundige\nSport: hardlopen 3x per week',
-    healthCondition: 'Hoofdklacht: lage rugpijn sinds 2 weken\nVoorgeschiedenis: geen eerdere rugklachten',
-    bodyStructure: 'Spierspanning verhoogd in lumbale regio\nBeperkte flexie L4-L5 segment',
-    bodyFunction: 'Pijnvrije ADL beperkt\nWerkgerelateerde activiteiten aangepast',
-    fullStructuredText: 'Volledige PHSB structuur voor test doeleinden',
+describe('Enhanced HHSB Results Panel', () => {
+  const mockHHSBData: HHSBStructure = {
+    hulpvraag: 'Leeftijd: 45 jaar, geslacht: vrouw, beroep: verpleegkundige\nSport: hardlopen 3x per week',
+    historie: 'Hoofdklacht: lage rugpijn sinds 2 weken\nVoorgeschiedenis: geen eerdere rugklachten',
+    stoornissen: 'Spierspanning verhoogd in lumbale regio\nBeperkte flexie L4-L5 segment',
+    beperkingen: 'Pijnvrije ADL beperkt\nWerkgerelateerde activiteiten aangepast',
+    fullStructuredText: 'Volledige HHSB structuur voor test doeleinden',
   };
 
   const defaultProps = {
-    phsbData: mockPHSBData,
+    hhsbData: mockHHSBData,
     onNavigateNext: jest.fn(),
     nextButtonLabel: 'Ga naar Onderzoek',
   };
@@ -36,14 +36,14 @@ describe('Enhanced PHSB Results Panel', () => {
 
   describe('Enhanced Header and Layout', () => {
     it('should render enhanced header with proper title and description', () => {
-      render(<PHSBResultsPanel {...defaultProps} />);
+      render(<HHSBResultsPanel {...defaultProps} />);
 
-      expect(screen.getByText('PHSB Anamnesekaart')).toBeInTheDocument();
-      expect(screen.getByText(/Gestructureerde anamnese volgens PHSB-model/)).toBeInTheDocument();
+      expect(screen.getByText('HHSB Anamnesekaart')).toBeInTheDocument();
+      expect(screen.getByText(/Gestructureerde anamnese volgens HHSB-model/)).toBeInTheDocument();
     });
 
     it('should display action buttons in header', () => {
-      render(<PHSBResultsPanel {...defaultProps} />);
+      render(<HHSBResultsPanel {...defaultProps} />);
 
       expect(screen.getByText('Compact weergave')).toBeInTheDocument();
       expect(screen.getByText('Kopiëer Volledig')).toBeInTheDocument();
@@ -51,7 +51,7 @@ describe('Enhanced PHSB Results Panel', () => {
 
     it('should show sources when configured', () => {
       render(
-        <PHSBResultsPanel
+        <HHSBResultsPanel
           {...defaultProps}
           showSources={true}
           audioSource={true}
@@ -67,7 +67,7 @@ describe('Enhanced PHSB Results Panel', () => {
   describe('View Toggle Functionality', () => {
     it('should toggle between compact and full view', async () => {
       const user = userEvent.setup();
-      render(<PHSBResultsPanel {...defaultProps} />);
+      render(<HHSBResultsPanel {...defaultProps} />);
 
       // Initially in compact view
       expect(screen.getByText('Volledige weergave')).toBeInTheDocument();
@@ -76,22 +76,22 @@ describe('Enhanced PHSB Results Panel', () => {
       await user.click(screen.getByText('Volledige weergave'));
 
       expect(screen.getByText('Compact weergave')).toBeInTheDocument();
-      expect(screen.getByText('Volledige PHSB Structuur')).toBeInTheDocument();
+      expect(screen.getByText('Volledige HHSB Structuur')).toBeInTheDocument();
     });
 
     it('should display full structured text in full view mode', async () => {
       const user = userEvent.setup();
-      render(<PHSBResultsPanel {...defaultProps} />);
+      render(<HHSBResultsPanel {...defaultProps} />);
 
       await user.click(screen.getByText('Volledige weergave'));
 
-      expect(screen.getByText(mockPHSBData.fullStructuredText)).toBeInTheDocument();
+      expect(screen.getByText(mockHHSBData.fullStructuredText)).toBeInTheDocument();
     });
   });
 
   describe('Collapsible Sections', () => {
-    it('should render all PHSB sections with proper titles', () => {
-      render(<PHSBResultsPanel {...defaultProps} />);
+    it('should render all HHSB sections with proper titles', () => {
+      render(<HHSBResultsPanel {...defaultProps} />);
 
       expect(screen.getByText('Persoons Factoren (P)')).toBeInTheDocument();
       expect(screen.getByText('Gezondheidsconditie (H)')).toBeInTheDocument();
@@ -100,7 +100,7 @@ describe('Enhanced PHSB Results Panel', () => {
     });
 
     it('should display section descriptions', () => {
-      render(<PHSBResultsPanel {...defaultProps} />);
+      render(<HHSBResultsPanel {...defaultProps} />);
 
       expect(screen.getByText('Demografische gegevens, levensstijl en persoonlijke factoren')).toBeInTheDocument();
       expect(screen.getByText('Medische diagnose, comorbiditeiten en gezondheidsstatus')).toBeInTheDocument();
@@ -109,7 +109,7 @@ describe('Enhanced PHSB Results Panel', () => {
     });
 
     it('should display section content by default', () => {
-      render(<PHSBResultsPanel {...defaultProps} />);
+      render(<HHSBResultsPanel {...defaultProps} />);
 
       expect(screen.getByText(/Leeftijd: 45 jaar/)).toBeInTheDocument();
       expect(screen.getByText(/Hoofdklacht: lage rugpijn/)).toBeInTheDocument();
@@ -119,7 +119,7 @@ describe('Enhanced PHSB Results Panel', () => {
 
     it('should toggle section collapse/expand', async () => {
       const user = userEvent.setup();
-      render(<PHSBResultsPanel {...defaultProps} />);
+      render(<HHSBResultsPanel {...defaultProps} />);
 
       // Find and click collapse button for Personal Factors section
       const personalFactorsSection = screen.getByText('Persoons Factoren (P)').closest('div');
@@ -137,31 +137,31 @@ describe('Enhanced PHSB Results Panel', () => {
 
     it('should handle missing section content gracefully', () => {
       const incompleteData = {
-        ...mockPHSBData,
+        ...mockHHSBData,
         personalFactors: '',
         healthCondition: undefined as any,
       };
 
-      render(<PHSBResultsPanel {...defaultProps} phsbData={incompleteData} />);
+      render(<HHSBResultsPanel {...defaultProps} phsbData={incompleteData} />);
 
       expect(screen.getByText(/Geen informatie beschikbaar.*persoons factoren/i)).toBeInTheDocument();
     });
   });
 
   describe('Copy to Clipboard Functionality', () => {
-    it('should copy full PHSB when copy button is clicked', async () => {
+    it('should copy full HHSB when copy button is clicked', async () => {
       const user = userEvent.setup();
-      render(<PHSBResultsPanel {...defaultProps} />);
+      render(<HHSBResultsPanel {...defaultProps} />);
 
       const copyButton = screen.getByText('Kopiëer Volledig');
       await user.click(copyButton);
 
-      expect(navigator.clipboard.writeText).toHaveBeenCalledWith(mockPHSBData.fullStructuredText);
+      expect(navigator.clipboard.writeText).toHaveBeenCalledWith(mockHHSBData.fullStructuredText);
     });
 
     it('should copy section content when section copy button is clicked', async () => {
       const user = userEvent.setup();
-      render(<PHSBResultsPanel {...defaultProps} />);
+      render(<HHSBResultsPanel {...defaultProps} />);
 
       // Find copy button for Personal Factors section
       const personalFactorsSection = screen.getByText('Persoons Factoren (P)').closest('div');
@@ -169,7 +169,7 @@ describe('Enhanced PHSB Results Panel', () => {
       
       if (copyButton) {
         await user.click(copyButton);
-        expect(navigator.clipboard.writeText).toHaveBeenCalledWith(mockPHSBData.personalFactors);
+        expect(navigator.clipboard.writeText).toHaveBeenCalledWith(mockHHSBData.personalFactors);
       }
     });
 
@@ -178,7 +178,7 @@ describe('Enhanced PHSB Results Panel', () => {
       (navigator.clipboard.writeText as jest.Mock).mockRejectedValue(new Error('Clipboard error'));
 
       const user = userEvent.setup();
-      render(<PHSBResultsPanel {...defaultProps} />);
+      render(<HHSBResultsPanel {...defaultProps} />);
 
       const copyButton = screen.getByText('Kopiëer Volledig');
       await user.click(copyButton);
@@ -195,7 +195,7 @@ describe('Enhanced PHSB Results Panel', () => {
   describe('Preparation Reference Section', () => {
     it('should display preparation section when content is provided', () => {
       render(
-        <PHSBResultsPanel
+        <HHSBResultsPanel
           {...defaultProps}
           preparationContent="Test voorbereiding content"
         />
@@ -206,7 +206,7 @@ describe('Enhanced PHSB Results Panel', () => {
     });
 
     it('should not display preparation section when no content', () => {
-      render(<PHSBResultsPanel {...defaultProps} />);
+      render(<HHSBResultsPanel {...defaultProps} />);
 
       expect(screen.queryByText('Intake Voorbereiding (Referentie)')).not.toBeInTheDocument();
     });
@@ -214,7 +214,7 @@ describe('Enhanced PHSB Results Panel', () => {
     it('should make preparation section collapsible', async () => {
       const user = userEvent.setup();
       render(
-        <PHSBResultsPanel
+        <HHSBResultsPanel
           {...defaultProps}
           preparationContent="Test voorbereiding content"
         />
@@ -236,16 +236,16 @@ describe('Enhanced PHSB Results Panel', () => {
 
   describe('Enhanced Navigation', () => {
     it('should display enhanced navigation section', () => {
-      render(<PHSBResultsPanel {...defaultProps} />);
+      render(<HHSBResultsPanel {...defaultProps} />);
 
       expect(screen.getByText('Volgende Stap')).toBeInTheDocument();
-      expect(screen.getByText('PHSB anamnese voltooid. Ga door naar de onderzoeksfase.')).toBeInTheDocument();
+      expect(screen.getByText('HHSB anamnese voltooid. Ga door naar de onderzoeksfase.')).toBeInTheDocument();
       expect(screen.getByText('Ga naar Onderzoek')).toBeInTheDocument();
     });
 
     it('should call onNavigateNext when navigation button is clicked', async () => {
       const user = userEvent.setup();
-      render(<PHSBResultsPanel {...defaultProps} />);
+      render(<HHSBResultsPanel {...defaultProps} />);
 
       const navButton = screen.getByText('Ga naar Onderzoek');
       await user.click(navButton);
@@ -255,7 +255,7 @@ describe('Enhanced PHSB Results Panel', () => {
 
     it('should not display navigation when onNavigateNext is not provided', () => {
       render(
-        <PHSBResultsPanel
+        <HHSBResultsPanel
           {...defaultProps}
           onNavigateNext={undefined}
         />
@@ -265,7 +265,7 @@ describe('Enhanced PHSB Results Panel', () => {
     });
 
     it('should disable navigation button when disabled prop is true', () => {
-      render(<PHSBResultsPanel {...defaultProps} disabled={true} />);
+      render(<HHSBResultsPanel {...defaultProps} disabled={true} />);
 
       const navButton = screen.getByText('Ga naar Onderzoek');
       expect(navButton).toBeDisabled();
@@ -273,7 +273,7 @@ describe('Enhanced PHSB Results Panel', () => {
 
     it('should use custom button label when provided', () => {
       render(
-        <PHSBResultsPanel
+        <HHSBResultsPanel
           {...defaultProps}
           nextButtonLabel="Custom Button Text"
         />
@@ -285,7 +285,7 @@ describe('Enhanced PHSB Results Panel', () => {
 
   describe('Accessibility', () => {
     it('should have proper ARIA labels for copy buttons', () => {
-      render(<PHSBResultsPanel {...defaultProps} />);
+      render(<HHSBResultsPanel {...defaultProps} />);
 
       // Screen reader text should be present
       expect(screen.getByText('Kopiëer P', { selector: '.sr-only' })).toBeInTheDocument();
@@ -293,7 +293,7 @@ describe('Enhanced PHSB Results Panel', () => {
 
     it('should support keyboard navigation', async () => {
       const user = userEvent.setup();
-      render(<PHSBResultsPanel {...defaultProps} />);
+      render(<HHSBResultsPanel {...defaultProps} />);
 
       // Tab to first interactive element (view toggle button)
       await user.tab();
@@ -307,7 +307,7 @@ describe('Enhanced PHSB Results Panel', () => {
 
   describe('Color-coded Sections', () => {
     it('should apply correct color schemes to different sections', () => {
-      render(<PHSBResultsPanel {...defaultProps} />);
+      render(<HHSBResultsPanel {...defaultProps} />);
 
       // Check if sections have their respective color classes
       const personalSection = screen.getByText('Persoons Factoren (P)').closest('.bg-blue-50');

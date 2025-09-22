@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { TwoPanelLayout } from '@/components/ui/two-panel-layout';
 import { CollapsibleSection } from '@/components/ui/collapsible-section';
-import { PHSBResultsPanel } from '@/components/ui/phsb-results-panel';
+import { HHSBResultsPanel } from '@/components/ui/hhsb-results-panel';
 import { ClinicalConclusionView } from '@/components/ui/clinical-conclusion-view';
 import { CopyToClipboard } from '@/components/ui/copy-to-clipboard';
 import { AssistantIntegration } from '@/components/assistant/assistant-integration';
@@ -23,14 +23,14 @@ import type {
   IntakeData,
   PatientInfo,
   AudioRecording,
-  PHSBStructure
+  HHSBStructure
 } from '@/lib/types';
 
-// Parse PHSB structured text into individual sections
-const parsePHSBText = (fullText: string): PHSBStructure => {
+// Parse HHSB structured text into individual sections
+const parseHHSBText = (fullText: string): HHSBStructure => {
   // Input validation and error handling
   if (!fullText || typeof fullText !== 'string') {
-    console.warn('parsePHSBText: Invalid input provided, returning empty structure');
+    console.warn('parseHHSBText: Invalid input provided, returning empty structure');
     return {
       patientNeeds: '',
       history: '',
@@ -41,7 +41,7 @@ const parsePHSBText = (fullText: string): PHSBStructure => {
     };
   }
 
-  const result: PHSBStructure = {
+  const result: HHSBStructure = {
     patientNeeds: '',
     history: '',
     disorders: '',
@@ -55,7 +55,7 @@ const parsePHSBText = (fullText: string): PHSBStructure => {
   // Define section patterns with multiple variations
   const patterns = [
     {
-      key: 'patientNeeds' as keyof PHSBStructure,
+      key: 'patientNeeds' as keyof HHSBStructure,
       patterns: [
         /\*\*P\s*-\s*Patiënt\s*Probleem\/Hulpvraag:?\*\*([\s\S]*?)(?=\*\*[HhSsBb]\s*-|$)/i,
         /\*\*Patiëntbehoeften:?\*\*([\s\S]*?)(?=\*\*Historie|\*\*[HhSsBb]\s*-|$)/i,
@@ -63,7 +63,7 @@ const parsePHSBText = (fullText: string): PHSBStructure => {
       ]
     },
     {
-      key: 'history' as keyof PHSBStructure,
+      key: 'history' as keyof HHSBStructure,
       patterns: [
         /\*\*H\s*-\s*Historie:?\*\*([\s\S]*?)(?=\*\*[SsBb]\s*-|$)/i,
         /\*\*Historie:?\*\*([\s\S]*?)(?=\*\*Stoornissen|\*\*[SsBb]\s*-|$)/i,
@@ -71,7 +71,7 @@ const parsePHSBText = (fullText: string): PHSBStructure => {
       ]
     },
     {
-      key: 'disorders' as keyof PHSBStructure,
+      key: 'disorders' as keyof HHSBStructure,
       patterns: [
         /\*\*S\s*-\s*Stoornissen\s*in\s*lichaamsfuncties\s*en\s*anatomische\s*structuren:?\*\*([\s\S]*?)(?=\*\*[Bb]\s*-|$)/i,
         /\*\*Stoornissen:?\*\*([\s\S]*?)(?=\*\*Beperkingen|\*\*[Bb]\s*-|$)/i,
@@ -79,7 +79,7 @@ const parsePHSBText = (fullText: string): PHSBStructure => {
       ]
     },
     {
-      key: 'limitations' as keyof PHSBStructure,
+      key: 'limitations' as keyof HHSBStructure,
       patterns: [
         /\*\*B\s*-\s*Beperkingen\s*in\s*activiteiten\s*en\s*participatie:?\*\*([\s\S]*?)(?=\*\*Rode\s*Vlagen|$)/i,
         /\*\*B\s*-\s*Beperkingen:?\*\*([\s\S]*?)(?=\*\*Rode\s*Vlagen|$)/i,
@@ -134,7 +134,7 @@ const parsePHSBText = (fullText: string): PHSBStructure => {
 
     return result;
   } catch (error) {
-    console.error('Critical error in parsePHSBText:', error);
+    console.error('Critical error in parseHHSBText:', error);
     // Return a safe fallback structure
     return {
       patientNeeds: '',
@@ -330,7 +330,7 @@ const StreamlinedIntakeWorkflow: React.FC<StreamlinedIntakeWorkflowProps> = ({
   const [currentStep, setCurrentStep] = React.useState<WorkflowStep>('start');
   const [recording, setRecording] = React.useState<AudioRecording | null>(null);
   const [transcription, setTranscription] = React.useState<string>('');
-  const [phsbStructure, setPHSBStructure] = React.useState<PHSBStructure | null>(null);
+  const [phsbStructure, setHHSBStructure] = React.useState<HHSBStructure | null>(null);
   const [examinationFindings, setExaminationFindings] = React.useState<string>('');
   const [clinicalConclusion, setClinicalConclusion] = React.useState<string>('');
   const [preparationContent, setPreparationContent] = React.useState<string>('');
@@ -635,8 +635,8 @@ Antwoord in het Nederlands, professioneel geformatteerd.`;
         throw new Error('Failed to generate PHSB structure');
       }
 
-      const parsedPHSB = parsePHSBText(phsbResponse.data?.content || '');
-      setPHSBStructure(parsedPHSB);
+      const parsedPHSB = parseHHSBText(phsbResponse.data?.content || '');
+      setHHSBStructure(parsedPHSB);
 
       // Step 3: Generate Examination Findings
       setProcessingStep('Onderzoeksbevindingen worden geanalyseerd...');
@@ -788,8 +788,8 @@ Formuleer een professionele klinische conclusie gebaseerd op deze informatie.`;
               className="border-2 border-hysio-mint/30"
             >
               {phsbStructure ? (
-                <PHSBResultsPanel
-                  phsbData={phsbStructure}
+                <HHSBResultsPanel
+                  hhsbData={phsbStructure}
                   preparationContent={preparationContent}
                   showSources={true}
                   audioSource={!!recording}

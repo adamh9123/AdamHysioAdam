@@ -50,24 +50,47 @@ export default function AutomatedIntakeConclusie() {
     anamnese: true,
     onderzoek: true,
     conclusie: true,
+    samenvatting: true,
     redflags: true,
   });
 
-  // Redirect if no patient info
+  // Enhanced state loading with comprehensive validation
   React.useEffect(() => {
     if (!patientInfo) {
       router.push('/scribe');
       return;
     }
 
-    // Load results from workflow state
-    const automatedData = workflowData.automatedIntakeData;
-    if (automatedData?.result) {
-      setResults(automatedData.result);
+    // Validate workflow data exists
+    if (!workflowData) {
+      console.error('No workflow data available');
+      setError('Workflow data niet beschikbaar. Probeer het proces opnieuw.');
       setIsLoading(false);
+      return;
+    }
+
+    // Load and validate results from workflow state
+    const automatedData = workflowData.automatedIntakeData;
+
+    if (automatedData?.result) {
+      // Validate result structure
+      if (typeof automatedData.result === 'object' && automatedData.result !== null) {
+        setResults(automatedData.result);
+        setIsLoading(false);
+        console.log('Results successfully loaded:', automatedData.result);
+      } else {
+        console.error('Invalid result data structure:', automatedData.result);
+        setError('Resultaat data is ongeldig. Probeer het proces opnieuw.');
+        setIsLoading(false);
+      }
     } else {
-      // If no results, redirect back to intake page
-      router.push('/scribe/intake-automatisch');
+      // Enhanced fallback with delayed redirect
+      console.warn('No results found in workflow data, redirecting to intake page');
+      setError('Geen resultaten gevonden. U wordt doorgestuurd naar de intake pagina...');
+
+      setTimeout(() => {
+        router.push('/scribe/intake-automatisch');
+      }, 3000);
     }
   }, [patientInfo, workflowData, router]);
 
@@ -432,6 +455,61 @@ export default function AutomatedIntakeConclusie() {
                     ) : (
                       'Geen klinische conclusie beschikbaar'
                     )}
+                  </div>
+                </div>
+              </CardContent>
+            </CollapsibleContent>
+          </Collapsible>
+        </Card>
+
+        {/* Samenvatting van Anamnese */}
+        <Card>
+          <Collapsible
+            open={expandedSections.samenvatting || true}
+            onOpenChange={() => toggleSection('samenvatting')}
+          >
+            <CollapsibleTrigger asChild>
+              <CardHeader className="cursor-pointer hover:bg-hysio-mint/5 transition-colors">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Heart size={20} className="text-purple-600" />
+                    <div>
+                      <CardTitle className="text-purple-700">Samenvatting van Anamnese</CardTitle>
+                      <CardDescription>
+                        Beknopte samenvatting van de anamnese bevindingen
+                      </CardDescription>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        copyToClipboard(results.hhsbAnamneseCard?.anamneseSummary || 'Geen samenvatting beschikbaar', 'Samenvatting van Anamnese');
+                      }}
+                    >
+                      <Copy size={14} />
+                    </Button>
+                    <Button variant="ghost" size="sm">
+                      <Edit size={14} />
+                    </Button>
+                    {expandedSections.samenvatting ? (
+                      <ChevronDown size={20} className="text-purple-600" />
+                    ) : (
+                      <ChevronRight size={20} className="text-purple-600" />
+                    )}
+                  </div>
+                </div>
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent>
+                <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                  <div className="text-purple-900/90 whitespace-pre-wrap leading-relaxed">
+                    {results.hhsbAnamneseCard?.anamneseSummary ||
+                     results.hhsbAnamneseCard?.samenvatting ||
+                     'Geen samenvatting van anamnese beschikbaar. Deze wordt automatisch gegenereerd op basis van de HHSB bevindingen.'}
                   </div>
                 </div>
               </CardContent>

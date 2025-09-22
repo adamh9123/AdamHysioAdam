@@ -53,6 +53,7 @@ export default function SOEPVerslagPage() {
     objectief: true,
     evaluatie: true,
     plan: true,
+    samenvatting: true,
     redflags: true,
   });
 
@@ -434,6 +435,60 @@ export default function SOEPVerslagPage() {
                     ) : (
                       'Geen behandelplan beschikbaar'
                     )}
+                  </div>
+                </div>
+              </CardContent>
+            </CollapsibleContent>
+          </Collapsible>
+        </Card>
+
+        {/* Samenvatting van Consult */}
+        <Card>
+          <Collapsible
+            open={expandedSections.samenvatting || true}
+            onOpenChange={() => toggleSection('samenvatting')}
+          >
+            <CollapsibleTrigger asChild>
+              <CardHeader className="cursor-pointer hover:bg-hysio-mint/5 transition-colors">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <FileText size={20} className="text-orange-600" />
+                    <div>
+                      <CardTitle className="text-orange-700">Samenvatting van Consult</CardTitle>
+                      <CardDescription>
+                        Beknopte samenvatting van het vervolgconsult
+                      </CardDescription>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        copyToClipboard(results.consultSummary || 'Geen samenvatting beschikbaar', 'Samenvatting van Consult');
+                      }}
+                    >
+                      <Copy size={14} />
+                    </Button>
+                    <Button variant="ghost" size="sm">
+                      <Edit size={14} />
+                    </Button>
+                    {expandedSections.samenvatting ? (
+                      <ChevronDown size={20} className="text-orange-600" />
+                    ) : (
+                      <ChevronRight size={20} className="text-orange-600" />
+                    )}
+                  </div>
+                </div>
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent>
+                <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                  <div className="text-orange-900/90 whitespace-pre-wrap leading-relaxed">
+                    {results.consultSummary ||
+                     'Geen samenvatting van consult beschikbaar. Deze wordt automatisch gegenereerd op basis van de SOEP bevindingen.'}
                   </div>
                 </div>
               </CardContent>

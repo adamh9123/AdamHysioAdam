@@ -13,7 +13,7 @@
   --color-emerald: #10B981;
 
   /* Main theme colors */
-  --background: var(--color-off-white);
+  --background: var(--color-mint);
   --foreground: var(--color-deep-green-900);
 }
 
@@ -125,10 +125,10 @@ h3 {
 
 .hysio-card {
   border-radius: 0.5rem;
-  border: 1px solid rgba(165, 225, 197, 0.2);
+  border: 1px solid rgba(165, 225, 197, 0.3);
   background-color: white;
   padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 75, 58, 0.1);
 }
 
 .hysio-input {

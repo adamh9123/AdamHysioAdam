@@ -165,7 +165,7 @@ const PatientInfoForm: React.FC<PatientInfoFormProps> = ({
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium text-[#004B3A] flex items-center gap-2">
+              <h3 className="text-lg font-bold text-[#004B3A] flex items-center gap-2">
                 <User size={18} />
                 Basisgegevens
               </h3>
@@ -210,9 +210,17 @@ const PatientInfoForm: React.FC<PatientInfoFormProps> = ({
                     max={new Date().getFullYear()}
                     disabled={disabled || isSubmitting}
                     className={cn(errors.birthYear && 'border-red-500')}
+                    onInput={(e) => {
+                      // Limit to 4 digits
+                      const target = e.target as HTMLInputElement;
+                      if (target.value.length > 4) {
+                        target.value = target.value.slice(0, 4);
+                        handleInputChange('birthYear', target.value);
+                      }
+                    }}
                   />
-                  {formData.birthYear && (
-                    <p className="text-sm text-hysio-deep-green-900/70">
+                  {formData.birthYear && formData.birthYear.length === 4 && !isNaN(parseInt(formData.birthYear)) && (
+                    <p className="text-sm text-hysio-deep-green-900/70 font-medium">
                       Leeftijd: ca. {new Date().getFullYear() - parseInt(formData.birthYear)} jaar
                     </p>
                   )}
@@ -258,7 +266,7 @@ const PatientInfoForm: React.FC<PatientInfoFormProps> = ({
 
             {/* Medical Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium text-[#004B3A] flex items-center gap-2">
+              <h3 className="text-lg font-bold text-[#004B3A] flex items-center gap-2">
                 <FileText size={18} />
                 Medische informatie
               </h3>
@@ -313,7 +321,7 @@ const PatientInfoForm: React.FC<PatientInfoFormProps> = ({
                 variant="secondary"
                 onClick={onBack}
                 disabled={isSubmitting}
-                className="sm:w-auto"
+                className="sm:w-auto font-semibold"
               >
                 Terug
               </Button>
@@ -322,7 +330,7 @@ const PatientInfoForm: React.FC<PatientInfoFormProps> = ({
                 variant="primary"
                 size="lg"
                 disabled={disabled || isSubmitting}
-                className="flex-1 sm:flex-none sm:min-w-[200px]"
+                className="flex-1 sm:flex-none sm:min-w-[200px] font-semibold"
               >
                 {isSubmitting ? (
                   <>
@@ -330,7 +338,7 @@ const PatientInfoForm: React.FC<PatientInfoFormProps> = ({
                     Bezig met opslaan...
                   </>
                 ) : (
-                  `Ga verder naar ${sessionType === 'intake' ? 'intake workflow' : 'vervolgconsult'}`
+                  `${sessionType === 'intake' ? 'Kies uw workflow' : 'Ga verder naar vervolgconsult'}`
                 )}
               </Button>
             </div>

@@ -13,7 +13,6 @@ import { FileUpload } from '@/components/ui/file-upload';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
@@ -102,12 +101,7 @@ export default function AnamnesePage() {
     }
   }, [workflowData.anamneseData]);
 
-  // Generate preparation on component mount
-  React.useEffect(() => {
-    if (patientInfo && !state.preparationGenerated && !workflowData.anamneseData?.preparation) {
-      generatePreparation();
-    }
-  }, [patientInfo, state.preparationGenerated, workflowData.anamneseData?.preparation]);
+  // Removed automatic preparation generation - now only triggered by user button click
 
   const generatePreparation = async () => {
     if (!patientInfo) return;
@@ -154,18 +148,13 @@ export default function AnamnesePage() {
     }
   };
 
-  const handleInputMethodChange = (method: 'recording' | 'file' | 'manual') => {
-    setState(prev => ({
-      ...prev,
-      inputMethod: method,
-      error: null,
-    }));
-  };
 
   const handleRecordingComplete = (blob: Blob, duration: number) => {
     setState(prev => ({
       ...prev,
+      inputMethod: 'recording',
       recordingData: { blob, duration, isRecording: false },
+      uploadedFile: null, // Clear file upload when recording
     }));
 
     setAnamneseData({
@@ -176,7 +165,9 @@ export default function AnamnesePage() {
   const handleFileUpload = (file: File) => {
     setState(prev => ({
       ...prev,
+      inputMethod: 'file',
       uploadedFile: file,
+      recordingData: { blob: null, duration: 0, isRecording: false }, // Clear recording when uploading file
     }));
 
     setAnamneseData({
@@ -187,6 +178,7 @@ export default function AnamnesePage() {
   const handleManualNotesChange = (notes: string) => {
     setState(prev => ({
       ...prev,
+      inputMethod: notes.trim() ? 'manual' : null,
       manualNotes: notes,
     }));
 
@@ -433,26 +425,13 @@ export default function AnamnesePage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs
-              value={state.inputMethod || 'recording'}
-              onValueChange={(value) => handleInputMethodChange(value as any)}
-            >
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="recording" className="flex items-center gap-2">
-                  <Mic size={16} />
-                  Live Opname
-                </TabsTrigger>
-                <TabsTrigger value="file" className="flex items-center gap-2">
-                  <Upload size={16} />
-                  Bestand
-                </TabsTrigger>
-                <TabsTrigger value="manual" className="flex items-center gap-2">
-                  <Edit3 size={16} />
-                  Handmatig
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="recording" className="space-y-4">
+            <div className="space-y-6">
+              {/* Recording Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-hysio-deep-green">
+                  <Mic size={18} />
+                  <h3 className="text-lg font-medium">Live Opname</h3>
+                </div>
                 <AudioRecorder
                   onRecordingComplete={handleRecordingComplete}
                   disabled={state.isProcessing}
@@ -465,25 +444,35 @@ export default function AnamnesePage() {
                     </div>
                   </div>
                 )}
-              </TabsContent>
 
-              <TabsContent value="file" className="space-y-4">
-                <FileUpload
-                  onFileUpload={handleFileUpload}
-                  acceptedTypes={['audio/*']}
-                  disabled={state.isProcessing}
-                />
-                {state.uploadedFile && (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                    <div className="flex items-center gap-2 text-green-800">
-                      <CheckCircle size={16} />
-                      <span>Bestand geüpload: {state.uploadedFile.name}</span>
-                    </div>
+                {/* File Upload directly below recording */}
+                <div className="pt-2 border-t border-hysio-mint/20">
+                  <div className="flex items-center gap-2 text-hysio-deep-green mb-3">
+                    <Upload size={16} />
+                    <span className="text-sm font-medium">Bestand selecteren</span>
                   </div>
-                )}
-              </TabsContent>
+                  <FileUpload
+                    onFileUpload={handleFileUpload}
+                    acceptedTypes={['audio/*']}
+                    disabled={state.isProcessing}
+                  />
+                  {state.uploadedFile && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 mt-3">
+                      <div className="flex items-center gap-2 text-green-800">
+                        <CheckCircle size={16} />
+                        <span>Bestand geüpload: {state.uploadedFile.name}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
 
-              <TabsContent value="manual" className="space-y-4">
+              {/* Manual Notes Section */}
+              <div className="space-y-4 pt-4 border-t border-hysio-mint/30">
+                <div className="flex items-center gap-2 text-hysio-deep-green">
+                  <Edit3 size={18} />
+                  <h3 className="text-lg font-medium">Handmatige Invoer</h3>
+                </div>
                 <Textarea
                   placeholder="Voer hier uw anamnese notities in..."
                   value={state.manualNotes}
@@ -495,8 +484,8 @@ export default function AnamnesePage() {
                 <p className="text-xs text-hysio-deep-green-900/60">
                   Tip: Volg de voorbereiding en noteer de hoofdklacht, voorgeschiedenis en huidige beperkingen
                 </p>
-              </TabsContent>
-            </Tabs>
+              </div>
+            </div>
 
             {/* Process Button */}
             <div className="mt-6 pt-4 border-t">

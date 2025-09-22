@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { TwoPanelLayout } from '@/components/ui/two-panel-layout';
 import { InputPanel } from '@/components/ui/input-panel';
 import { GuidancePanel } from '@/components/ui/guidance-panel';
-import { PHSBResultsPanel } from '@/components/ui/phsb-results-panel';
+import { HHSBResultsPanel } from '@/components/ui/hhsb-results-panel';
 import { ExaminationResultsPanel } from '@/components/ui/examination-results-panel';
 import { ClinicalConclusionView } from '@/components/ui/clinical-conclusion-view';
 import { CollapsibleSection } from '@/components/ui/collapsible-section';
@@ -525,8 +525,8 @@ const UnifiedResultsDisplay: React.FC<UnifiedResultsDisplayProps> = ({
           </div>
           {phsbResults ? (
             <div className="space-y-4">
-              <PHSBResultsPanel
-                phsbData={phsbResults}
+              <HHSBResultsPanel
+                hhsbData={phsbResults}
                 showSources={false}
                 audioSource={false}
                 manualSource={false}
@@ -2426,8 +2426,8 @@ AI-verwerking van klinische gegevens was niet beschikbaar.
                       className="border-2 border-hysio-mint/30"
                     >
                       {anamnesisState === 'anamnesis-processed' && phsbResults ? (
-                        <PHSBResultsPanel
-                          phsbData={phsbResults}
+                        <HHSBResultsPanel
+                          hhsbData={phsbResults}
                           showSources={true}
                           audioSource={!!anamnesisRecording}
                           manualSource={!!anamnesisNotes.trim()}

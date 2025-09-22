@@ -233,6 +233,8 @@ function getOpenAIClient(): OpenAI {
   return openaiClient;
 }
 
+// Export the OpenAI client getter for direct use in API routes
+export { getOpenAIClient as openaiClient };
 
 
 export interface OpenAICompletionOptions {
