@@ -2,7 +2,7 @@
  * HHSB (Hulpvraag, Historie, Stoornissen, Beperkingen) Methodology Types
  *
  * This module defines comprehensive TypeScript types for the HHSB methodology
- * used in physiotherapy documentation, replacing the previous PHSB system.
+ * used in physiotherapy documentation.
  */
 
 /**

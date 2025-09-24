@@ -330,7 +330,7 @@ const StreamlinedIntakeWorkflow: React.FC<StreamlinedIntakeWorkflowProps> = ({
   const [currentStep, setCurrentStep] = React.useState<WorkflowStep>('start');
   const [recording, setRecording] = React.useState<AudioRecording | null>(null);
   const [transcription, setTranscription] = React.useState<string>('');
-  const [phsbStructure, setHHSBStructure] = React.useState<HHSBStructure | null>(null);
+  const [hhsbStructure, setHHSBStructure] = React.useState<HHSBStructure | null>(null);
   const [examinationFindings, setExaminationFindings] = React.useState<string>('');
   const [clinicalConclusion, setClinicalConclusion] = React.useState<string>('');
   const [preparationContent, setPreparationContent] = React.useState<string>('');
@@ -507,21 +507,21 @@ Antwoord in het Nederlands, professioneel en praktisch.`;
   const handleExportPDF = async () => {
     setIsExporting(true);
     try {
-      if (!phsbStructure) return;
+      if (!hhsbStructure) return;
 
       const intakeData: IntakeData = {
         patientInfo,
         preparation: preparationContent,
         anamnesisRecording: recording,
         anamnesisTranscript: transcription,
-        phsbStructure,
+        hhsbStructure,
         examinationPlan: '',
         examinationRecording: null,
         examinationFindings,
         clinicalConclusion,
         diagnosis: '',
         treatmentPlan: '',
-        redFlags: phsbStructure?.redFlags || [],
+        redFlags: hhsbStructure?.redFlags || [],
         recommendations: '',
         followUpPlan: '',
         notes: manualNotes,
@@ -540,21 +540,21 @@ Antwoord in het Nederlands, professioneel en praktisch.`;
   const handleExportWord = async () => {
     setIsExporting(true);
     try {
-      if (!phsbStructure) return;
+      if (!hhsbStructure) return;
 
       const intakeData: IntakeData = {
         patientInfo,
         preparation: preparationContent,
         anamnesisRecording: recording,
         anamnesisTranscript: transcription,
-        phsbStructure,
+        hhsbStructure,
         examinationPlan: '',
         examinationRecording: null,
         examinationFindings,
         clinicalConclusion,
         diagnosis: '',
         treatmentPlan: '',
-        redFlags: phsbStructure?.redFlags || [],
+        redFlags: hhsbStructure?.redFlags || [],
         recommendations: '',
         followUpPlan: '',
         notes: manualNotes,
@@ -784,12 +784,12 @@ Formuleer een professionele klinische conclusie gebaseerd op deze informatie.`;
             {/* Anamnesekaart */}
             <CollapsibleSection
               title="Anamnesekaart"
-              defaultOpen={!!phsbStructure}
+              defaultOpen={!!hhsbStructure}
               className="border-2 border-hysio-mint/30"
             >
-              {phsbStructure ? (
+              {hhsbStructure ? (
                 <HHSBResultsPanel
-                  hhsbData={phsbStructure}
+                  hhsbData={hhsbStructure}
                   preparationContent={preparationContent}
                   showSources={true}
                   audioSource={!!recording}
@@ -887,14 +887,14 @@ Formuleer een professionele klinische conclusie gebaseerd op deze informatie.`;
       preparation: '',
       anamnesisRecording: recording,
       anamnesisTranscript: '',
-      phsbStructure,
+      hhsbStructure,
       examinationPlan: '',
       examinationRecording: null,
       examinationFindings,
       clinicalConclusion,
       diagnosis: '',
       treatmentPlan: '',
-      redFlags: phsbStructure?.redFlags || [],
+      redFlags: hhsbStructure?.redFlags || [],
       recommendations: '',
       followUpPlan: '',
       notes: manualNotes,
@@ -928,7 +928,7 @@ Formuleer een professionele klinische conclusie gebaseerd op deze informatie.`;
 
   // Complete the workflow
   const handleComplete = () => {
-    if (!phsbStructure) {
+    if (!hhsbStructure) {
       console.error('Missing required data for completion');
       return;
     }
@@ -938,14 +938,14 @@ Formuleer een professionele klinische conclusie gebaseerd op deze informatie.`;
       preparation: '', // No preparation step in streamlined workflow
       anamnesisRecording: recording,
       anamnesisTranscript: '',
-      phsbStructure,
+      hhsbStructure,
       examinationPlan: '',
       examinationRecording: null,
       examinationFindings,
       clinicalConclusion,
       diagnosis: '',
       treatmentPlan: '',
-      redFlags: phsbStructure?.redFlags || [],
+      redFlags: hhsbStructure?.redFlags || [],
       recommendations: '',
       followUpPlan: '',
       notes: manualNotes || '',
@@ -989,7 +989,7 @@ Formuleer een professionele klinische conclusie gebaseerd op deze informatie.`;
       </div>
 
       {/* Bottom navigation for results phase */}
-      {currentPhase === 'results' && phsbStructure && (
+      {currentPhase === 'results' && hhsbStructure && (
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-hysio-mint/20 shadow-2xl z-[9999]">
           <div className="max-w-6xl mx-auto p-6">
             <Button
