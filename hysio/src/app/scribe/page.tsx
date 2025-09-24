@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { PatientInfoForm } from '@/components/scribe/patient-info-form';
 import { useScribeStore } from '@/lib/state/scribe-store';
-import { PatientInfo } from '@/lib/types';
+import { PatientInfo } from '@/types/api';
 
 export default function ScribePage() {
   const router = useRouter();

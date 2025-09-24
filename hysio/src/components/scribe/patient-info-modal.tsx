@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Modal } from '@/components/ui/modal';
 import { PatientInfoForm } from './patient-info-form';
-import { PatientInfo } from '@/lib/types';
+import { PatientInfo } from '@/types/api';
 
 export interface PatientInfoModalProps {
   isOpen: boolean;

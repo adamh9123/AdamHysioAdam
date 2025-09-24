@@ -6,7 +6,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SOEPViewModal } from './soep-view-modal';
-import { PatientInfo, SOEPStructure } from '@/lib/types';
+import { PatientInfo, SOEPStructure } from '@/types/api';
 
 // Mock the modal component
 jest.mock('./modal', () => ({
@@ -32,7 +32,7 @@ describe('SOEPViewModal', () => {
   const mockPatientInfo: PatientInfo = {
     initials: 'J.D.',
     birthYear: '1985',
-    gender: 'vrouw',
+    gender: 'female',
     chiefComplaint: 'Nekpijn na whiplash',
   };
 

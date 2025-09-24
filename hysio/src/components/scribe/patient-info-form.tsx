@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { DocumentUploader } from '@/components/ui/document-uploader';
 import { Calendar, User, FileText, AlertTriangle } from 'lucide-react';
-import { PatientInfo } from '@/lib/types';
+import { PatientInfo } from '@/types/api';
 
 export interface PatientInfoFormProps {
   onPatientInfoSubmit: (patientInfo: PatientInfo) => void;
@@ -36,7 +36,7 @@ const PatientInfoForm: React.FC<PatientInfoFormProps> = ({
   const [formData, setFormData] = React.useState<PatientInfo>({
     initials: initialData.initials || '',
     birthYear: initialData.birthYear || '',
-    gender: initialData.gender || 'man',
+    gender: initialData.gender || 'male',
     chiefComplaint: initialData.chiefComplaint || '',
   });
 
@@ -238,19 +238,23 @@ const PatientInfoForm: React.FC<PatientInfoFormProps> = ({
                   Geslacht *
                 </Label>
                 <div className="flex gap-4">
-                  {['man', 'vrouw'].map((option) => (
-                    <label key={option} className="flex items-center gap-2 cursor-pointer">
+                  {[
+                    { value: 'male', label: 'Man' },
+                    { value: 'female', label: 'Vrouw' },
+                    { value: 'other', label: 'Anders' }
+                  ].map((option) => (
+                    <label key={option.value} className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="radio"
                         name="gender"
-                        value={option}
-                        checked={formData.gender === option}
+                        value={option.value}
+                        checked={formData.gender === option.value}
                         onChange={(e) => handleInputChange('gender', e.target.value)}
                         disabled={disabled || isSubmitting}
                         className="text-hysio-mint focus:ring-hysio-mint"
                       />
-                      <span className="text-sm text-hysio-deep-green capitalize">
-                        {option}
+                      <span className="text-sm text-hysio-deep-green">
+                        {option.label}
                       </span>
                     </label>
                   ))}
