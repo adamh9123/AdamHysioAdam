@@ -31,7 +31,7 @@ export interface IntakeData {
   anamnesisRecording: AudioRecording | null;
   anamnesisTranscript: string;
   anamnesisAdditionalNotes?: string;
-  phsbStructure: PHSBStructure | null;
+  hhsbStructure: HHSBStructure | null;
   examinationPlan: string;
   examinationRecording: AudioRecording | null;
   examinationFindings: string;
@@ -73,22 +73,22 @@ export interface IntakePreparation {
 export interface AnamnesisData {
   transcript: string;
   additionalNotes?: string;
-  phsb: PHSBData;
+  hhsb: HHSBData;
   redFlags: string[];
 }
 
-export interface PHSBData {
-  patient: string; // P - Patient Problem/Help Question
-  history: string; // H - History
-  disorders: string; // S - Disorders in body function and anatomy
-  limitations: string; // B - Limitations in activities or participation
+export interface HHSBData {
+  hulpvraag: string; // H - Hulpvraag (Help Question)
+  historie: string; // H - Historie (History)
+  stoornissen: string; // S - Stoornissen (Disorders in body function and anatomy)
+  beperkingen: string; // B - Beperkingen (Limitations in activities or participation)
 }
 
-export interface PHSBStructure {
-  patientNeeds: string; // Patiëntbehoeften - Motivatie/hulpvraag, doelen/verwachtingen
-  history: string; // Historie - Ontstaansmoment, verloop, eerdere behandeling
-  disorders: string; // Stoornissen - Pijn, mobiliteit, kracht, stabiliteit
-  limitations: string; // Beperkingen - ADL, werk, sport
+export interface HHSBStructure {
+  hulpvraag: string; // Hulpvraag - Motivatie/hulpvraag, doelen/verwachtingen
+  historie: string; // Historie - Ontstaansmoment, verloop, eerdere behandeling
+  stoornissen: string; // Stoornissen - Pijn, mobiliteit, kracht, stabiliteit
+  beperkingen: string; // Beperkingen - ADL, werk, sport
   redFlags: string[];
   fullStructuredText: string;
   anamneseSummary?: string; // Samenvatting Anamnese - Narrative summary of the anamnesis

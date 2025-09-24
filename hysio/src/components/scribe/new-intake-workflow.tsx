@@ -30,30 +30,30 @@ import type {
   PatientInfo,
   AudioTranscription,
   AudioRecording,
-  PHSBStructure,
+  HHSBStructure,
   SOEPStructure
 } from '@/lib/types';
 
-// Parse PHSB structured text into individual sections
-const parsePHSBText = (fullText: string): PHSBStructure => {
+// Parse HHSB structured text into individual sections
+const parseHHSBText = (fullText: string): HHSBStructure => {
   // Input validation and error handling
   if (!fullText || typeof fullText !== 'string') {
-    console.warn('parsePHSBText: Invalid input provided, returning empty structure');
+    console.warn('parseHHSBText: Invalid input provided, returning empty structure');
     return {
-      patientNeeds: '',
-      history: '',
-      disorders: '',
-      limitations: '',
+      hulpvraag: '',
+      historie: '',
+      stoornissen: '',
+      beperkingen: '',
       redFlags: [],
       fullStructuredText: '',
     };
   }
 
-  const result: PHSBStructure = {
-    patientNeeds: '',
-    history: '',
-    disorders: '',
-    limitations: '',
+  const result: HHSBStructure = {
+    hulpvraag: '',
+    historie: '',
+    stoornissen: '',
+    beperkingen: '',
     redFlags: [],
     fullStructuredText: fullText,
   };
@@ -64,7 +64,7 @@ const parsePHSBText = (fullText: string): PHSBStructure => {
   const patterns = [
     // Patient/Patiënt patterns
     {
-      key: 'patientNeeds' as keyof PHSBStructure,
+      key: 'hulpvraag' as keyof HHSBStructure,
       patterns: [
         /\*\*P\s*-\s*Patiënt\s*Probleem\/Hulpvraag:?\*\*([\s\S]*?)(?=\*\*[HhSsBb]\s*-|$)/i,
         /\*\*Patiëntbehoeften:?\*\*([\s\S]*?)(?=\*\*Historie|\*\*[HhSsBb]\s*-|$)/i,
@@ -73,7 +73,7 @@ const parsePHSBText = (fullText: string): PHSBStructure => {
     },
     // Historie patterns
     {
-      key: 'history' as keyof PHSBStructure,
+      key: 'historie' as keyof HHSBStructure,
       patterns: [
         /\*\*H\s*-\s*Historie:?\*\*([\s\S]*?)(?=\*\*[SsBb]\s*-|$)/i,
         /\*\*Historie:?\*\*([\s\S]*?)(?=\*\*Stoornissen|\*\*[SsBb]\s*-|$)/i,
@@ -82,7 +82,7 @@ const parsePHSBText = (fullText: string): PHSBStructure => {
     },
     // Stoornissen patterns
     {
-      key: 'disorders' as keyof PHSBStructure,
+      key: 'stoornissen' as keyof HHSBStructure,
       patterns: [
         /\*\*S\s*-\s*Stoornissen\s*in\s*lichaamsfuncties\s*en\s*anatomische\s*structuren:?\*\*([\s\S]*?)(?=\*\*[Bb]\s*-|$)/i,
         /\*\*Stoornissen:?\*\*([\s\S]*?)(?=\*\*Beperkingen|\*\*[Bb]\s*-|$)/i,
@@ -91,7 +91,7 @@ const parsePHSBText = (fullText: string): PHSBStructure => {
     },
     // Beperkingen patterns
     {
-      key: 'limitations' as keyof PHSBStructure,
+      key: 'beperkingen' as keyof HHSBStructure,
       patterns: [
         /\*\*B\s*-\s*Beperkingen\s*in\s*activiteiten\s*en\s*participatie:?\*\*([\s\S]*?)(?=\*\*Rode\s*Vlagen|$)/i,
         /\*\*B\s*-\s*Beperkingen:?\*\*([\s\S]*?)(?=\*\*Rode\s*Vlagen|$)/i,
@@ -361,7 +361,7 @@ const FullIntakeInputPanel: React.FC<FullIntakeInputPanelProps> = ({
 
 // NEW: Unified Results Display Component
 interface UnifiedResultsDisplayProps {
-  phsbResults?: PHSBStructure | null;
+  hhsbResults?: HHSBStructure | null;
   examinationFindings?: string;
   clinicalConclusion?: string;
   isProcessing?: boolean;
@@ -378,7 +378,7 @@ interface UnifiedResultsDisplayProps {
 }
 
 const UnifiedResultsDisplay: React.FC<UnifiedResultsDisplayProps> = ({
-  phsbResults,
+  hhsbResults,
   examinationFindings,
   clinicalConclusion,
   isProcessing = false,
@@ -390,7 +390,7 @@ const UnifiedResultsDisplay: React.FC<UnifiedResultsDisplayProps> = ({
   disabled = false
 }) => {
 
-  const hasResults = phsbResults || examinationFindings || clinicalConclusion;
+  const hasResults = hhsbResults || examinationFindings || clinicalConclusion;
   const isCompleted = automationProgress.isComplete && hasResults;
 
   if (isProcessing) {
@@ -507,9 +507,9 @@ const UnifiedResultsDisplay: React.FC<UnifiedResultsDisplayProps> = ({
                 <h3 className="text-lg font-semibold text-[#004B3A]">Anamnesekaart (PHSB)</h3>
               </div>
               <div className="flex items-center gap-3">
-                {phsbResults && (
+                {hhsbResults && (
                   <>
-                    <CopyToClipboard text={phsbResults.fullStructuredText} size="sm" />
+                    <CopyToClipboard text={hhsbResults.fullStructuredText} size="sm" />
                     <Button
                       size="sm"
                       variant="outline"
@@ -523,10 +523,10 @@ const UnifiedResultsDisplay: React.FC<UnifiedResultsDisplayProps> = ({
               </div>
             </div>
           </div>
-          {phsbResults ? (
+          {hhsbResults ? (
             <div className="space-y-4">
               <HHSBResultsPanel
-                hhsbData={phsbResults}
+                hhsbData={hhsbResults}
                 showSources={false}
                 audioSource={false}
                 manualSource={false}
@@ -542,15 +542,15 @@ const UnifiedResultsDisplay: React.FC<UnifiedResultsDisplayProps> = ({
                   </h4>
                   <div className="text-sm text-[#003728] leading-relaxed">
                     <p className="mb-2">
-                      <strong>Kernproblematiek:</strong> {phsbResults.patientNeeds || 'Nog niet gespecificeerd'}
+                      <strong>Kernproblematiek:</strong> {hhsbResults.patientNeeds || 'Nog niet gespecificeerd'}
                     </p>
                     <p className="mb-2">
-                      <strong>Primaire Bevindingen:</strong> Combinatie van {phsbResults.disorders || 'functionele stoornissen'}
-                      {phsbResults.limitations && ` met impact op ${phsbResults.limitations}`}
+                      <strong>Primaire Bevindingen:</strong> Combinatie van {hhsbResults.disorders || 'functionele stoornissen'}
+                      {hhsbResults.limitations && ` met impact op ${hhsbResults.limitations}`}
                     </p>
-                    {phsbResults.redFlags && phsbResults.redFlags.length > 0 && (
+                    {hhsbResults.redFlags && hhsbResults.redFlags.length > 0 && (
                       <p className="mb-2 text-red-600">
-                        <strong>Aandachtspunten:</strong> {phsbResults.redFlags.join(', ')}
+                        <strong>Aandachtspunten:</strong> {hhsbResults.redFlags.join(', ')}
                       </p>
                     )}
                     <p className="text-xs text-[#003728]/70 mt-3 italic">
@@ -886,7 +886,7 @@ export const NewIntakeWorkflow: React.FC<NewIntakeWorkflowProps> = ({
   const [intakePreparation, setIntakePreparation] = React.useState<string>('');
   const [anamnesisRecording, setAnamnesisRecording] = React.useState<AudioRecording | null>(null);
   const [anamnesisNotes, setAnamnesisNotes] = React.useState<string>('');
-  const [phsbResults, setPhsbResults] = React.useState<PHSBStructure | null>(null);
+  const [hhsbResults, setHhsbResults] = React.useState<HHSBStructure | null>(null);
 
   // Examination state management
   const [examinationState, setExaminationState] = React.useState<ExaminationState>('initial');
@@ -915,7 +915,7 @@ export const NewIntakeWorkflow: React.FC<NewIntakeWorkflowProps> = ({
   // Initialize with existing data if provided
   React.useEffect(() => {
     if (initialData.preparation) setIntakePreparation(initialData.preparation);
-    if (initialData.phsbStructure) setPhsbResults(initialData.phsbStructure);
+    if (initialData.hhsbStructure) setHhsbResults(initialData.hhsbStructure);
     if (initialData.examinationPlan) setExaminationProposal(initialData.examinationPlan);
     if (initialData.examinationFindings) setExaminationFindings(initialData.examinationFindings);
     if (initialData.clinicalConclusion) setClinicalConclusion(initialData.clinicalConclusion);
@@ -1222,9 +1222,9 @@ Antwoord in het Nederlands, professioneel geformatteerd.`;
       });
 
       if (response.success && response.data?.content) {
-        const phsbStructure: PHSBStructure = parsePHSBText(response.data.content);
+        const hhsbStructure: HHSBStructure = parseHHSBText(response.data.content);
 
-        setPhsbResults(phsbStructure);
+        setHhsbResults(hhsbStructure);
         setAnamnesisState('anamnesis-processed');
         // Mark anamnesis phase as completed
         setCompletedPhases(prev => [...prev.filter(p => p !== 'anamnesis'), 'anamnesis']);
@@ -1238,7 +1238,7 @@ Antwoord in het Nederlands, professioneel geformatteerd.`;
       } else {
         // Create fallback PHSB structure
         console.warn('PHSB generation failed, creating fallback structure:', response.error);
-        const fallbackPHSB: PHSBStructure = {
+        const fallbackHHSB: HHSBStructure = {
           patientNeeds: combinedInput || 'Handmatige invoer vereist - API verwerking mislukt',
           history: 'API verwerking niet beschikbaar. Vul handmatig historie in.',
           disorders: 'API verwerking niet beschikbaar. Vul handmatig stoornissen in.',
@@ -1261,7 +1261,7 @@ API verwerking niet beschikbaar. Vul handmatig beperkingen in.
 *Let op: De AI-service was niet beschikbaar. Vul alle secties handmatig in voordat u doorgaat.*`
         };
 
-        setPhsbResults(fallbackPHSB);
+        setHhsbResults(fallbackHHSB);
         setAnamnesisState('anamnesis-processed');
         setCompletedPhases(prev => [...prev.filter(p => p !== 'anamnesis'), 'anamnesis']);
       }
@@ -1291,7 +1291,7 @@ Patiënt informatie:
 - Hoofdklacht: ${patientInfo.chiefComplaint}
 
 Anamnese resultaten:
-${phsbResults?.fullStructuredText || 'Geen anamnese beschikbaar'}
+${hhsbResults?.fullStructuredText || 'Geen anamnese beschikbaar'}
 
 Genereer een gestructureerd onderzoeksplan inclusief:
 1. Aanbevolen tests en metingen
@@ -1400,7 +1400,7 @@ Patiënt context:
 - Hoofdklacht: ${patientInfo.chiefComplaint}
 
 Anamnese (referentie):
-${phsbResults?.fullStructuredText || 'Geen anamnese beschikbaar'}
+${hhsbResults?.fullStructuredText || 'Geen anamnese beschikbaar'}
 
 Onderzoek input:
 ${combinedInput}
@@ -1595,7 +1595,7 @@ Maak een gestructureerde SOEP-rapportage met duidelijke secties.`,
         preparation: intakePreparation,
         anamnesisRecording,
         anamnesisTranscript: '',
-        phsbStructure: phsbResults,
+        hhsbStructure: hhsbResults,
         examinationPlan: '',
         examinationRecording,
         examinationFindings: examinationFindings,
@@ -1661,7 +1661,7 @@ Verwerk deze anamnese volgens PHSB-structuur.`,
       });
 
       if (response.success && response.data?.content) {
-        const phsb: PHSBStructure = {
+        const hhsb: HHSBStructure = {
           patientNeeds: '',
           history: '',
           disorders: '',
@@ -1671,7 +1671,7 @@ Verwerk deze anamnese volgens PHSB-structuur.`,
           anamneseSummary: 'Anamnese samenvatting'
         };
 
-        setPhsbResults(phsb);
+        setHhsbResults(hhsb);
         setAnamnesisState('anamnesis-processed');
         setCompletedPhases(prev => [...prev, 'anamnesis']);
       } else {
@@ -1803,12 +1803,12 @@ Antwoord in het Nederlands, professioneel geformatteerd.`;
         }),
       });
 
-      let phsbStructure: PHSBStructure;
+      let hhsbStructure: HHSBStructure;
       if (anamnesisResponse.success && anamnesisResponse.data?.content) {
-        phsbStructure = parsePHSBText(anamnesisResponse.data.content);
+        hhsbStructure = parsePHSBText(anamnesisResponse.data.content);
       } else {
         // Fallback PHSB structure
-        phsbStructure = {
+        hhsbStructure = {
           patientNeeds: combinedInput,
           history: 'Automatische verwerking mislukt - handmatige invoer vereist',
           disorders: 'Automatische verwerking mislukt - handmatige invoer vereist',
@@ -1818,7 +1818,7 @@ Antwoord in het Nederlands, professioneel geformatteerd.`;
         };
       }
 
-      setPhsbResults(phsbStructure);
+      setHhsbResults(hhsbStructure);
 
       // Step 3: Generate Examination Findings
       setAutomationProgress({ step: 'Onderzoeksbevindingen genereren...', progress: 50, isComplete: false });
@@ -1833,7 +1833,7 @@ Patiënt context:
 - Hoofdklacht: ${patientInfo.chiefComplaint}
 
 Anamnese (PHSB):
-${phsbStructure.fullStructuredText}
+${hhsbStructure.fullStructuredText}
 
 Volledige intake input (inclusief onderzoeksgegevens):
 ${combinedInput}
@@ -1897,7 +1897,7 @@ Patiënt informatie:
 - Hoofdklacht: ${patientInfo.chiefComplaint}
 
 Anamnese (PHSB):
-${phsbStructure.fullStructuredText}
+${hhsbStructure.fullStructuredText}
 
 Onderzoeksbevindingen:
 ${examinationFindingsResult}
@@ -2016,7 +2016,7 @@ Patiënt informatie:
 - Hoofdklacht: ${patientInfo.chiefComplaint}
 
 Anamnese (PHSB):
-${phsbResults?.fullStructuredText || 'Geen anamnese beschikbaar'}
+${hhsbResults?.fullStructuredText || 'Geen anamnese beschikbaar'}
 
 Onderzoeksbevindingen:
 ${examinationFindings || 'Geen onderzoek beschikbaar'}
@@ -2109,14 +2109,14 @@ AI-verwerking van klinische gegevens was niet beschikbaar.
         preparation: intakePreparation,
         anamnesisRecording,
         anamnesisTranscript: '', // Excluded from export as per requirements
-        phsbStructure: phsbResults,
+        hhsbStructure: hhsbResults,
         examinationPlan: examinationProposal,
         examinationRecording,
         examinationFindings,
         clinicalConclusion,
         diagnosis: '',
         treatmentPlan: '',
-        redFlags: phsbResults?.redFlags || [],
+        redFlags: hhsbResults?.redFlags || [],
         recommendations: '',
         followUpPlan: '',
         notes: '',
@@ -2143,14 +2143,14 @@ AI-verwerking van klinische gegevens was niet beschikbaar.
         preparation: intakePreparation,
         anamnesisRecording,
         anamnesisTranscript: '', // Excluded from export as per requirements
-        phsbStructure: phsbResults,
+        hhsbStructure: hhsbResults,
         examinationPlan: examinationProposal,
         examinationRecording,
         examinationFindings,
         clinicalConclusion,
         diagnosis: '',
         treatmentPlan: '',
-        redFlags: phsbResults?.redFlags || [],
+        redFlags: hhsbResults?.redFlags || [],
         recommendations: '',
         followUpPlan: '',
         notes: '',
@@ -2425,9 +2425,9 @@ AI-verwerking van klinische gegevens was niet beschikbaar.
                       defaultOpen={anamnesisState === 'anamnesis-processed'}
                       className="border-2 border-hysio-mint/30"
                     >
-                      {anamnesisState === 'anamnesis-processed' && phsbResults ? (
+                      {anamnesisState === 'anamnesis-processed' && hhsbResults ? (
                         <HHSBResultsPanel
-                          hhsbData={phsbResults}
+                          hhsbData={hhsbResults}
                           showSources={true}
                           audioSource={!!anamnesisRecording}
                           manualSource={!!anamnesisNotes.trim()}

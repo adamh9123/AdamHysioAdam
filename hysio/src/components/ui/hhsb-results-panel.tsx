@@ -26,7 +26,7 @@ import type { HHSBStructure } from '@/lib/types';
 const parseHHSBText = (fullText: string): HHSBStructure => {
   // Input validation and error handling
   if (!fullText || typeof fullText !== 'string') {
-    console.warn('parsePHSBText: Invalid input provided, returning empty structure');
+    console.warn('parseHHSBText: Invalid input provided, returning empty structure');
     return {
       hulpvraag: '',
       historie: '',
@@ -162,7 +162,7 @@ const parseHHSBText = (fullText: string): HHSBStructure => {
 
     return result;
   } catch (error) {
-    console.error('Critical error in parsePHSBText:', error);
+    console.error('Critical error in parseHHSBText:', error);
     return {
       hulpvraag: '',
       historie: '',
@@ -307,7 +307,7 @@ const HHSBResultsPanel: React.FC<HHSBResultsPanelProps> = React.memo(({
   const copySectionContent = React.useCallback(async (content: string) => {
     try {
       await navigator.clipboard.writeText(content);
-      console.log('PHSB sectie gekopieerd naar clipboard');
+      console.log('HHSB sectie gekopieerd naar clipboard');
     } catch (err) {
       console.error('Failed to copy section to clipboard:', err);
     }
