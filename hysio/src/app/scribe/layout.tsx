@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { useSessionState } from '@/hooks/useSessionState';
 import { useScribeStore } from '@/lib/state/scribe-store';
+import { WorkflowErrorBoundary } from '@/components/workflow-error-boundary';
 import {
   FileText,
   Clock,
@@ -161,12 +162,13 @@ export default function ScribeLayout({
   );
 
   return (
-      <div className="min-h-screen bg-hysio-cream/30">
-        {renderHeader()}
+      <WorkflowErrorBoundary workflowName="Hysio Medical Scribe">
+        <div className="min-h-screen bg-hysio-cream/30">
+          {renderHeader()}
 
-        <main className="pb-8">
-          {children}
-        </main>
+          <main className="pb-8">
+            {children}
+          </main>
 
         {/* Footer */}
         <footer className="bg-white border-t border-hysio-mint/20 p-4 mt-8">
@@ -180,6 +182,7 @@ export default function ScribeLayout({
             </p>
           </div>
         </footer>
-      </div>
+        </div>
+      </WorkflowErrorBoundary>
   );
 }

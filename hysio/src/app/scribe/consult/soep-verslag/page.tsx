@@ -31,11 +31,14 @@ import {
   Target
 } from 'lucide-react';
 
+import type { ConsultResult } from '@/types/api';
+
 interface SOEPResults {
-  subjectief: any;
-  objectief: any;
-  evaluatie: any;
-  plan: any;
+  subjectief: string;
+  objectief: string;
+  evaluatie: string;
+  plan: string;
+  consultSummary?: string;
   redFlags: string[];
   processingDuration: number;
   generatedAt: string;

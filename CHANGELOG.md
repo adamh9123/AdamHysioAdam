@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **REFACTOR WEEK 2**: Comprehensive TypeScript type definitions for all workflow results (AnamneseResult, OnderzoekResult, etc.)
+- **REFACTOR WEEK 2**: Error Boundary components (ErrorBoundary, WorkflowErrorBoundary) with toast notifications
+- **REFACTOR WEEK 2**: DOMPurify XSS protection integrated across all dangerouslySetInnerHTML usages
+- **REFACTOR WEEK 2**: Advanced file upload validation with size, type, duration, and extension checks
+- **REFACTOR WEEK 2**: Sanitization utility (sanitizeHTML, sanitizeText, createSafeHTML) for secure content rendering
 - **REFACTOR WEEK 1**: Unified Zustand state management system (hysio-scribe-v1) replacing triple-system architecture
 - **REFACTOR WEEK 1**: API caching fully activated in all routes (Preparation, HHSB, SOEP) for cost reduction
 - **REFACTOR WEEK 1**: Code splitting infrastructure with lazy-loaded components for bundle optimization
@@ -76,6 +81,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **SCRIBE 2.0**: Premium card-based layout for SOEP report presentation with Hysio brand styling
 
 ### Changed
+- **REFACTOR WEEK 2**: Eliminated 145+ 'any' types replaced with proper TypeScript interfaces
+- **REFACTOR WEEK 2**: Updated Zustand store with typed WorkflowStepData<T> generic wrapper
+- **REFACTOR WEEK 2**: All workflow pages now wrapped in WorkflowErrorBoundary for crash protection
+- **REFACTOR WEEK 2**: All dangerouslySetInnerHTML calls now use createSafeHTML() for XSS prevention
 - **REFACTOR WEEK 1**: Migrated all 11 workflow pages from useWorkflowContext to useScribeStore selectors
 - **REFACTOR WEEK 1**: Removed WorkflowContext provider and manual localStorage sync in layout.tsx
 - **REFACTOR WEEK 1**: Enhanced HHSB API with apiCache integration for performance optimization
@@ -155,6 +164,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **WORKFLOW**: Removed "Overslaan" (Skip) button from preparation generation - streamlined to single action only
 - **LEGACY**: Removed inconsistent amber/yellow color scheme from preparation sections in favor of unified brand colors
 - **SCRIBE 2.0**: Removed SessionTypeSelector component and three-card selection screen for streamlined user experience
+
+### Security
+- **REFACTOR WEEK 2**: Fixed 6+ XSS vulnerabilities by sanitizing all HTML content with DOMPurify
+- **REFACTOR WEEK 2**: Added comprehensive file validation (size, type, duration, extension matching)
+- **REFACTOR WEEK 2**: Implemented error boundaries to prevent app crashes and data loss
+- **REFACTOR WEEK 2**: Type-safe APIs prevent runtime errors from invalid data structures
 
 ### Fixed
 - **EMERGENCY**: ULTRATHINK Protocol Implementation - Resolved all critical system failures identified in emergency assessment

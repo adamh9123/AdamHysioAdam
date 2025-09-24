@@ -154,3 +154,99 @@ export interface ProcessingError extends ApiError {
 
 // Response wrapper type
 export type ApiResult<T> = Promise<ApiResponse<T>>;
+
+// Workflow result types
+export interface AnamneseResult {
+  hhsbStructure: HHSBStructure;
+  fullStructuredText: string;
+  transcript: string;
+  workflowType: string;
+  processedAt: string;
+  patientInfo: PatientInfo;
+}
+
+export interface OnderzoekResult {
+  examinationFindings: {
+    physicalTests: string;
+    movements: string;
+    palpation: string;
+    functionalTests: string;
+    measurements: string;
+    observations: string;
+    summary: string;
+    redFlags: string[];
+  };
+  transcript: string;
+  workflowType: string;
+  processedAt: string;
+  patientInfo: PatientInfo;
+}
+
+export interface KlinischeConclusieResult {
+  diagnosis: string;
+  treatmentPlan: string;
+  prognosis: string;
+  followUp: string;
+  transcript: string;
+  workflowType: string;
+  processedAt: string;
+  patientInfo: PatientInfo;
+}
+
+export interface AutomatedIntakeResult {
+  hhsbAnamneseCard: HHSBStructure;
+  onderzoeksBevindingen: OnderzoekResult['examinationFindings'];
+  klinischeConclusie: KlinischeConclusieResult;
+  transcript: string;
+  workflowType: string;
+  processedAt: string;
+  patientInfo: PatientInfo;
+}
+
+export interface ConsultResult {
+  soepStructure: SOEPStructure;
+  fullStructuredText: string;
+  transcript: string;
+  workflowType: string;
+  processingDuration: number;
+  generatedAt: string;
+  redFlags: string[];
+}
+
+// Distribution details types
+export interface EmailDistributionDetails {
+  to: string;
+  subject: string;
+  body: string;
+}
+
+export interface DownloadDistributionDetails {
+  filename: string;
+  format: 'pdf' | 'docx' | 'txt';
+}
+
+export interface ShareDistributionDetails {
+  url: string;
+  expiresAt: string;
+}
+
+export type DistributionDetails =
+  | EmailDistributionDetails
+  | DownloadDistributionDetails
+  | ShareDistributionDetails
+  | undefined;
+
+// Email settings type
+export interface EmailSettings {
+  from: string;
+  subject: string;
+  bodyTemplate: string;
+  signature: string;
+  cc?: string;
+  bcc?: string;
+}
+
+// PDF font type (for jsPDF)
+export interface PDFFont {
+  getTextWidth: (text: string) => number;
+}
