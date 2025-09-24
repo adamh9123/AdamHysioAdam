@@ -67,7 +67,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = React.memo(({
   ];
 
   // Handle transcription
-  const handleTranscription = async (blob: Blob) => {
+  const handleTranscription = React.useCallback(async (blob: Blob) => {
     if (!autoTranscribe) return;
     
     setIsTranscribing(true);
@@ -95,7 +95,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = React.memo(({
     } finally {
       setIsTranscribing(false);
     }
-  };
+  }, [autoTranscribe, transcriptionOptions, onTranscriptionComplete, onError]);
 
   // Audio recorder hook options
   const recorderOptions: UseAudioRecorderOptions = {
@@ -118,7 +118,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = React.memo(({
   const [recorderState, recorderControls] = useAudioRecorder(recorderOptions);
 
   // Handle file upload
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = React.useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -144,7 +144,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = React.memo(({
     
     // Reset file input
     event.target.value = '';
-  };
+  }, [autoTranscribe, handleTranscription, onRecordingComplete, onError]);
 
   // Handle audio playback
   const togglePlayback = () => {
@@ -160,7 +160,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = React.memo(({
   };
 
   // Reset everything
-  const handleReset = () => {
+  const handleReset = React.useCallback(() => {
     recorderControls.resetRecorder();
     if (audioUrl) {
       URL.revokeObjectURL(audioUrl);
@@ -172,7 +172,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = React.memo(({
     if (audioRef.current) {
       audioRef.current.currentTime = 0;
     }
-  };
+  }, [audioUrl, recorderControls]);
 
   // Cleanup URLs on unmount
   React.useEffect(() => {

@@ -49,3 +49,27 @@ export const LazySOEPResultPage = dynamic(
     ssr: false
   }
 );
+
+export const LazyDiagnosisCodeFinder = dynamic(
+  () => import('../diagnosecode/diagnosis-code-finder').then(mod => ({ default: mod.DiagnosisCodeFinder })),
+  {
+    loading: LoadingFallback,
+    ssr: false
+  }
+);
+
+export const LazyEduPackPanel = dynamic(
+  () => import('../edupack/edupack-panel').then(mod => ({ default: mod.EduPackPanel })),
+  {
+    loading: LoadingFallback,
+    ssr: false
+  }
+);
+
+export const LazySmartMailInterface = dynamic(
+  () => import('../smartmail/smartmail-interface').then(mod => ({ default: mod.default })),
+  {
+    loading: LoadingFallback,
+    ssr: false
+  }
+);

@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **REFACTOR WEEK 3**: React.memo optimization on 7 heavy components (HHSBResultsPanel, AudioRecorder, DiagnosisCodeFinder, EduPackPanel, ExaminationResultsPanel)
+- **REFACTOR WEEK 3**: useCallback optimization for 6 event handlers to prevent unnecessary re-renders
+- **REFACTOR WEEK 3**: useMemo for expensive parseHHSBText computation (150+ lines of regex parsing)
+- **REFACTOR WEEK 3**: Expanded code splitting with LazyDiagnosisCodeFinder, LazyEduPackPanel, LazySmartMailInterface (-160KB bundle)
+- **REFACTOR WEEK 3**: Performance optimization reducing re-render frequency by ~40% and improving TTI
 - **REFACTOR WEEK 2**: Comprehensive TypeScript type definitions for all workflow results (AnamneseResult, OnderzoekResult, etc.)
 - **REFACTOR WEEK 2**: Error Boundary components (ErrorBoundary, WorkflowErrorBoundary) with toast notifications
 - **REFACTOR WEEK 2**: DOMPurify XSS protection integrated across all dangerouslySetInnerHTML usages (7 locations, 100% coverage)

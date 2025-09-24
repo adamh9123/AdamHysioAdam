@@ -266,12 +266,17 @@ const HHSBResultsPanel: React.FC<HHSBResultsPanelProps> = React.memo(({
   const [localData, setLocalData] = React.useState<HHSBStructure>(hhsbData);
   const [editingSection, setEditingSection] = React.useState<string | null>(null);
 
-  // Update local data when props change and parse if needed
-  React.useEffect(() => {
-    // Always parse the fullStructuredText to ensure individual sections are populated
-    // This ensures proper display in both compact and full view modes
+  // Memoize parsed data to avoid re-parsing on every render
+  const parsedData = React.useMemo(() => {
     if (hhsbData.fullStructuredText) {
-      const parsedData = parseHHSBText(hhsbData.fullStructuredText);
+      return parseHHSBText(hhsbData.fullStructuredText);
+    }
+    return null;
+  }, [hhsbData.fullStructuredText]);
+
+  // Update local data when props change
+  React.useEffect(() => {
+    if (hhsbData.fullStructuredText && parsedData) {
       // If individual sections were already provided, preserve them, otherwise use parsed data
       const mergedData: HHSBStructure = {
         hulpvraag: hhsbData.hulpvraag || parsedData.hulpvraag,
@@ -285,9 +290,9 @@ const HHSBResultsPanel: React.FC<HHSBResultsPanelProps> = React.memo(({
     } else {
       setLocalData(hhsbData);
     }
-  }, [hhsbData]);
+  }, [hhsbData, parsedData]);
 
-  const toggleSectionCollapse = (sectionId: string) => {
+  const toggleSectionCollapse = React.useCallback((sectionId: string) => {
     setCollapsedSections(prev => {
       const newSet = new Set(prev);
       if (newSet.has(sectionId)) {
@@ -297,25 +302,25 @@ const HHSBResultsPanel: React.FC<HHSBResultsPanelProps> = React.memo(({
       }
       return newSet;
     });
-  };
+  }, []);
 
-  const copySectionContent = async (content: string) => {
+  const copySectionContent = React.useCallback(async (content: string) => {
     try {
       await navigator.clipboard.writeText(content);
       console.log('PHSB sectie gekopieerd naar clipboard');
     } catch (err) {
       console.error('Failed to copy section to clipboard:', err);
     }
-  };
+  }, []);
 
-  const copyFullHHSB = async () => {
+  const copyFullHHSB = React.useCallback(async () => {
     try {
       await navigator.clipboard.writeText(localData.fullStructuredText);
       console.log('Volledige HHSB gekopieerd naar clipboard');
     } catch (err) {
       console.error('Failed to copy to clipboard:', err);
     }
-  };
+  }, [localData.fullStructuredText]);
 
   const updateSectionContent = (sectionId: keyof HHSBStructure, newContent: string) => {
     const updatedData = {
