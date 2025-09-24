@@ -2,9 +2,9 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { useWorkflowContext } from '../../layout';
-import { useWorkflowNavigation } from '@/hooks/useWorkflowNavigation';
-import { useWorkflowState } from '@/hooks/useWorkflowState';
+import { useScribeStore } from '@/lib/state/scribe-store';
+import { useSessionState } from '@/hooks/useSessionState';
+import { exportDocument } from '@/lib/utils/export';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -39,9 +39,9 @@ interface IntakeResults {
 
 export default function AutomatedIntakeConclusie() {
   const router = useRouter();
-  const { patientInfo, sessionState } = useWorkflowContext();
-  const { navigateBack } = useWorkflowNavigation();
-  const { workflowData } = useWorkflowState();
+  const patientInfo = useScribeStore(state => state.patientInfo);
+  const sessionState = useSessionState({ autoSave: true, autoSaveInterval: 30000 });
+  const workflowData = useScribeStore(state => state.workflowData);
 
   const [results, setResults] = React.useState<IntakeResults | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -84,13 +84,13 @@ export default function AutomatedIntakeConclusie() {
         setIsLoading(false);
       }
     } else {
-      // Enhanced fallback with delayed redirect
-      console.warn('No results found in workflow data, redirecting to intake page');
-      setError('Geen resultaten gevonden. U wordt doorgestuurd naar de intake pagina...');
+      // Enhanced fallback WITHOUT automatic redirect
+      console.warn('No results found in workflow data');
+      console.log('Full workflow data structure:', JSON.stringify(workflowData, null, 2));
+      setError('Geen resultaten gevonden. Klik op "Terug naar Intake" om door te gaan.');
+      setIsLoading(false);
 
-      setTimeout(() => {
-        router.push('/scribe/intake-automatisch');
-      }, 3000);
+      // NO automatic redirect - let user control navigation
     }
   }, [patientInfo, workflowData, router]);
 
@@ -111,9 +111,27 @@ export default function AutomatedIntakeConclusie() {
     }
   };
 
-  const handleExport = (format: 'html' | 'txt' | 'docx' | 'pdf') => {
-    // Export functionality to be implemented
-    console.log(`Exporting in ${format} format`);
+  const handleExport = async (format: 'html' | 'txt' | 'docx' | 'pdf') => {
+    if (!results || !patientInfo) {
+      console.error('No results or patient info available for export');
+      return;
+    }
+
+    try {
+      const exportData = {
+        patientInfo,
+        workflowType: 'Automatische Intake',
+        content: results,
+        timestamp: new Date().toISOString(),
+        title: `Intake Conclusie - ${patientInfo.initials}`
+      };
+
+      await exportDocument(format, exportData);
+      console.log(`Successfully exported in ${format} format`);
+    } catch (error) {
+      console.error(`Export failed for ${format} format:`, error);
+      // You could add a toast notification here
+    }
   };
 
   const handleStartNewSession = () => {

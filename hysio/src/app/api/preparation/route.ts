@@ -1,21 +1,69 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { openaiClient } from '@/lib/api/openai';
+import { isValidPatientInfo, createValidationError, createServerError } from '@/lib/utils/api-validation';
+import { getOptimizedPreparationPrompt } from '@/lib/prompts/optimized-prompts';
+import { apiCache } from '@/lib/cache/api-cache';
+import { createPerformanceMiddleware } from '@/lib/monitoring/performance-monitor';
+import type {
+  PreparationRequest,
+  PreparationResponse,
+  ApiResponse,
+  PatientInfo
+} from '@/types/api';
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse<ApiResponse<PreparationResponse>>> {
+  const perfMonitor = createPerformanceMiddleware('preparation');
+  const startTime = perfMonitor.start();
+
   try {
-    const body = await request.json();
+    const body: PreparationRequest = await request.json();
     const { workflowType, step, patientInfo } = body;
 
+    // Validate required fields
     if (!workflowType || !patientInfo) {
       return NextResponse.json(
-        { error: 'Missing required fields: workflowType, patientInfo' },
+        {
+          success: false,
+          error: 'Missing required fields: workflowType, patientInfo'
+        },
         { status: 400 }
       );
     }
 
-    // Generate preparation based on workflow type and patient info
-    const systemPrompt = getSystemPrompt(workflowType, step);
-    const userPrompt = generateUserPrompt(patientInfo, workflowType, step);
+    // Validate patient info structure
+    if (!isValidPatientInfo(patientInfo)) {
+      return NextResponse.json(
+        createValidationError('patientInfo', 'Invalid patient information structure'),
+        { status: 400 }
+      );
+    }
+
+    // Check cache first for performance optimization
+    const cachedResult = await apiCache.getCachedPreparation(
+      workflowType,
+      step,
+      patientInfo,
+      body.previousStepData
+    );
+
+    if (cachedResult) {
+      console.log(`Cache HIT for preparation: ${workflowType}-${step}`);
+      perfMonitor.end(startTime, false, true); // Cache hit
+      return NextResponse.json({
+        success: true,
+        data: cachedResult
+      });
+    }
+
+    console.log(`Cache MISS for preparation: ${workflowType}-${step}`);
+
+    // Generate preparation using optimized prompts
+    const { system: systemPrompt, user: userPrompt } = getOptimizedPreparationPrompt(
+      workflowType,
+      step,
+      patientInfo,
+      body.previousStepData
+    );
 
     const completion = await openaiClient().chat.completions.create({
       model: 'gpt-4o-mini',
@@ -24,7 +72,7 @@ export async function POST(request: NextRequest) {
         { role: 'user', content: userPrompt }
       ],
       temperature: 0.7,
-      max_tokens: 1000,
+      max_tokens: 800, // Reduced from 1000 for better efficiency
     });
 
     const content = completion.choices[0]?.message?.content;
@@ -33,112 +81,37 @@ export async function POST(request: NextRequest) {
       throw new Error('No content generated');
     }
 
+    const responseData: PreparationResponse = {
+      content,
+      workflowType,
+      step,
+      generatedAt: new Date().toISOString()
+    };
+
+    // Cache the result for future requests
+    await apiCache.cachePreparation(
+      workflowType,
+      step,
+      patientInfo,
+      responseData,
+      body.previousStepData
+    );
+
+    perfMonitor.end(startTime, false, false); // Success, no cache
     return NextResponse.json({
       success: true,
-      data: {
-        content,
-        workflowType,
-        step,
-        generatedAt: new Date().toISOString()
-      }
+      data: responseData
     });
 
   } catch (error) {
     console.error('Preparation generation error:', error);
+    perfMonitor.end(startTime, true, false); // Error
+
     return NextResponse.json(
-      { error: 'Failed to generate preparation' },
+      createServerError(error, 'preparation generation'),
       { status: 500 }
     );
   }
 }
 
-function getSystemPrompt(workflowType: string, step?: string): string {
-  const basePrompt = `Je bent een expert fysiotherapeut die intelligente voorbereiding genereert voor consultaties.
-Je taak is om een gestructureerde voorbereiding te maken die helpt bij het intake- of consult proces.
 
-Algemene richtlijnen:
-- Gebruik Nederlandse medische terminologie
-- Wees specifiek en actionable
-- Focus op klinische relevantie
-- Houd rekening met evidence-based practice
-- Maak gebruik van ICF classificatie waar relevant`;
-
-  switch (workflowType) {
-    case 'intake-automatisch':
-      return `${basePrompt}
-
-Voor automatische intake:
-- Genereer een uitgebreide voorbereiding voor de volledige intake
-- Include anamnese vragen, onderzoek suggesties, en assessment tools
-- Focus op HHSB methodiek (Hulpvraag, Historie, Stoornissen, Beperkingen)
-- Suggereer specifieke tests en metingen
-- Geef rode vlagen waarop te letten`;
-
-    case 'intake-stapsgewijs':
-      if (step === 'anamnese') {
-        return `${basePrompt}
-
-Voor stapsgewijze intake - Anamnese stap:
-- Focus specifiek op anamnese vragen
-- Geef gestructureerde vraagstelling per HHSB onderdeel
-- Suggereer doorvragen en verdieping
-- Let op psychosociale factoren
-- Include vragenlijsten indien relevant`;
-      }
-      break;
-
-    case 'consult':
-      return `${basePrompt}
-
-Voor follow-up consult:
-- Focus op SOEP methodiek (Subjectief, Objectief, Evaluatie, Plan)
-- Evalueer voortgang sinds vorige behandeling
-- Suggereer reassessment en metingen
-- Plan vervolgbehandeling
-- Overweeg aanpassingen behandelplan`;
-
-    default:
-      return basePrompt;
-  }
-
-  return basePrompt;
-}
-
-function generateUserPrompt(patientInfo: any, workflowType: string, step?: string): string {
-  const { initials, birthYear, gender, chiefComplaint, additionalInfo } = patientInfo;
-
-  const age = new Date().getFullYear() - parseInt(birthYear);
-  const genderText = gender === 'male' ? 'man' : gender === 'female' ? 'vrouw' : 'persoon';
-
-  let prompt = `Genereer een gerichte voorbereiding voor de volgende patiënt:
-
-Patiëntgegevens:
-- Initialen: ${initials}
-- Leeftijd: ${age} jaar
-- Geslacht: ${genderText}
-- Hoofdklacht: ${chiefComplaint}`;
-
-  if (additionalInfo && additionalInfo.trim()) {
-    prompt += `\n- Aanvullende informatie: ${additionalInfo}`;
-  }
-
-  switch (workflowType) {
-    case 'intake-automatisch':
-      prompt += `\n\nGenereer een uitgebreide intake voorbereiding die helpt bij het structureren van de volledige intake sessie. Include specifieke vragen, onderzoek suggesties, en assessment tools die relevant zijn voor deze hoofdklacht.`;
-      break;
-
-    case 'intake-stapsgewijs':
-      if (step === 'anamnese') {
-        prompt += `\n\nGenereer een gerichte anamnese voorbereiding. Focus op specifieke vragen die helpen bij het in kaart brengen van de hulpvraag, historie, stoornissen en beperkingen volgens de HHSB methodiek.`;
-      }
-      break;
-
-    case 'consult':
-      prompt += `\n\nGenereer een follow-up consult voorbereiding. Focus op evaluatie van voortgang, reassessment en planning van vervolgbehandeling volgens SOEP methodiek.`;
-      break;
-  }
-
-  prompt += `\n\nHoud de voorbereiding praktisch, actionable en specifiek voor deze patiënt en hoofdklacht.`;
-
-  return prompt;
-}

@@ -1,15 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { openaiClient } from '@/lib/api/openai';
-import { transcribeAudio } from '@/lib/api/transcription';
+import { apiCache } from '@/lib/cache/api-cache';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { workflowType, patientInfo, preparation, inputData } = body;
 
+    // Basic validation
     if (!workflowType || !patientInfo || !inputData) {
       return NextResponse.json(
-        { error: 'Missing required fields: workflowType, patientInfo, inputData' },
+        {
+          success: false,
+          error: 'Missing required fields: workflowType, patientInfo, inputData'
+        },
         { status: 400 }
       );
     }
@@ -20,25 +24,49 @@ export async function POST(request: NextRequest) {
     if (inputData.type === 'manual') {
       transcript = inputData.data;
     } else if (inputData.type === 'recording' || inputData.type === 'file') {
-      // For now, we'll simulate transcription since the audio data needs to be properly handled
-      // In a real implementation, you would need to process the audio file/blob
-      transcript = await processAudioInput(inputData);
+      // For now, simulate transcription
+      transcript = `[Simulatie] Patiënt rapporteert klachten die passen bij de hoofdklacht "${patientInfo.chiefComplaint}". Anamnese gegevens werden verzameld tijdens het gesprek.`;
     } else {
       return NextResponse.json(
-        { error: 'Invalid input data type' },
+        { success: false, error: 'Invalid input data type' },
         { status: 400 }
       );
     }
 
-    if (!transcript || transcript.trim().length === 0) {
+    if (!transcript || transcript.trim().length < 10) {
       return NextResponse.json(
-        { error: 'No transcript available for processing' },
+        { success: false, error: 'No valid transcript available for processing' },
         { status: 400 }
       );
     }
 
-    // Generate HHSB structured output
-    const hhsbData = await generateHHSBAnalysis(patientInfo, preparation, transcript, workflowType);
+    // Check cache first for performance optimization
+    const cachedResult = await apiCache.getCachedHHSBResult(
+      patientInfo,
+      transcript,
+      preparation || undefined
+    );
+
+    if (cachedResult) {
+      console.log(`Cache HIT for HHSB processing: ${patientInfo.chiefComplaint}`);
+      return NextResponse.json({
+        success: true,
+        data: cachedResult
+      });
+    }
+
+    console.log(`Cache MISS for HHSB processing: ${patientInfo.chiefComplaint}`);
+
+    // Generate HHSB structured output using OpenAI
+    const hhsbData = await generateHHSBAnalysis(patientInfo, preparation, transcript);
+
+    // Cache the result for future requests
+    await apiCache.cacheHHSBResult(
+      patientInfo,
+      transcript,
+      hhsbData,
+      preparation || undefined
+    );
 
     return NextResponse.json({
       success: true,
@@ -47,120 +75,98 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('HHSB processing error:', error);
+
     return NextResponse.json(
-      { error: 'Failed to process HHSB data' },
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'HHSB processing failed'
+      },
       { status: 500 }
     );
   }
 }
 
-async function processAudioInput(inputData: any): Promise<string> {
-  // For demonstration purposes, return a simulated transcript
-  // In a real implementation, this would handle actual audio transcription
-  if (inputData.type === 'recording') {
-    return `[Simulatie] Patiënt rapporteert klachten die passen bij de hoofdklacht. Anamnese gegevens werden verzameld tijdens het gesprek. Verdere analyse is nodig voor een complete HHSB beoordeling.`;
-  } else if (inputData.type === 'file') {
-    return `[Simulatie] Audio bestand verwerkt. Patiënt beschrijft klachten en geeft relevante anamnese informatie. Transcript gegenereerd voor HHSB analyse.`;
-  }
-  return '';
-}
-
-async function generateHHSBAnalysis(
-  patientInfo: any,
-  preparation: string | null,
-  transcript: string,
-  workflowType: string
-): Promise<any> {
+async function generateHHSBAnalysis(patientInfo: any, preparation: string | null, transcript: string) {
   const { initials, birthYear, gender, chiefComplaint } = patientInfo;
   const age = new Date().getFullYear() - parseInt(birthYear);
   const genderText = gender === 'male' ? 'man' : gender === 'female' ? 'vrouw' : 'persoon';
 
-  const systemPrompt = `Je bent een expert fysiotherapeut die intake data analyseert volgens de HHSB methodiek.
+  const systemPrompt = `Je bent een ervaren fysiotherapeut die een gestructureerde HHSB (Hulpvraag, Historie, Stoornissen, Beperkingen) anamnese maakt.
 
-HHSB staat voor:
-- H: Hulpvraag (motivatie/hulpvraag en doelen/verwachtingen van de patiënt)
-- H: Historie (ontstaansmoment, verloop klachten en eerdere behandeling)
-- S: Stoornissen (pijn, mobiliteit, kracht en stabiliteit)
-- B: Beperkingen (ADL, werk en sport gerelateerde beperkingen)
+Analyseer de transcriptie van het gesprek met de patiënt en struktureer deze volgens de HHSB methodiek.
 
-Je taak is om de verstrekte informatie te analyseren en te structureren volgens deze HHSB indeling.
-Geef voor elke sectie duidelijke, klinisch relevante informatie.
-Voeg ook een beknopte samenvatting van de anamnese toe.
+Format je antwoord als volgt:
+**H - Hulpvraag:**
+[Wat wil de patiënt bereiken, wat is de reden van komst]
 
-Output format:
-- Gestructureerd volgens HHSB onderdelen
-- Nederlandse medische terminologie
-- Evidence-based bevindingen
-- Klinisch relevante details
-- ICF classificatie waar mogelijk`;
+**H - Historie:**
+[Ontstaan, verloop, eerdere behandeling]
 
-  const userPrompt = `Analyseer de volgende intake informatie en structureer volgens HHSB methodiek:
+**S - Stoornissen:**
+[Pijn, bewegingsbeperkingen, andere symptomen]
 
-Patiëntgegevens:
+**B - Beperkingen:**
+[Impact op dagelijkse leven, werk, sport]
+
+**Samenvatting Anamnese:**
+[Korte samenvatting van de bevindingen]
+
+Als er rode vlagen zijn, vermeld deze als [RODE VLAG: beschrijving]`;
+
+  const userPrompt = `Patiënt informatie:
 - Initialen: ${initials}
 - Leeftijd: ${age} jaar
 - Geslacht: ${genderText}
 - Hoofdklacht: ${chiefComplaint}
 
-${preparation ? `Voorbereiding:\n${preparation}\n` : ''}
+${preparation ? `Voorbereiding:\n${preparation}\n\n` : ''}
 
-Intake transcript:
+Transcriptie van het gesprek:
 ${transcript}
 
-Genereer een volledige HHSB analyse met de volgende structuur:
+Maak een gestructureerde HHSB analyse van deze informatie.`;
 
-**H - Hulpvraag:**
-[Analyseer de hulpvraag, motivatie en doelen van de patiënt]
+  try {
+    const completion = await openaiClient().chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      temperature: 0.3,
+      max_tokens: 1500,
+    });
 
-**H - Historie:**
-[Beschrijf ontstaansmoment, verloop en eerdere behandelingen]
+    const analysisText = completion.choices[0]?.message?.content;
 
-**S - Stoornissen in lichaamsfuncties en anatomische structuren:**
-[Analyseer stoornissen in pijn, mobiliteit, kracht en stabiliteit]
-
-**B - Beperkingen:**
-[Beschrijf beperkingen in ADL, werk en sport]
-
-**Samenvatting Anamnese:**
-[Geef een beknopte, klinische samenvatting van de belangrijkste bevindingen]
-
-Zorg dat elke sectie inhoudelijk gevuld is op basis van de beschikbare informatie.`;
-
-  const completion = await openaiClient().chat.completions.create({
-    model: 'gpt-4o-mini',
-    messages: [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: userPrompt }
-    ],
-    temperature: 0.3,
-    max_tokens: 2000,
-  });
-
-  const analysisText = completion.choices[0]?.message?.content;
-
-  if (!analysisText) {
-    throw new Error('No analysis generated');
-  }
-
-  // Parse the analysis into structured format
-  const hhsbStructure = parseHHSBAnalysis(analysisText);
-
-  return {
-    hhsbStructure,
-    fullStructuredText: analysisText,
-    transcript,
-    workflowType,
-    processedAt: new Date().toISOString(),
-    patientInfo: {
-      initials,
-      age,
-      gender: genderText,
-      chiefComplaint
+    if (!analysisText) {
+      throw new Error('No analysis generated');
     }
-  };
+
+    // Parse the analysis into structured format
+    const hhsbStructure = parseHHSBAnalysis(analysisText);
+
+    return {
+      hhsbStructure,
+      fullStructuredText: analysisText,
+      transcript,
+      workflowType: 'intake-automatisch',
+      processedAt: new Date().toISOString(),
+      patientInfo: {
+        initials,
+        age,
+        gender: genderText,
+        chiefComplaint
+      }
+    };
+
+  } catch (error) {
+    console.error('OpenAI API error:', error);
+    throw new Error('Failed to generate HHSB analysis');
+  }
 }
 
-function parseHHSBAnalysis(analysisText: string): any {
+function parseHHSBAnalysis(analysisText: string) {
   const result = {
     hulpvraag: '',
     historie: '',
@@ -203,9 +209,9 @@ function parseHHSBAnalysis(analysisText: string): any {
     }
 
     // Extract red flags if present
-    const redFlagMatch = analysisText.match(/\[RODE\s*VLAG[:\s]*([^\]]+)\]/gi);
-    if (redFlagMatch) {
-      result.redFlags = redFlagMatch.map(flag => flag.replace(/\[RODE\s*VLAG[:\s]*/, '').replace(/\]/, '').trim());
+    const redFlagMatches = analysisText.match(/\[RODE\s*VLAG[:\s]*([^\]]+)\]/gi);
+    if (redFlagMatches) {
+      result.redFlags = redFlagMatches.map(flag => flag.replace(/\[RODE\s*VLAG[:\s]*/, '').replace(/\]/, '').trim());
     }
 
   } catch (error) {

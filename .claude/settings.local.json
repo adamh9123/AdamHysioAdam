@@ -50,7 +50,13 @@
       "Bash(else echo \"OPENAI_API_KEY is not set\")",
       "Bash(fi)",
       "Bash(move srccomponentsuiphsb-results-panel.tsx srccomponentsuihhsb-results-panel.tsx)",
-      "Bash(ren:*)"
+      "Bash(ren:*)",
+      "Bash(npm run:*)",
+      "Bash(if not exist \"docs\" mkdir docs)",
+      "Bash(xargs:*)",
+      "Bash(test:*)",
+      "Bash(git checkout:*)",
+      "Bash(if not exist \"state\" mkdir state)"
     ],
     "deny": [],
     "ask": []

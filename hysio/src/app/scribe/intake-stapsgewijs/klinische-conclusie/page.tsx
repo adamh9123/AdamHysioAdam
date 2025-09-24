@@ -2,9 +2,9 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { useWorkflowContext } from '../../layout';
-import { useWorkflowNavigation } from '@/hooks/useWorkflowNavigation';
-import { useWorkflowState } from '@/hooks/useWorkflowState';
+import { useScribeStore } from '@/lib/state/scribe-store';
+import { useSessionState } from '@/hooks/useSessionState';
+import { exportDocument } from '@/lib/utils/export';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,7 +13,6 @@ import { FileUpload } from '@/components/ui/file-upload';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
@@ -57,9 +56,13 @@ interface KlinischeConclusieState {
 
 export default function KlinischeConclusie() {
   const router = useRouter();
-  const { patientInfo, currentWorkflow, setCurrentWorkflow, sessionState } = useWorkflowContext();
-  const { navigateBack } = useWorkflowNavigation();
-  const { workflowData, setKlinischeConclusieData, markStepComplete } = useWorkflowState();
+  const patientInfo = useScribeStore(state => state.patientInfo);
+  const currentWorkflow = useScribeStore(state => state.currentWorkflow);
+  const setCurrentWorkflow = useScribeStore(state => state.setCurrentWorkflow);
+  const sessionState = useSessionState({ autoSave: true, autoSaveInterval: 30000 });
+  const workflowData = useScribeStore(state => state.workflowData);
+  const setKlinischeConclusieData = useScribeStore(state => state.setKlinischeConclusieData);
+  const markStepComplete = useScribeStore(state => state.markStepComplete);
 
   const [state, setState] = React.useState<KlinischeConclusieState>({
     preparation: null,
@@ -186,18 +189,13 @@ export default function KlinischeConclusie() {
     }
   };
 
-  const handleInputMethodChange = (method: 'recording' | 'file' | 'manual') => {
-    setState(prev => ({
-      ...prev,
-      inputMethod: method,
-      error: null,
-    }));
-  };
 
   const handleRecordingComplete = (blob: Blob, duration: number) => {
     setState(prev => ({
       ...prev,
+      inputMethod: 'recording',
       recordingData: { blob, duration, isRecording: false },
+      uploadedFile: null, // Clear file upload when recording
     }));
 
     setKlinischeConclusieData({
@@ -208,7 +206,9 @@ export default function KlinischeConclusie() {
   const handleFileUpload = (file: File) => {
     setState(prev => ({
       ...prev,
+      inputMethod: 'file',
       uploadedFile: file,
+      recordingData: { blob: null, duration: 0, isRecording: false }, // Clear recording when uploading file
     }));
 
     setKlinischeConclusieData({
@@ -219,6 +219,7 @@ export default function KlinischeConclusie() {
   const handleManualNotesChange = (notes: string) => {
     setState(prev => ({
       ...prev,
+      inputMethod: notes.trim() ? 'manual' : null,
       manualNotes: notes,
     }));
 
@@ -325,9 +326,27 @@ export default function KlinischeConclusie() {
     router.push('/dashboard');
   };
 
-  const handleExport = (format: 'html' | 'txt' | 'docx' | 'pdf') => {
-    // Export functionality to be implemented
-    console.log(`Exporting in ${format} format`);
+  const handleExport = async (format: 'html' | 'txt' | 'docx' | 'pdf') => {
+    if (!state.result || !patientInfo) {
+      console.error('No klinische conclusie result or patient info available for export');
+      return;
+    }
+
+    try {
+      const exportData = {
+        patientInfo,
+        workflowType: 'Stapsgewijze Intake - Klinische Conclusie',
+        content: state.result,
+        timestamp: new Date().toISOString(),
+        title: `Klinische Conclusie - ${patientInfo.initials}`
+      };
+
+      await exportDocument(format, exportData);
+      console.log(`Successfully exported klinische conclusie in ${format} format`);
+    } catch (error) {
+      console.error(`Export failed for ${format} format:`, error);
+      // You could add a toast notification here
+    }
   };
 
   const canProcess = () => {
@@ -513,26 +532,13 @@ export default function KlinischeConclusie() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs
-              value={state.inputMethod || 'recording'}
-              onValueChange={(value) => handleInputMethodChange(value as any)}
-            >
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="recording" className="flex items-center gap-2">
-                  <Mic size={16} />
-                  Live Opname
-                </TabsTrigger>
-                <TabsTrigger value="file" className="flex items-center gap-2">
-                  <Upload size={16} />
-                  Bestand
-                </TabsTrigger>
-                <TabsTrigger value="manual" className="flex items-center gap-2">
-                  <Edit3 size={16} />
-                  Handmatig
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="recording" className="space-y-4">
+            <div className="space-y-6">
+              {/* Recording Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-hysio-deep-green">
+                  <Mic size={18} />
+                  <h3 className="text-lg font-medium">Live Opname</h3>
+                </div>
                 <AudioRecorder
                   onRecordingComplete={handleRecordingComplete}
                   disabled={state.isProcessing}
@@ -545,25 +551,35 @@ export default function KlinischeConclusie() {
                     </div>
                   </div>
                 )}
-              </TabsContent>
 
-              <TabsContent value="file" className="space-y-4">
-                <FileUpload
-                  onFileUpload={handleFileUpload}
-                  acceptedTypes={['audio/*']}
-                  disabled={state.isProcessing}
-                />
-                {state.uploadedFile && (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                    <div className="flex items-center gap-2 text-green-800">
-                      <CheckCircle size={16} />
-                      <span>Bestand geüpload: {state.uploadedFile.name}</span>
-                    </div>
+                {/* File Upload directly below recording */}
+                <div className="pt-2 border-t border-hysio-mint/20">
+                  <div className="flex items-center gap-2 text-hysio-deep-green mb-3">
+                    <Upload size={16} />
+                    <span className="text-sm font-medium">Bestand selecteren</span>
                   </div>
-                )}
-              </TabsContent>
+                  <FileUpload
+                    onFileUpload={handleFileUpload}
+                    acceptedTypes={['audio/*']}
+                    disabled={state.isProcessing}
+                  />
+                  {state.uploadedFile && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 mt-3">
+                      <div className="flex items-center gap-2 text-green-800">
+                        <CheckCircle size={16} />
+                        <span>Bestand geüpload: {state.uploadedFile.name}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
 
-              <TabsContent value="manual" className="space-y-4">
+              {/* Manual Notes Section */}
+              <div className="space-y-4 pt-4 border-t border-hysio-mint/30">
+                <div className="flex items-center gap-2 text-hysio-deep-green">
+                  <Edit3 size={18} />
+                  <h3 className="text-lg font-medium">Handmatige Invoer</h3>
+                </div>
                 <Textarea
                   placeholder="Voer hier uw klinische conclusie in..."
                   value={state.manualNotes}
@@ -575,8 +591,8 @@ export default function KlinischeConclusie() {
                 <p className="text-xs text-hysio-deep-green-900/60">
                   Tip: Formuleer diagnose, behandeldoelen, interventies en vervolgafspraken
                 </p>
-              </TabsContent>
-            </Tabs>
+              </div>
+            </div>
 
             {/* Process Button */}
             <div className="mt-6 pt-4 border-t">

@@ -2,9 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { useWorkflowContext } from '../layout';
-import { useWorkflowNavigation } from '@/hooks/useWorkflowNavigation';
-import { useWorkflowState } from '@/hooks/useWorkflowState';
+import { useScribeStore } from '@/lib/state/scribe-store';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,6 +11,7 @@ import { FileUpload } from '@/components/ui/file-upload';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { HysioAssistant } from '@/components/scribe/hysio-assistant';
 import {
   ArrowLeft,
   FileText,
@@ -47,9 +46,12 @@ interface ConsultState {
 
 export default function ConsultPage() {
   const router = useRouter();
-  const { patientInfo, currentWorkflow, setCurrentWorkflow } = useWorkflowContext();
-  const { navigateBack } = useWorkflowNavigation();
-  const { workflowData, setConsultData, markStepComplete } = useWorkflowState();
+  const patientInfo = useScribeStore(state => state.patientInfo);
+  const currentWorkflow = useScribeStore(state => state.currentWorkflow);
+  const setCurrentWorkflow = useScribeStore(state => state.setCurrentWorkflow);
+  const workflowData = useScribeStore(state => state.workflowData);
+  const setConsultData = useScribeStore(state => state.setConsultData);
+  const markStepComplete = useScribeStore(state => state.markStepComplete);
 
   const [state, setState] = React.useState<ConsultState>({
     preparation: null,
@@ -507,6 +509,29 @@ export default function ConsultPage() {
                 <p className="text-xs text-hysio-deep-green-900/60">
                   Tip: Noteer subjectieve klachten, objectieve bevindingen, evaluatie en behandelplan
                 </p>
+
+                {/* Hysio Assistant Integration */}
+                {patientInfo && (
+                  <div className="mt-4">
+                    <HysioAssistant
+                      patientInfo={patientInfo}
+                      workflowType="consult"
+                      workflowStep="soep"
+                      currentContext={{
+                        preparation: state.preparation,
+                        notes: state.manualNotes,
+                        inputMethod: state.inputMethod
+                      }}
+                      onSuggestionSelect={(suggestion) => {
+                        const currentNotes = state.manualNotes;
+                        const newNotes = currentNotes ?
+                          `${currentNotes}\n\n${suggestion}` :
+                          suggestion;
+                        handleManualNotesChange(newNotes);
+                      }}
+                    />
+                  </div>
+                )}
               </div>
             </div>
 

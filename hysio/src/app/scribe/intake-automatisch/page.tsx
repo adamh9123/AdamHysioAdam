@@ -2,9 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { useWorkflowContext } from '../layout';
-import { useWorkflowNavigation } from '@/hooks/useWorkflowNavigation';
-import { useWorkflowState } from '@/hooks/useWorkflowState';
+import { useScribeStore } from '@/lib/state/scribe-store';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,6 +11,7 @@ import { FileUpload } from '@/components/ui/file-upload';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { HysioAssistant } from '@/components/scribe/hysio-assistant';
 import {
   ArrowLeft,
   ArrowRight,
@@ -49,9 +48,13 @@ interface AutomatedIntakeState {
 
 export default function AutomatedIntakePage() {
   const router = useRouter();
-  const { patientInfo, currentWorkflow, setCurrentWorkflow } = useWorkflowContext();
+  const patientInfo = useScribeStore(state => state.patientInfo);
+  const currentWorkflow = useScribeStore(state => state.currentWorkflow);
+  const setCurrentWorkflow = useScribeStore(state => state.setCurrentWorkflow);
   const { navigateBack } = useWorkflowNavigation();
-  const { workflowData, setAutomatedIntakeData, markStepComplete } = useWorkflowState();
+  const workflowData = useScribeStore(state => state.workflowData);
+  const setAutomatedIntakeData = useScribeStore(state => state.setAutomatedIntakeData);
+  const markStepComplete = useScribeStore(state => state.markStepComplete);
 
   const [state, setState] = React.useState<AutomatedIntakeState>({
     preparation: null,
@@ -231,18 +234,24 @@ export default function AutomatedIntakePage() {
         isComplete: true,
       }));
 
-      // Navigate to results page immediately with error handling
-      try {
-        await router.push('/scribe/intake-automatisch/conclusie');
-      } catch (navigationError) {
-        console.error('Navigation failed:', navigationError);
-        // Fallback: Show manual navigation option
-        setState(prev => ({
-          ...prev,
-          error: 'Navigatie naar resultaten mislukt. Klik hieronder om handmatig door te gaan.',
-          showManualNavigation: true,
-        }));
-      }
+      // Enhanced navigation with delayed timing and better error handling
+      console.log('Intake processing completed successfully, preparing navigation...');
+
+      // Give React time to update state before navigation
+      setTimeout(async () => {
+        try {
+          console.log('Navigating to results page...');
+          await router.push('/scribe/intake-automatisch/conclusie');
+        } catch (navigationError) {
+          console.error('Navigation failed:', navigationError);
+          // Fallback: Show manual navigation option
+          setState(prev => ({
+            ...prev,
+            error: 'Navigatie naar resultaten mislukt. Klik hieronder om handmatig door te gaan.',
+            showManualNavigation: true,
+          }));
+        }
+      }, 2000); // 2 second delay for state stabilization
 
     } catch (error) {
       console.error('Intake processing error:', error);
@@ -486,6 +495,30 @@ export default function AutomatedIntakePage() {
                 <p className="text-xs text-hysio-deep-green-900/60">
                   Tip: Beschrijf de anamnese, onderzoeksbevindingen en uw klinische impressie
                 </p>
+
+                {/* Hysio Assistant Integration */}
+                {patientInfo && (
+                  <div className="mt-4">
+                    <HysioAssistant
+                      patientInfo={patientInfo}
+                      workflowType="intake-automatisch"
+                      workflowStep="intake"
+                      currentContext={{
+                        preparation: state.preparation,
+                        notes: state.manualNotes,
+                        inputMethod: state.inputMethod
+                      }}
+                      onSuggestionSelect={(suggestion) => {
+                        // Append suggestion to manual notes
+                        const currentNotes = state.manualNotes;
+                        const newNotes = currentNotes ?
+                          `${currentNotes}\n\n${suggestion}` :
+                          suggestion;
+                        handleManualNotesChange(newNotes);
+                      }}
+                    />
+                  </div>
+                )}
               </div>
             </div>
 
