@@ -2,8 +2,9 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { useWorkflowContext } from '../../layout';
-import { useWorkflowState } from '@/hooks/useWorkflowState';
+import { useScribeStore } from '@/lib/state/scribe-store';
+import { useSessionState } from '@/hooks/useSessionState';
+import { exportSOEPData } from '@/lib/utils/export';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -42,8 +43,9 @@ interface SOEPResults {
 
 export default function SOEPVerslagPage() {
   const router = useRouter();
-  const { patientInfo, sessionState } = useWorkflowContext();
-  const { workflowData } = useWorkflowState();
+  const patientInfo = useScribeStore(state => state.patientInfo);
+  const sessionState = useSessionState({ autoSave: true, autoSaveInterval: 30000 });
+  const workflowData = useScribeStore(state => state.workflowData);
 
   const [results, setResults] = React.useState<SOEPResults | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -120,8 +122,19 @@ export default function SOEPVerslagPage() {
     }
   };
 
-  const handleExport = (format: 'html' | 'txt' | 'docx' | 'pdf') => {
-    console.log(`Exporting SOEP report in ${format} format`);
+  const handleExport = async (format: 'html' | 'txt' | 'docx' | 'pdf') => {
+    if (!soepResult || !patientInfo) {
+      console.error('No SOEP result or patient info available for export');
+      return;
+    }
+
+    try {
+      await exportSOEPData(format, soepResult, patientInfo);
+      console.log(`Successfully exported SOEP data in ${format} format`);
+    } catch (error) {
+      console.error(`SOEP export failed for ${format} format:`, error);
+      // You could add a toast notification here
+    }
   };
 
   const handleStartNewSession = () => {

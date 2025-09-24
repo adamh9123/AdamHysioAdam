@@ -1,14 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { openaiClient } from '@/lib/api/openai';
+import { isValidInputData, isValidTranscript, createValidationError, createServerError } from '@/lib/utils/api-validation';
+import { getOptimizedProcessingPrompt } from '@/lib/prompts/optimized-prompts';
+import { apiCache } from '@/lib/cache/api-cache';
+import { generateOptimizedResponseWithMetadata, detectClientType } from '@/lib/utils/response-optimization';
+import type {
+  SOEPProcessRequest,
+  SOEPProcessResponse,
+  SOEPStructure,
+  ApiResponse,
+  PatientInfo,
+  InputData
+} from '@/types/api';
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse<ApiResponse<SOEPProcessResponse>>> {
   try {
-    const body = await request.json();
+    const body: SOEPProcessRequest = await request.json();
     const { workflowType, patientInfo, preparation, inputData } = body;
 
+    // Validate required fields
     if (!workflowType || !patientInfo || !inputData) {
       return NextResponse.json(
-        { error: 'Missing required fields: workflowType, patientInfo, inputData' },
+        {
+          success: false,
+          error: 'Missing required fields: workflowType, patientInfo, inputData'
+        },
+        { status: 400 }
+      );
+    }
+
+    // Validate input data structure
+    if (!isValidInputData(inputData)) {
+      return NextResponse.json(
+        createValidationError('inputData', 'Invalid input data structure'),
         { status: 400 }
       );
     }
@@ -29,31 +53,73 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!transcript || transcript.trim().length === 0) {
+    if (!isValidTranscript(transcript)) {
       return NextResponse.json(
-        { error: 'No transcript available for processing' },
+        createValidationError('transcript', 'No valid transcript available for processing'),
         { status: 400 }
       );
     }
 
+    // Check cache first for performance optimization
+    const cachedResult = await apiCache.getCachedSOEPResult(
+      patientInfo,
+      transcript,
+      preparation || undefined
+    );
+
+    if (cachedResult) {
+      console.log(`Cache HIT for SOEP processing: ${patientInfo.chiefComplaint}`);
+      return NextResponse.json({
+        success: true,
+        data: cachedResult
+      });
+    }
+
+    console.log(`Cache MISS for SOEP processing: ${patientInfo.chiefComplaint}`);
+
     // Generate SOEP structured output
     const soepData = await generateSOEPAnalysis(patientInfo, preparation, transcript, workflowType);
 
-    return NextResponse.json({
+    // Cache the result for future requests
+    await apiCache.cacheSOEPResult(
+      patientInfo,
+      transcript,
+      soepData,
+      preparation || undefined
+    );
+
+    // Optimize response based on client type
+    const userAgent = request.headers.get('user-agent') || undefined;
+    const clientType = detectClientType(userAgent);
+    const { response: optimizedResponse, metadata } = generateOptimizedResponseWithMetadata(
+      soepData,
+      clientType
+    );
+
+    // Add optimization metadata to response headers
+    const response = NextResponse.json({
       success: true,
-      data: soepData
+      data: optimizedResponse
     });
+
+    response.headers.set('X-Response-Original-Size', metadata.originalSize.toString());
+    response.headers.set('X-Response-Compressed-Size', metadata.compressedSize.toString());
+    response.headers.set('X-Response-Compression-Ratio', metadata.compressionRatio.toFixed(2));
+    response.headers.set('X-Response-Client-Type', metadata.clientType);
+
+    return response;
 
   } catch (error) {
     console.error('SOEP processing error:', error);
+
     return NextResponse.json(
-      { error: 'Failed to process SOEP data' },
+      createServerError(error, 'SOEP processing'),
       { status: 500 }
     );
   }
 }
 
-async function processAudioInput(inputData: any): Promise<string> {
+async function processAudioInput(inputData: InputData): Promise<string> {
   // For demonstration purposes, return a simulated transcript
   // In a real implementation, this would handle actual audio transcription
   if (inputData.type === 'recording') {
@@ -65,64 +131,22 @@ async function processAudioInput(inputData: any): Promise<string> {
 }
 
 async function generateSOEPAnalysis(
-  patientInfo: any,
+  patientInfo: PatientInfo,
   preparation: string | null,
   transcript: string,
   workflowType: string
-): Promise<any> {
+): Promise<SOEPProcessResponse> {
   const { initials, birthYear, gender, chiefComplaint } = patientInfo;
   const age = new Date().getFullYear() - parseInt(birthYear);
   const genderText = gender === 'male' ? 'man' : gender === 'female' ? 'vrouw' : 'persoon';
 
-  const systemPrompt = `Je bent een expert fysiotherapeut die follow-up consulten analyseert volgens de SOEP methodiek.
-
-SOEP staat voor:
-- S: Subjectief (klachten, ervaring en observaties van de patiënt)
-- O: Objectief (meetbare bevindingen, tests en observaties van de therapeut)
-- E: Evaluatie (interpretatie, analyse en klinische redenering)
-- P: Plan (behandelplan, doelen en vervolgafspraken)
-
-Je taak is om de verstrekte follow-up informatie te analyseren en te structureren volgens deze SOEP indeling.
-Focus op continuïteit van zorg en evaluatie van voortgang sinds vorige behandeling.
-
-Output format:
-- Gestructureerd volgens SOEP onderdelen
-- Nederlandse medische terminologie
-- Evidence-based evaluatie
-- Klinisch relevante details
-- Duidelijke vervolgstappen`;
-
-  const userPrompt = `Analyseer de volgende follow-up consult informatie en structureer volgens SOEP methodiek:
-
-Patiëntgegevens:
-- Initialen: ${initials}
-- Leeftijd: ${age} jaar
-- Geslacht: ${genderText}
-- Hoofdklacht: ${chiefComplaint}
-
-${preparation ? `Voorbereiding:\n${preparation}\n` : ''}
-
-Consult transcript:
-${transcript}
-
-Genereer een volledige SOEP analyse met de volgende structuur:
-
-**S - Subjectief:**
-[Analyseer patiënt gerapporteerde klachten, ervaringen en observaties]
-
-**O - Objectief:**
-[Beschrijf meetbare bevindingen, tests en therapeut observaties]
-
-**E - Evaluatie:**
-[Geef interpretatie, analyse en klinische redenering van de bevindingen]
-
-**P - Plan:**
-[Beschrijf behandelplan, doelen en vervolgafspraken]
-
-**Samenvatting Consult:**
-[Geef een beknopte samenvatting van het consult en belangrijkste beslissingen]
-
-Zorg dat elke sectie inhoudelijk gevuld is op basis van de beschikbare informatie en focus op continuïteit van zorg.`;
+  // Use optimized prompts for better token efficiency
+  const { system: systemPrompt, user: userPrompt } = getOptimizedProcessingPrompt(
+    'soep',
+    patientInfo,
+    transcript,
+    preparation || undefined
+  );
 
   const completion = await openaiClient().chat.completions.create({
     model: 'gpt-4o-mini',
@@ -131,7 +155,7 @@ Zorg dat elke sectie inhoudelijk gevuld is op basis van de beschikbare informati
       { role: 'user', content: userPrompt }
     ],
     temperature: 0.3,
-    max_tokens: 2000,
+    max_tokens: 1500, // Optimized from 2000 for better efficiency
   });
 
   const analysisText = completion.choices[0]?.message?.content;
@@ -158,7 +182,7 @@ Zorg dat elke sectie inhoudelijk gevuld is op basis van de beschikbare informati
   };
 }
 
-function parseSOEPAnalysis(analysisText: string): any {
+function parseSOEPAnalysis(analysisText: string): SOEPStructure {
   const result = {
     subjectief: '',
     objectief: '',
@@ -212,3 +236,4 @@ function parseSOEPAnalysis(analysisText: string): any {
 
   return result;
 }
+

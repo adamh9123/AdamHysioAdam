@@ -2,9 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { useWorkflowContext } from '../../layout';
-import { useWorkflowNavigation } from '@/hooks/useWorkflowNavigation';
-import { useWorkflowState } from '@/hooks/useWorkflowState';
+import { useScribeStore } from '@/lib/state/scribe-store';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -15,6 +13,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { HysioAssistant } from '@/components/scribe/hysio-assistant';
 import {
   ArrowLeft,
   ArrowRight,
@@ -52,9 +51,12 @@ interface AnamneseState {
 
 export default function AnamnesePage() {
   const router = useRouter();
-  const { patientInfo, currentWorkflow, setCurrentWorkflow } = useWorkflowContext();
-  const { navigateBack, navigateNext } = useWorkflowNavigation();
-  const { workflowData, setAnamneseData, markStepComplete } = useWorkflowState();
+  const patientInfo = useScribeStore(state => state.patientInfo);
+  const currentWorkflow = useScribeStore(state => state.currentWorkflow);
+  const setCurrentWorkflow = useScribeStore(state => state.setCurrentWorkflow);
+  const workflowData = useScribeStore(state => state.workflowData);
+  const setAnamneseData = useScribeStore(state => state.setAnamneseData);
+  const markStepComplete = useScribeStore(state => state.markStepComplete);
 
   const [state, setState] = React.useState<AnamneseState>({
     preparation: null,
@@ -109,6 +111,13 @@ export default function AnamnesePage() {
     try {
       setState(prev => ({ ...prev, isProcessing: true, error: null }));
 
+      // Enhanced request with better error handling
+      console.log('Generating preparation with data:', {
+        workflowType: 'intake-stapsgewijs',
+        step: 'anamnese',
+        patientInfo
+      });
+
       // Call preparation generation API
       const response = await fetch('/api/preparation', {
         method: 'POST',
@@ -121,7 +130,9 @@ export default function AnamnesePage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate preparation');
+        const errorData = await response.text();
+        console.error('Preparation API error:', response.status, errorData);
+        throw new Error(`Failed to generate preparation: ${response.status} ${errorData}`);
       }
 
       const { data } = await response.json();
@@ -215,6 +226,15 @@ export default function AnamnesePage() {
         throw new Error('Geen input data beschikbaar');
       }
 
+      // Enhanced processing with better logging
+      console.log('Processing anamnese with data:', {
+        workflowType: 'intake-stapsgewijs',
+        step: 'anamnese',
+        patientInfo,
+        preparation: state.preparation ? 'present' : 'missing',
+        inputData: { ...inputData, data: inputData.data ? 'present' : 'missing' }
+      });
+
       // Process the anamnese
       const response = await fetch('/api/hhsb/process', {
         method: 'POST',
@@ -229,7 +249,9 @@ export default function AnamnesePage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to process anamnese');
+        const errorData = await response.text();
+        console.error('HHSB processing error:', response.status, errorData);
+        throw new Error(`Failed to process anamnese: ${response.status} ${errorData}`);
       }
 
       const { data } = await response.json();
@@ -241,7 +263,8 @@ export default function AnamnesePage() {
         resultExpanded: true,
       }));
 
-      // Save results to workflow state
+      // Save results to workflow state with enhanced logging
+      console.log('Saving anamnese results to workflow state:', data);
       setAnamneseData({
         result: data,
         completed: true,
@@ -250,10 +273,21 @@ export default function AnamnesePage() {
       // Mark step as complete
       markStepComplete('anamnese');
 
-      // Navigate to anamnese result page after successful processing
-      setTimeout(() => {
-        router.push('/scribe/intake-stapsgewijs/anamnese-resultaat');
-      }, 1000);
+      console.log('Anamnese processing completed successfully, navigating to results page...');
+
+      // Enhanced navigation with better timing for state stabilization
+      setTimeout(async () => {
+        try {
+          console.log('Navigating to anamnese results page...');
+          await router.push('/scribe/intake-stapsgewijs/anamnese-resultaat');
+        } catch (navigationError) {
+          console.error('Navigation to results failed:', navigationError);
+          setState(prev => ({
+            ...prev,
+            error: 'Navigatie naar resultaten mislukt. Probeer handmatig naar de resultaten te gaan.',
+          }));
+        }
+      }, 2000); // 2 second delay for state stabilization
 
     } catch (error) {
       console.error('Anamnese processing error:', error);
@@ -489,6 +523,29 @@ export default function AnamnesePage() {
                 <p className="text-xs text-hysio-deep-green-900/60">
                   Tip: Volg de voorbereiding en noteer de hoofdklacht, voorgeschiedenis en huidige beperkingen
                 </p>
+
+                {/* Hysio Assistant Integration */}
+                {patientInfo && (
+                  <div className="mt-4">
+                    <HysioAssistant
+                      patientInfo={patientInfo}
+                      workflowType="intake-stapsgewijs"
+                      workflowStep="anamnese"
+                      currentContext={{
+                        preparation: state.preparation,
+                        notes: state.manualNotes,
+                        inputMethod: state.inputMethod
+                      }}
+                      onSuggestionSelect={(suggestion) => {
+                        const currentNotes = state.manualNotes;
+                        const newNotes = currentNotes ?
+                          `${currentNotes}\n\n${suggestion}` :
+                          suggestion;
+                        handleManualNotesChange(newNotes);
+                      }}
+                    />
+                  </div>
+                )}
               </div>
             </div>
 

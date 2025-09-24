@@ -2,8 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { useWorkflowContext } from '../../layout';
-import { useWorkflowState } from '@/hooks/useWorkflowState';
+import { useScribeStore } from '@/lib/state/scribe-store';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -50,8 +49,8 @@ interface OnderzoekResults {
 
 export default function OnderzoekResultaatPage() {
   const router = useRouter();
-  const { patientInfo } = useWorkflowContext();
-  const { workflowData } = useWorkflowState();
+  const patientInfo = useScribeStore(state => state.patientInfo);
+  const workflowData = useScribeStore(state => state.workflowData);
 
   const [results, setResults] = React.useState<OnderzoekResults | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);

@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { useSessionState } from '@/hooks/useSessionState';
-import { PatientInfo, IntakeData, FollowupData, SOEPStructure } from '@/lib/types';
+import { useScribeStore } from '@/lib/state/scribe-store';
 import {
   FileText,
   Clock,
@@ -15,38 +15,16 @@ import {
   Save
 } from 'lucide-react';
 
-// Create a context for sharing workflow state across pages
-interface WorkflowContextType {
-  patientInfo: PatientInfo | null;
-  setPatientInfo: (info: PatientInfo | null) => void;
-  sessionData: IntakeData | FollowupData | null;
-  setSessionData: (data: IntakeData | FollowupData | null) => void;
-  soepData: SOEPStructure | null;
-  setSOEPData: (data: SOEPStructure | null) => void;
-  currentWorkflow: 'intake-automatisch' | 'intake-stapsgewijs' | 'consult' | null;
-  setCurrentWorkflow: (workflow: 'intake-automatisch' | 'intake-stapsgewijs' | 'consult' | null) => void;
-  sessionState: ReturnType<typeof useSessionState>;
-}
-
-const WorkflowContext = React.createContext<WorkflowContextType | null>(null);
-
-export const useWorkflowContext = () => {
-  const context = React.useContext(WorkflowContext);
-  if (!context) {
-    throw new Error('useWorkflowContext must be used within a WorkflowProvider');
-  }
-  return context;
-};
+// Zustand store now handles workflow state - no more context needed
 
 export default function ScribeLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [patientInfo, setPatientInfo] = React.useState<PatientInfo | null>(null);
-  const [sessionData, setSessionData] = React.useState<IntakeData | FollowupData | null>(null);
-  const [soepData, setSOEPData] = React.useState<SOEPStructure | null>(null);
-  const [currentWorkflow, setCurrentWorkflow] = React.useState<'intake-automatisch' | 'intake-stapsgewijs' | 'consult' | null>(null);
+  // Get state from Zustand store (replaces local useState)
+  const patientInfo = useScribeStore(state => state.patientInfo);
+  const currentWorkflow = useScribeStore(state => state.currentWorkflow);
 
   const sessionState = useSessionState({
     autoSave: true,
@@ -182,20 +160,7 @@ export default function ScribeLayout({
     </header>
   );
 
-  const contextValue: WorkflowContextType = {
-    patientInfo,
-    setPatientInfo,
-    sessionData,
-    setSessionData,
-    soepData,
-    setSOEPData,
-    currentWorkflow,
-    setCurrentWorkflow,
-    sessionState,
-  };
-
   return (
-    <WorkflowContext.Provider value={contextValue}>
       <div className="min-h-screen bg-hysio-cream/30">
         {renderHeader()}
 
@@ -216,6 +181,5 @@ export default function ScribeLayout({
           </div>
         </footer>
       </div>
-    </WorkflowContext.Provider>
   );
 }

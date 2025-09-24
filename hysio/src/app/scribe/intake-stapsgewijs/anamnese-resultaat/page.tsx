@@ -2,8 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { useWorkflowContext } from '../../layout';
-import { useWorkflowState } from '@/hooks/useWorkflowState';
+import { useScribeStore } from '@/lib/state/scribe-store';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -48,8 +47,8 @@ interface AnamneseResults {
 
 export default function AnamneseResultaatPage() {
   const router = useRouter();
-  const { patientInfo } = useWorkflowContext();
-  const { workflowData } = useWorkflowState();
+  const patientInfo = useScribeStore(state => state.patientInfo);
+  const workflowData = useScribeStore(state => state.workflowData);
 
   const [results, setResults] = React.useState<AnamneseResults | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -63,9 +62,17 @@ export default function AnamneseResultaatPage() {
     redflags: true,
   });
 
-  // Enhanced state loading with comprehensive validation
+  // Enhanced state loading with comprehensive validation and debugging
   React.useEffect(() => {
+    console.log('Anamnese-resultaat page loading with:', {
+      patientInfo: patientInfo ? 'present' : 'missing',
+      workflowData: workflowData ? 'present' : 'missing',
+      anamneseData: workflowData?.anamneseData ? 'present' : 'missing',
+      anamneseResult: workflowData?.anamneseData?.result ? 'present' : 'missing'
+    });
+
     if (!patientInfo) {
+      console.error('No patient info, redirecting to scribe');
       router.push('/scribe');
       return;
     }
@@ -80,26 +87,27 @@ export default function AnamneseResultaatPage() {
 
     // Load and validate results from workflow state
     const anamneseData = workflowData.anamneseData;
+    console.log('Anamnese data from workflow state:', anamneseData);
 
     if (anamneseData?.result) {
       // Validate result structure
       if (typeof anamneseData.result === 'object' && anamneseData.result !== null) {
+        console.log('Valid anamnese results found, loading into state');
         setResults(anamneseData.result);
         setIsLoading(false);
-        console.log('Anamnese results successfully loaded:', anamneseData.result);
       } else {
         console.error('Invalid anamnese result data structure:', anamneseData.result);
         setError('Anamnese resultaat data is ongeldig. Probeer het proces opnieuw.');
         setIsLoading(false);
       }
     } else {
-      // Enhanced fallback with delayed redirect
-      console.warn('No anamnese results found in workflow data, redirecting to anamnese page');
-      setError('Geen anamnese resultaten gevonden. U wordt doorgestuurd naar de anamnese pagina...');
+      // Enhanced fallback WITHOUT automatic redirect
+      console.warn('No anamnese results found in workflow data');
+      console.log('Full workflow data structure:', JSON.stringify(workflowData, null, 2));
+      setError('Geen anamnese resultaten gevonden. Klik op "Terug naar Anamnese" om door te gaan.');
+      setIsLoading(false);
 
-      setTimeout(() => {
-        router.push('/scribe/intake-stapsgewijs/anamnese');
-      }, 3000);
+      // NO automatic redirect - let user control navigation
     }
   }, [patientInfo, workflowData, router]);
 

@@ -2,14 +2,15 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { useWorkflowContext } from '../layout';
+import { useScribeStore } from '@/lib/state/scribe-store';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Clock, List, MessageSquare, Play, Zap } from 'lucide-react';
 
 export default function WorkflowPage() {
   const router = useRouter();
-  const { patientInfo, setCurrentWorkflow } = useWorkflowContext();
+  const patientInfo = useScribeStore(state => state.patientInfo);
+  const setCurrentWorkflow = useScribeStore(state => state.setCurrentWorkflow);
 
   // Redirect if no patient info
   React.useEffect(() => {
