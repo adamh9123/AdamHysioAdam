@@ -6,7 +6,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { StreamlinedFollowupWorkflow } from './streamlined-followup-workflow';
-import { PatientInfo } from '@/lib/types';
+import { PatientInfo } from '@/types/api';
 import * as audioRecorderHook from '@/hooks/useAudioRecorder';
 import * as transcriptionAPI from '@/lib/api/transcription';
 import * as apiModule from '@/lib/api';
@@ -34,7 +34,7 @@ describe('StreamlinedFollowupWorkflow', () => {
   const mockPatientInfo: PatientInfo = {
     initials: 'A.B.',
     birthYear: '1990',
-    gender: 'vrouw',
+    gender: 'female',
     chiefComplaint: 'Schouderpijn rechts',
   };
 

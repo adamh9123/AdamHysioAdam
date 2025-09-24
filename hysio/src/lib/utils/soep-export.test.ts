@@ -3,7 +3,7 @@
  */
 
 import { SOEPExporter } from './soep-export';
-import { PatientInfo, SOEPStructure } from '@/lib/types';
+import { PatientInfo, SOEPStructure } from '@/types/api';
 
 // Mock URL.createObjectURL and revokeObjectURL
 global.URL.createObjectURL = jest.fn().mockReturnValue('mock-blob-url');
@@ -38,7 +38,7 @@ describe('SOEP Exporter', () => {
   const mockPatientInfo: PatientInfo = {
     initials: 'J.D.',
     birthYear: '1985',
-    gender: 'man',
+    gender: 'male',
     chiefComplaint: 'Rugpijn na tillen',
   };
 
