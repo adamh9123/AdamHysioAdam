@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **REFACTOR WEEK 4 DAY 4**: Vitest testing infrastructure with jsdom environment and coverage reporting (v8 provider)
+- **REFACTOR WEEK 4 DAY 4**: Test scripts (test, test:ui, test:coverage, test:watch) replacing Jest with Vitest
+- **REFACTOR WEEK 4 DAY 4**: Coverage thresholds set at 15% for lines, functions, branches, and statements
 - **REFACTOR WEEK 4 DAY 3**: Enhanced ESLint configuration with code quality rules (max-lines: 500, max-depth: 4, complexity: 15)
 - **REFACTOR WEEK 4 DAY 3**: TypeScript strict rules (no-explicit-any warnings, unused-vars with ignore patterns)
 - **REFACTOR WEEK 4 DAY 3**: Code standards enforcement (no-duplicate-imports, prefer-const, no-var, eqeqeq)
