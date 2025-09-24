@@ -24,7 +24,7 @@ export interface ExaminationResultsPanelProps {
   manualSource?: boolean;
 }
 
-const ExaminationResultsPanel: React.FC<ExaminationResultsPanelProps> = ({
+const ExaminationResultsPanel: React.FC<ExaminationResultsPanelProps> = React.memo(({
   examinationFindings,
   examinationPlan,
   onNavigateNext,
@@ -117,6 +117,8 @@ const ExaminationResultsPanel: React.FC<ExaminationResultsPanelProps> = ({
       )}
     </div>
   );
-};
+});
+
+ExaminationResultsPanel.displayName = 'ExaminationResultsPanel';
 
 export { ExaminationResultsPanel };
