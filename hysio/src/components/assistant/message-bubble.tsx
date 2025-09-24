@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import { AssistantMessage } from '@/lib/types/assistant';
 import { User, Bot, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { sanitizeHTML } from '@/lib/utils/sanitize';
 
 export interface MessageBubbleProps {
   message: AssistantMessage;
@@ -28,7 +29,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, className }) => 
     const formatted = content
       // Bold text
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      // Italic text  
+      // Italic text
       .replace(/\*(.*?)\*/g, '<em>$1</em>')
       // Headers
       .replace(/^### (.*$)/gm, '<h3 class="text-lg font-semibold mt-4 mb-2">$1</h3>')
@@ -40,8 +41,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, className }) => 
       // Line breaks
       .replace(/\n\n/g, '</p><p class="mb-2">')
       .replace(/\n/g, '<br>');
-    
-    return `<p class="mb-2">${formatted}</p>`;
+
+    // Sanitize the HTML to prevent XSS
+    return sanitizeHTML(`<p class="mb-2">${formatted}</p>`);
   };
 
   return (

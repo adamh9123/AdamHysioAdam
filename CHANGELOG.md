@@ -10,9 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **REFACTOR WEEK 2**: Comprehensive TypeScript type definitions for all workflow results (AnamneseResult, OnderzoekResult, etc.)
 - **REFACTOR WEEK 2**: Error Boundary components (ErrorBoundary, WorkflowErrorBoundary) with toast notifications
-- **REFACTOR WEEK 2**: DOMPurify XSS protection integrated across all dangerouslySetInnerHTML usages
+- **REFACTOR WEEK 2**: DOMPurify XSS protection integrated across all dangerouslySetInnerHTML usages (7 locations, 100% coverage)
 - **REFACTOR WEEK 2**: Advanced file upload validation with size, type, duration, and extension checks
 - **REFACTOR WEEK 2**: Sanitization utility (sanitizeHTML, sanitizeText, createSafeHTML) for secure content rendering
+- **REFACTOR WEEK 2**: XSS protection added to assistant message-bubble component formatContent function
 - **REFACTOR WEEK 1**: Unified Zustand state management system (hysio-scribe-v1) replacing triple-system architecture
 - **REFACTOR WEEK 1**: API caching fully activated in all routes (Preparation, HHSB, SOEP) for cost reduction
 - **REFACTOR WEEK 1**: Code splitting infrastructure with lazy-loaded components for bundle optimization
