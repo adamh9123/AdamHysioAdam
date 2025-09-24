@@ -248,7 +248,7 @@ export interface HHSBResultsPanelProps {
   enableEditing?: boolean;
 }
 
-const HHSBResultsPanel: React.FC<HHSBResultsPanelProps> = ({
+const HHSBResultsPanel: React.FC<HHSBResultsPanelProps> = React.memo(({
   hhsbData,
   preparationContent,
   onNavigateNext,
@@ -680,6 +680,8 @@ const HHSBResultsPanel: React.FC<HHSBResultsPanelProps> = ({
 
     </div>
   );
-};
+});
+
+HHSBResultsPanel.displayName = 'HHSBResultsPanel';
 
 export { HHSBResultsPanel };

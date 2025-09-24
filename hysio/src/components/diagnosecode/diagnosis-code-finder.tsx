@@ -49,7 +49,7 @@ interface DiagnosisCodeFinderProps {
   className?: string;
 }
 
-export function DiagnosisCodeFinder({
+export const DiagnosisCodeFinder = React.memo(function DiagnosisCodeFinder({
   onCodeSelected,
   initialQuery = '',
   embedded = false,
@@ -427,4 +427,4 @@ export function DiagnosisCodeFinder({
       </CardContent>
     </Card>
   );
-}
+});

@@ -25,7 +25,7 @@ export interface AudioRecorderProps extends React.HTMLAttributes<HTMLDivElement>
   disabled?: boolean;
 }
 
-const AudioRecorder: React.FC<AudioRecorderProps> = ({
+const AudioRecorder: React.FC<AudioRecorderProps> = React.memo(({
   onRecordingComplete,
   onTranscriptionComplete,
   onError,
@@ -426,6 +426,8 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
       )}
     </div>
   );
-};
+});
+
+AudioRecorder.displayName = 'AudioRecorder';
 
 export { AudioRecorder };

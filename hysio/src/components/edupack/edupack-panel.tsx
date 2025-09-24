@@ -66,7 +66,7 @@ interface PanelState {
   showPreview: boolean;
 }
 
-export function EduPackPanel({
+export const EduPackPanel = React.memo(function EduPackPanel({
   sessionId,
   soepData,
   patientInfo,
@@ -302,7 +302,7 @@ export function EduPackPanel({
       )}
     </div>
   );
-}
+});
 
 // Configuration step component
 function ConfigurationStep({
