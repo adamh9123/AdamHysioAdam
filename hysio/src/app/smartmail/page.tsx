@@ -217,7 +217,7 @@ export default function SmartMailPage() {
     setDocuments(newDocuments);
   };
 
-  const updateSettings = (key: keyof EmailSettings, value: any) => {
+  const updateSettings = (key: keyof EmailSettings, value: string) => {
     setEmailSettings(prev => ({
       ...prev,
       [key]: value

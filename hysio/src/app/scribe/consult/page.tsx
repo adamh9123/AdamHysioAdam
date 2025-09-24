@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { useScribeStore } from '@/lib/state/scribe-store';
+import { createSafeHTML } from '@/lib/utils/sanitize';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -409,7 +410,7 @@ export default function ConsultPage() {
                 <div className="bg-hysio-mint/10 rounded-lg p-4">
                   <div
                     className="text-sm text-hysio-deep-green-900/80 whitespace-pre-wrap"
-                    dangerouslySetInnerHTML={{ __html: state.preparation }}
+                    dangerouslySetInnerHTML={createSafeHTML(state.preparation)}
                   />
                 </div>
                 <Button

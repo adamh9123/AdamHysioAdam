@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import { createSafeHTML } from '@/lib/utils/sanitize';
 import { useScribeStore } from '@/lib/state/scribe-store';
 import { useSessionState } from '@/hooks/useSessionState';
 import { exportDocument } from '@/lib/utils/export';
@@ -491,7 +492,7 @@ export default function KlinischeConclusie() {
                 <div className="bg-hysio-mint/10 rounded-lg p-4">
                   <div
                     className="text-sm text-hysio-deep-green-900/80 whitespace-pre-wrap"
-                    dangerouslySetInnerHTML={{ __html: state.preparation }}
+                    dangerouslySetInnerHTML={createSafeHTML(state.preparation)}
                   />
                 </div>
                 <Button

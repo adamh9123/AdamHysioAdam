@@ -1,35 +1,52 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import type { PatientInfo } from '@/types/api';
+import type {
+  PatientInfo,
+  AnamneseResult,
+  OnderzoekResult,
+  KlinischeConclusieResult,
+  AutomatedIntakeResult,
+  ConsultResult,
+  SOEPStructure,
+  WorkflowType
+} from '@/types/api';
+
+interface WorkflowStepData<T> {
+  preparation?: string;
+  recording?: File | null;
+  transcript?: string;
+  result?: T;
+  completed?: boolean;
+}
 
 interface ScribeState {
   patientInfo: PatientInfo | null;
   setPatientInfo: (info: PatientInfo | null) => void;
 
   workflowData: {
-    anamneseData: any | null;
-    onderzoekData: any | null;
-    klinischeConclusieData: any | null;
-    automatedIntakeData: any | null;
-    consultData: any | null;
+    anamneseData: WorkflowStepData<AnamneseResult> | null;
+    onderzoekData: WorkflowStepData<OnderzoekResult> | null;
+    klinischeConclusieData: WorkflowStepData<KlinischeConclusieResult> | null;
+    automatedIntakeData: WorkflowStepData<AutomatedIntakeResult> | null;
+    consultData: WorkflowStepData<ConsultResult> | null;
     completedSteps: string[];
   };
-  setAnamneseData: (data: any) => void;
-  setOnderzoekData: (data: any) => void;
-  setKlinischeConclusieData: (data: any) => void;
-  setAutomatedIntakeData: (data: any) => void;
-  setConsultData: (data: any) => void;
+  setAnamneseData: (data: Partial<WorkflowStepData<AnamneseResult>>) => void;
+  setOnderzoekData: (data: Partial<WorkflowStepData<OnderzoekResult>>) => void;
+  setKlinischeConclusieData: (data: Partial<WorkflowStepData<KlinischeConclusieResult>>) => void;
+  setAutomatedIntakeData: (data: Partial<WorkflowStepData<AutomatedIntakeResult>>) => void;
+  setConsultData: (data: Partial<WorkflowStepData<ConsultResult>>) => void;
   markStepComplete: (step: string) => void;
 
-  sessionData: any | null;
-  setSessionData: (data: any | null) => void;
+  sessionData: Record<string, unknown> | null;
+  setSessionData: (data: Record<string, unknown> | null) => void;
 
-  soepData: any | null;
-  setSOEPData: (data: any | null) => void;
+  soepData: SOEPStructure | null;
+  setSOEPData: (data: SOEPStructure | null) => void;
 
-  currentWorkflow: string | null;
-  setCurrentWorkflow: (workflow: string | null) => void;
+  currentWorkflow: WorkflowType | null;
+  setCurrentWorkflow: (workflow: WorkflowType | null) => void;
 
   resetScribeState: () => void;
 }

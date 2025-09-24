@@ -86,7 +86,11 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function generateHHSBAnalysis(patientInfo: any, preparation: string | null, transcript: string) {
+async function generateHHSBAnalysis(
+  patientInfo: { initials: string; birthYear: string; gender: string; chiefComplaint: string },
+  preparation: string | null,
+  transcript: string
+) {
   const { initials, birthYear, gender, chiefComplaint } = patientInfo;
   const age = new Date().getFullYear() - parseInt(birthYear);
   const genderText = gender === 'male' ? 'man' : gender === 'female' ? 'vrouw' : 'persoon';
