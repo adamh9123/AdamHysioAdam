@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **REFACTOR WEEK 4**: Shared workflow state management hook (useWorkflowState) reducing duplication across workflow components
+- **REFACTOR WEEK 4**: Centralized HHSB parser utility (hhsb-parser.ts) with validation, completeness checks, and text building
+- **REFACTOR WEEK 4**: Workflow error handling utilities (workflow-errors.ts) with toast integration, retry logic, and user-friendly messages
 - **REFACTOR CONSOLIDATION**: Standardized HHSB (Hulpvraag, Historie, Stoornissen, Beperkingen) naming across entire codebase, removing PHSB legacy references
 - **REFACTOR WEEK 3**: React.memo optimization on 7 heavy components (HHSBResultsPanel, AudioRecorder, DiagnosisCodeFinder, EduPackPanel, ExaminationResultsPanel)
 - **REFACTOR WEEK 3**: useCallback optimization for 6 event handlers to prevent unnecessary re-renders
