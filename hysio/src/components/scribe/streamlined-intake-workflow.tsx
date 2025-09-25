@@ -353,45 +353,7 @@ const StreamlinedIntakeWorkflow: React.FC<StreamlinedIntakeWorkflowProps> = ({
   const [processingStep, setProcessingStep] = React.useState<string>('');
   const [isExporting, setIsExporting] = React.useState(false);
 
-  // Generate preparation content when patient info is available
-  React.useEffect(() => {
-    const generatePreparation = async () => {
-      if (!patientInfo.chiefComplaint?.trim()) return;
-
-      try {
-        const systemPrompt = `Je bent een ervaren fysiotherapeut die intake-voorbereidingen maakt. Genereer een beknopte, algemene voorbereiding voor een intake gesprek.`;
-
-        const userPrompt = `Hoofdklacht: ${patientInfo.chiefComplaint}
-
-Genereer een beknopte voorbereiding (maximaal 250 woorden) met:
-- Mogelijke vragen om uit te diepen (voor de Intake - Anamnese gedeelte)
-- Relevante onderzoeken om te overwegen (voor de Intake - Onderzoek gedeelte)
-- Aandachtspunten tijdens het consult
-
-Antwoord in het Nederlands, professioneel en praktisch.`;
-
-        const response = await apiCall(API_ENDPOINTS.GENERATE_CONTENT, {
-          method: 'POST',
-          body: JSON.stringify({
-            systemPrompt,
-            userPrompt,
-            options: {
-              temperature: 0.4,
-              max_completion_tokens: 300,
-            }
-          }),
-        });
-
-        if (response.success && response.data?.content) {
-          setPreparationContent(response.data.content);
-        }
-      } catch (error) {
-        console.error('Failed to generate preparation:', error);
-      }
-    };
-
-    generatePreparation();
-  }, [patientInfo.chiefComplaint]);
+  // Removed automatic preparation generation - now only triggered by user button click
 
   // Document upload handler
   const handleDocumentUpload = (documentText: string, filename: string) => {

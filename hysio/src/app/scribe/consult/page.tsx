@@ -12,7 +12,6 @@ import { FileUpload } from '@/components/ui/file-upload';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { HysioAssistant } from '@/components/scribe/hysio-assistant';
 import {
   ArrowLeft,
   FileText,
@@ -471,26 +470,6 @@ export default function ConsultPage() {
                   </div>
                 )}
 
-                {/* File Upload directly below recording */}
-                <div className="pt-2 border-t border-hysio-mint/20">
-                  <div className="flex items-center gap-2 text-hysio-deep-green mb-3">
-                    <Upload size={16} />
-                    <span className="text-sm font-medium">Bestand selecteren</span>
-                  </div>
-                  <FileUpload
-                    onFileUpload={handleFileUpload}
-                    acceptedTypes={['audio/*']}
-                    disabled={state.isProcessing}
-                  />
-                  {state.uploadedFile && (
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 mt-3">
-                      <div className="flex items-center gap-2 text-green-800">
-                        <CheckCircle size={16} />
-                        <span>Bestand geüpload: {state.uploadedFile.name}</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
               </div>
 
               {/* Manual Notes Section */}
@@ -512,27 +491,6 @@ export default function ConsultPage() {
                 </p>
 
                 {/* Hysio Assistant Integration */}
-                {patientInfo && (
-                  <div className="mt-4">
-                    <HysioAssistant
-                      patientInfo={patientInfo}
-                      workflowType="consult"
-                      workflowStep="soep"
-                      currentContext={{
-                        preparation: state.preparation,
-                        notes: state.manualNotes,
-                        inputMethod: state.inputMethod
-                      }}
-                      onSuggestionSelect={(suggestion) => {
-                        const currentNotes = state.manualNotes;
-                        const newNotes = currentNotes ?
-                          `${currentNotes}\n\n${suggestion}` :
-                          suggestion;
-                        handleManualNotesChange(newNotes);
-                      }}
-                    />
-                  </div>
-                )}
               </div>
             </div>
 

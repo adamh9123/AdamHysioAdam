@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { createSafeHTML } from '@/lib/utils/sanitize';
 import { useScribeStore } from '@/lib/state/scribe-store';
+import { transcribeAudio } from '@/lib/api/transcription';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -14,7 +15,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { HysioAssistant } from '@/components/scribe/hysio-assistant';
 import {
   ArrowLeft,
   ArrowRight,
@@ -205,38 +205,96 @@ export default function AnamnesePage() {
     try {
       setState(prev => ({ ...prev, isProcessing: true, error: null }));
 
+      let transcript = '';
       let inputData: any = {};
 
+      // STEP 1: Handle transcription for audio/file inputs
       if (state.inputMethod === 'recording' && state.recordingData.blob) {
+        console.log('Transcribing audio recording...');
+        const transcriptionResult = await transcribeAudio(state.recordingData.blob);
+
+        if (!transcriptionResult.success || !transcriptionResult.transcript) {
+          const errorMessage = transcriptionResult.error || 'Transcriptie mislukt';
+          console.log('Audio transcription failed:', errorMessage);
+
+          // Provide helpful error message to user
+          if (errorMessage.includes('Groq transcriptie service is momenteel niet beschikbaar')) {
+            throw new Error(
+              'Audio transcriptie is momenteel niet beschikbaar. ' +
+              'U kunt dit oplossen door:\n' +
+              '• Het opnieuw te proberen over enkele minuten\n' +
+              '• De tekst handmatig in te voeren in plaats van audio'
+            );
+          }
+
+          throw new Error(errorMessage);
+        }
+
+        transcript = transcriptionResult.transcript;
+        console.log('Audio transcription complete:', transcript.substring(0, 100) + '...');
+
+        // Convert to transcribed audio input
         inputData = {
-          type: 'recording',
-          data: state.recordingData.blob,
+          type: 'transcribed-audio',
+          data: transcript,
+          originalSource: 'recording',
           duration: state.recordingData.duration,
         };
-      } else if (state.inputMethod === 'file' && state.uploadedFile) {
+      }
+      // Handle file upload - transcribe first
+      else if (state.inputMethod === 'file' && state.uploadedFile) {
+        console.log('Transcribing uploaded file...');
+        const fileBlob = new Blob([await state.uploadedFile.arrayBuffer()], { type: state.uploadedFile.type });
+        const transcriptionResult = await transcribeAudio(fileBlob);
+
+        if (!transcriptionResult.success || !transcriptionResult.transcript) {
+          const errorMessage = transcriptionResult.error || 'Bestandstranscriptie mislukt';
+          console.log('File transcription failed:', errorMessage);
+
+          if (errorMessage.includes('Groq transcriptie service is momenteel niet beschikbaar')) {
+            throw new Error(
+              'Audio transcriptie is momenteel niet beschikbaar. ' +
+              'U kunt dit oplossen door:\n' +
+              '• Het opnieuw te proberen over enkele minuten\n' +
+              '• De tekst handmatig in te voeren in plaats van het bestand'
+            );
+          }
+
+          throw new Error(errorMessage);
+        }
+
+        transcript = transcriptionResult.transcript;
+        console.log('File transcription complete:', transcript.substring(0, 100) + '...');
+
+        // Convert to transcribed audio input
         inputData = {
-          type: 'file',
-          data: state.uploadedFile,
+          type: 'transcribed-audio',
+          data: transcript,
+          originalSource: 'file',
         };
-      } else if (state.inputMethod === 'manual' && state.manualNotes.trim()) {
+      }
+      // Handle manual notes - use directly as text
+      else if (state.inputMethod === 'manual' && state.manualNotes.trim()) {
+        transcript = state.manualNotes.trim();
         inputData = {
           type: 'manual',
-          data: state.manualNotes.trim(),
+          data: transcript,
         };
+        console.log('Using manual notes directly:', transcript.substring(0, 100) + '...');
       } else {
         throw new Error('Geen input data beschikbaar');
       }
 
-      // Enhanced processing with better logging
-      console.log('Processing anamnese with data:', {
+      // STEP 2: Process with HHSB endpoint (now only receives text)
+      console.log('Processing anamnese with transcribed data:', {
         workflowType: 'intake-stapsgewijs',
         step: 'anamnese',
         patientInfo,
         preparation: state.preparation ? 'present' : 'missing',
-        inputData: { ...inputData, data: inputData.data ? 'present' : 'missing' }
+        transcriptLength: transcript.length,
+        inputDataType: inputData.type
       });
 
-      // Process the anamnese
       const response = await fetch('/api/hhsb/process', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -264,10 +322,11 @@ export default function AnamnesePage() {
         resultExpanded: true,
       }));
 
-      // Save results to workflow state with enhanced logging
+      // Save results to workflow state with transcript
       console.log('Saving anamnese results to workflow state:', data);
       setAnamneseData({
         result: data,
+        transcript: transcript, // Save the transcribed text
         completed: true,
       });
 
@@ -292,9 +351,20 @@ export default function AnamnesePage() {
 
     } catch (error) {
       console.error('Anamnese processing error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Onbekende fout';
+
+      let userFriendlyError = 'Kon anamnese niet verwerken. Probeer het opnieuw.';
+
+      // Handle transcription-specific errors
+      if (errorMessage.includes('Audio transcriptie is momenteel niet beschikbaar')) {
+        userFriendlyError = 'Audio transcriptie service is niet beschikbaar. Schakel over naar handmatige tekstinvoer of probeer het later opnieuw.';
+      } else if (errorMessage.includes('transcriptie') || errorMessage.includes('Groq')) {
+        userFriendlyError = 'Audio transcriptie mislukt. U kunt de tekst handmatig invoeren als alternatief.';
+      }
+
       setState(prev => ({
         ...prev,
-        error: 'Kon anamnese niet verwerken. Probeer het opnieuw.',
+        error: userFriendlyError,
         isProcessing: false,
       }));
     }
@@ -395,6 +465,23 @@ export default function AnamnesePage() {
           <AlertCircle className="h-4 w-4 text-red-600" />
           <AlertDescription className="text-red-800">
             {state.error}
+            {(state.error.includes('transcriptie') || state.error.includes('Audio')) && (
+              <div className="mt-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setState(prev => ({
+                    ...prev,
+                    inputMethod: 'manual',
+                    error: null,
+                    manualNotes: ''
+                  }))}
+                  className="border-red-300 text-red-700 hover:bg-red-100"
+                >
+                  Schakel naar handmatige invoer
+                </Button>
+              </div>
+            )}
           </AlertDescription>
         </Alert>
       )}
@@ -449,7 +536,7 @@ export default function AnamnesePage() {
                   className="bg-hysio-mint hover:bg-hysio-mint-dark text-hysio-deep-green"
                 >
                   <Lightbulb size={16} className="mr-2" />
-                  Voorbereiding Genereren
+                  Genereer Voorbereiding
                 </Button>
               </div>
             )}
@@ -485,26 +572,6 @@ export default function AnamnesePage() {
                   </div>
                 )}
 
-                {/* File Upload directly below recording */}
-                <div className="pt-2 border-t border-hysio-mint/20">
-                  <div className="flex items-center gap-2 text-hysio-deep-green mb-3">
-                    <Upload size={16} />
-                    <span className="text-sm font-medium">Bestand selecteren</span>
-                  </div>
-                  <FileUpload
-                    onFileUpload={handleFileUpload}
-                    acceptedTypes={['audio/*']}
-                    disabled={state.isProcessing}
-                  />
-                  {state.uploadedFile && (
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 mt-3">
-                      <div className="flex items-center gap-2 text-green-800">
-                        <CheckCircle size={16} />
-                        <span>Bestand geüpload: {state.uploadedFile.name}</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
               </div>
 
               {/* Manual Notes Section */}
@@ -525,28 +592,6 @@ export default function AnamnesePage() {
                   Tip: Volg de voorbereiding en noteer de hoofdklacht, voorgeschiedenis en huidige beperkingen
                 </p>
 
-                {/* Hysio Assistant Integration */}
-                {patientInfo && (
-                  <div className="mt-4">
-                    <HysioAssistant
-                      patientInfo={patientInfo}
-                      workflowType="intake-stapsgewijs"
-                      workflowStep="anamnese"
-                      currentContext={{
-                        preparation: state.preparation,
-                        notes: state.manualNotes,
-                        inputMethod: state.inputMethod
-                      }}
-                      onSuggestionSelect={(suggestion) => {
-                        const currentNotes = state.manualNotes;
-                        const newNotes = currentNotes ?
-                          `${currentNotes}\n\n${suggestion}` :
-                          suggestion;
-                        handleManualNotesChange(newNotes);
-                      }}
-                    />
-                  </div>
-                )}
               </div>
             </div>
 

@@ -8,24 +8,35 @@ export interface TranscriptionOptions {
   temperature?: number;
 }
 
-// Client-side function to transcribe audio via API
+// Client-side function to transcribe audio via API with comprehensive logging
 export async function transcribeAudio(
   audioBlob: Blob,
   options: TranscriptionOptions = {}
 ): Promise<TranscriptionResponse> {
+  const startTime = Date.now();
+  console.log('🎤 TRANSCRIPTION START:', {
+    audioSize: `${(audioBlob.size / 1024).toFixed(1)}KB`,
+    audioType: audioBlob.type,
+    language: options.language,
+    hasPrompt: !!options.prompt,
+    temperature: options.temperature,
+    timestamp: new Date().toISOString()
+  });
+
   try {
     // Prepare form data
     const formData = new FormData();
     formData.append('audio', audioBlob, 'recording.wav');
-    
+
     if (options.language) {
       formData.append('language', options.language);
     }
-    
+
     if (options.prompt) {
       formData.append('prompt', options.prompt);
+      console.log('📝 Transcription prompt:', options.prompt.substring(0, 100) + '...');
     }
-    
+
     if (options.temperature !== undefined) {
       formData.append('temperature', options.temperature.toString());
     }
@@ -37,16 +48,38 @@ export async function transcribeAudio(
     });
 
     const result = await response.json();
+    const duration = Date.now() - startTime;
 
     if (!response.ok) {
+      console.error('❌ TRANSCRIPTION FAILED:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: result.error,
+        duration: `${duration}ms`,
+        audioSize: `${(audioBlob.size / 1024).toFixed(1)}KB`
+      });
       throw new Error(result.error || `HTTP ${response.status}: ${response.statusText}`);
     }
+
+    console.log('✅ TRANSCRIPTION SUCCESS:', {
+      duration: `${duration}ms`,
+      transcriptLength: result.transcript?.length || 0,
+      confidence: result.confidence,
+      hasTranscript: !!result.transcript,
+      transcriptPreview: result.transcript?.substring(0, 100) + '...'
+    });
 
     return result;
 
   } catch (error) {
-    console.error('Transcription request error:', error);
-    
+    const duration = Date.now() - startTime;
+    console.error('🔥 TRANSCRIPTION ERROR:', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      duration: `${duration}ms`,
+      audioSize: `${(audioBlob.size / 1024).toFixed(1)}KB`,
+      stack: error instanceof Error ? error.stack : null
+    });
+
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to transcribe audio',

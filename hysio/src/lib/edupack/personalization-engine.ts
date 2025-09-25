@@ -13,7 +13,7 @@ import type { ExtractedSessionData } from './session-data-parser';
 export interface PersonalizationProfile {
   // Demographics
   age?: number;
-  gender?: 'male' | 'female' | 'other';
+  gender?: 'male' | 'female';
   educationLevel?: 'low' | 'medium' | 'high';
 
   // Medical context

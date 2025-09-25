@@ -522,7 +522,7 @@ export const WORKFLOW_CONFIGS: Record<WorkflowType, WorkflowConfig> = {
   'intake-automatisch': {
     id: 'intake-automatisch',
     name: 'automated-intake',
-    displayName: 'Hysio Intake (Volledig Automatisch)',
+    displayName: 'Hysio Intake (Automatisch)',
     description: 'Snelle en efficiënte intake voor ervaren therapeuten',
     mode: 'automated',
     estimatedDuration: 20,

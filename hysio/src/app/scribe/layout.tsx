@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useSessionState } from '@/hooks/useSessionState';
 import { useScribeStore } from '@/lib/state/scribe-store';
 import { WorkflowErrorBoundary } from '@/components/workflow-error-boundary';
+import { HysioAssistant } from '@/components/scribe/hysio-assistant';
 import {
   FileText,
   Clock,
@@ -13,7 +14,10 @@ import {
   Play,
   Pause,
   Home,
-  Save
+  Save,
+  MessageCircle,
+  Minimize2,
+  Maximize2
 } from 'lucide-react';
 
 // Zustand store now handles workflow state - no more context needed
@@ -31,6 +35,10 @@ export default function ScribeLayout({
     autoSave: true,
     autoSaveInterval: 30000, // 30 seconds
   });
+
+  // Hysio Assistant state
+  const [assistantVisible, setAssistantVisible] = React.useState(false);
+  const [assistantMinimized, setAssistantMinimized] = React.useState(false);
 
   const formatDuration = (milliseconds: number): string => {
     const minutes = Math.floor(milliseconds / 60000);
@@ -59,7 +67,7 @@ export default function ScribeLayout({
             {patientInfo && (
               <p className="text-sm text-hysio-deep-green-900/70">
                 {patientInfo.initials} ({patientInfo.birthYear}) -
-                {currentWorkflow === 'intake-automatisch' ? ' Hysio Intake (Volledig Automatisch)' :
+                {currentWorkflow === 'intake-automatisch' ? ' Hysio Intake (Automatisch)' :
                  currentWorkflow === 'intake-stapsgewijs' ? ' Hysio Intake (Stapsgewijs)' :
                  currentWorkflow === 'consult' ? ' Hysio Consult (Vervolgconsult)' :
                  ' Hysio Medical Scribe'}
@@ -150,6 +158,16 @@ export default function ScribeLayout({
             <Button
               variant="outline"
               size="sm"
+              onClick={() => setAssistantVisible(!assistantVisible)}
+              className="text-hysio-deep-green border-hysio-mint"
+            >
+              <MessageCircle size={14} className="mr-1" />
+              AI Assistant
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
               onClick={handleSaveAndExit}
             >
               <Home size={14} className="mr-1" />
@@ -169,6 +187,23 @@ export default function ScribeLayout({
           <main className="pb-8">
             {children}
           </main>
+
+        {/* Floating Hysio Assistant */}
+        {assistantVisible && patientInfo && (
+          <div className="fixed bottom-4 right-4 z-50 w-96 max-w-[calc(100vw-2rem)] max-h-[calc(100vh-8rem)]">
+            <HysioAssistant
+              patientInfo={patientInfo}
+              workflowType={currentWorkflow as any}
+              workflowStep={currentWorkflow === 'intake-stapsgewijs' ? 'anamnese' :
+                          currentWorkflow === 'consult' ? 'consult' : 'intake'}
+              currentContext={{}}
+              minimized={assistantMinimized}
+              onToggleMinimize={() => setAssistantMinimized(!assistantMinimized)}
+              onClose={() => setAssistantVisible(false)}
+              className="shadow-2xl border border-hysio-mint/30"
+            />
+          </div>
+        )}
 
         {/* Footer */}
         <footer className="bg-white border-t border-hysio-mint/20 p-4 mt-8">

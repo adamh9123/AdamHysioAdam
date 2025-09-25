@@ -20,11 +20,12 @@ Automatische intake:
 - Uitgebreide voorbereiding volledige intake
 - HHSB methodiek (Hulpvraag, Historie, Stoornissen, Beperkingen)
 - Specifieke tests en metingen
-- Rode vlagen`,
+- Rode vlagen
+- Gebruik context documenten voor gerichte voorbereiding`,
 
-    user: (patient: PatientInfo) =>
+    user: (patient: PatientInfo, contextDocument?: string) =>
       `Patiënt: ${patient.initials}, ${getAge(patient.birthYear)}j, ${getGenderText(patient.gender)}
-Hoofdklacht: ${patient.chiefComplaint}${patient.additionalInfo ? `\nExtra: ${patient.additionalInfo}` : ''}
+Hoofdklacht: ${patient.chiefComplaint}${patient.additionalInfo ? `\nExtra: ${patient.additionalInfo}` : ''}${contextDocument ? `\n\n=== CONTEXT DOCUMENT ===\n${contextDocument}\n=== EINDE CONTEXT ===\n\nGebruik bovenstaande context voor gerichte voorbereiding.` : ''}
 
 Genereer uitgebreide intake voorbereiding met specifieke vragen, onderzoek suggesties, en assessment tools.`
   },
@@ -170,7 +171,7 @@ export function getOptimizedPreparationPrompt(
   workflowType: WorkflowType,
   step: string | undefined,
   patientInfo: PatientInfo,
-  previousStepData?: { anamneseResult?: any; onderzoekResult?: any; }
+  previousStepData?: string | { anamneseResult?: any; onderzoekResult?: any; }
 ) {
   let templateKey = workflowType;
 
@@ -185,11 +186,20 @@ export function getOptimizedPreparationPrompt(
   }
 
   let userPrompt;
-  if (templateKey === 'intake-stapsgewijs-onderzoek') {
+  // Handle intake-automatisch with context document (string)
+  if (templateKey === 'intake-automatisch' && typeof previousStepData === 'string') {
+    userPrompt = template.user(patientInfo, previousStepData);
+  }
+  // Handle stapsgewijs onderzoek
+  else if (templateKey === 'intake-stapsgewijs-onderzoek' && typeof previousStepData === 'object') {
     userPrompt = template.user(patientInfo, previousStepData?.anamneseResult);
-  } else if (templateKey === 'intake-stapsgewijs-conclusie') {
+  }
+  // Handle stapsgewijs conclusie
+  else if (templateKey === 'intake-stapsgewijs-conclusie' && typeof previousStepData === 'object') {
     userPrompt = template.user(patientInfo, previousStepData?.anamneseResult, previousStepData?.onderzoekResult);
-  } else {
+  }
+  // Default: no previous step data
+  else {
     userPrompt = template.user(patientInfo);
   }
 

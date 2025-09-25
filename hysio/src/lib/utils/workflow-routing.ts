@@ -53,7 +53,7 @@ export const WORKFLOW_ROUTES: Record<string, WorkflowRoute> = {
     id: 'intake-automatisch-input',
     workflow: 'intake-automatisch',
     path: '/scribe/intake-automatisch',
-    title: 'Hysio Intake (Volledig Automatisch)',
+    title: 'Hysio Intake (Automatisch)',
     description: 'Automatische intake verwerking in één sessie',
     requiresData: ['patientInfo'],
   },

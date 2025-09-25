@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { openaiClient } from '@/lib/api/openai';
 import { isValidPatientInfo, createValidationError, createServerError } from '@/lib/utils/api-validation';
 import { getOptimizedPreparationPrompt } from '@/lib/prompts/optimized-prompts';
-import { apiCache } from '@/lib/cache/api-cache';
 import { createPerformanceMiddleware } from '@/lib/monitoring/performance-monitor';
 import type {
   PreparationRequest,
@@ -38,24 +37,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       );
     }
 
-    // Check cache first for performance optimization
-    const cachedResult = await apiCache.getCachedPreparation(
-      workflowType,
-      step,
-      patientInfo,
-      body.previousStepData
-    );
-
-    if (cachedResult) {
-      console.log(`Cache HIT for preparation: ${workflowType}-${step}`);
-      perfMonitor.end(startTime, false, true); // Cache hit
-      return NextResponse.json({
-        success: true,
-        data: cachedResult
-      });
-    }
-
-    console.log(`Cache MISS for preparation: ${workflowType}-${step}`);
+    // Caching disabled to ensure fresh results for each request
 
     // Generate preparation using optimized prompts
     const { system: systemPrompt, user: userPrompt } = getOptimizedPreparationPrompt(
@@ -88,14 +70,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       generatedAt: new Date().toISOString()
     };
 
-    // Cache the result for future requests
-    await apiCache.cachePreparation(
-      workflowType,
-      step,
-      patientInfo,
-      responseData,
-      body.previousStepData
-    );
+    // Caching disabled - not storing results for future requests
 
     perfMonitor.end(startTime, false, false); // Success, no cache
     return NextResponse.json({

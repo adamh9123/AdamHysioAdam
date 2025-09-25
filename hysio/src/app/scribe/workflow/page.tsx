@@ -83,7 +83,7 @@ export default function WorkflowPage() {
               <Zap size={24} className="text-hysio-deep-green" />
             </div>
             <CardTitle className="text-xl text-hysio-deep-green">
-              Hysio Intake (Volledig Automatisch)
+              Hysio Intake (Automatisch)
             </CardTitle>
             <CardDescription className="text-hysio-deep-green-900/70">
               Snelle en efficiënte intake voor ervaren therapeuten
@@ -221,7 +221,7 @@ export default function WorkflowPage() {
           Niet zeker welke workflow te kiezen?
         </h3>
         <p className="text-hysio-deep-green-900/70 text-sm mb-4">
-          Kies "Volledig Automatisch" voor snelle intakes, "Stapsgewijs" voor complexe gevallen met begeleiding,
+          Kies "Automatisch" voor snelle intakes, "Stapsgewijs" voor complexe gevallen met begeleiding,
           of "Vervolgconsult" voor bestaande patiënten.
         </p>
         <p className="text-xs text-hysio-deep-green-900/60">

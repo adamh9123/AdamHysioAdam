@@ -3,7 +3,9 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { useScribeStore } from '@/lib/state/scribe-store';
+import { useWorkflowNavigation } from '@/hooks/useWorkflowNavigation';
 import { createSafeHTML } from '@/lib/utils/sanitize';
+import { transcribeAudio } from '@/lib/api/transcription';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -12,7 +14,6 @@ import { FileUpload } from '@/components/ui/file-upload';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { HysioAssistant } from '@/components/scribe/hysio-assistant';
 import {
   ArrowLeft,
   ArrowRight,
@@ -32,6 +33,7 @@ import {
 
 interface AutomatedIntakeState {
   preparation: string | null;
+  contextDocument: File | null;
   inputMethod: 'recording' | 'file' | 'manual' | null;
   recordingData: {
     blob: Blob | null;
@@ -45,6 +47,7 @@ interface AutomatedIntakeState {
   error: string | null;
   preparationGenerated: boolean;
   showManualNavigation: boolean;
+  isTranscribing: boolean;
 }
 
 export default function AutomatedIntakePage() {
@@ -59,6 +62,7 @@ export default function AutomatedIntakePage() {
 
   const [state, setState] = React.useState<AutomatedIntakeState>({
     preparation: null,
+    contextDocument: null,
     inputMethod: null,
     recordingData: {
       blob: null,
@@ -72,6 +76,7 @@ export default function AutomatedIntakePage() {
     error: null,
     preparationGenerated: false,
     showManualNavigation: false,
+    isTranscribing: false,
   });
 
   // Set current workflow
@@ -96,6 +101,17 @@ export default function AutomatedIntakePage() {
     try {
       setState(prev => ({ ...prev, isProcessing: true, error: null }));
 
+      // Read context document if provided
+      let contextDocumentContent = null;
+      if (state.contextDocument) {
+        try {
+          contextDocumentContent = await state.contextDocument.text();
+          console.log('Context document loaded:', contextDocumentContent.substring(0, 100) + '...');
+        } catch (err) {
+          console.warn('Could not read context document:', err);
+        }
+      }
+
       // Call preparation generation API
       const response = await fetch('/api/preparation', {
         method: 'POST',
@@ -104,6 +120,7 @@ export default function AutomatedIntakePage() {
           workflowType: 'intake-automatisch',
           step: 'preparation',
           patientInfo,
+          previousStepData: contextDocumentContent,
         }),
       });
 
@@ -174,35 +191,88 @@ export default function AutomatedIntakePage() {
     });
   };
 
+  const handleContextDocumentUpload = (file: File) => {
+    setState(prev => ({
+      ...prev,
+      contextDocument: file,
+    }));
+    console.log('Context document uploaded:', file.name);
+  };
+
   const processIntake = async () => {
     if (!patientInfo) return;
 
     try {
-      setState(prev => ({ ...prev, isProcessing: true, error: null }));
+      setState(prev => ({ ...prev, isProcessing: true, isTranscribing: true, error: null }));
 
+      let transcript = '';
       let inputData: any = {};
 
+      // Handle audio recording - transcribe first
       if (state.inputMethod === 'recording' && state.recordingData.blob) {
+        console.log('Transcribing audio recording...');
+        const transcriptionResult = await transcribeAudio(state.recordingData.blob);
+
+        if (!transcriptionResult.success || !transcriptionResult.transcript) {
+          const errorMessage = transcriptionResult.error || 'Transcriptie mislukt';
+          console.log('Groq transcription failed:', errorMessage);
+
+          // Provide helpful error message to user
+          if (errorMessage.includes('Groq transcriptie service is momenteel niet beschikbaar')) {
+            throw new Error(
+              'Audio transcriptie is momenteel niet beschikbaar. ' +
+              'U kunt dit oplossen door:\n' +
+              '• Het opnieuw te proberen over enkele minuten\n' +
+              '• De tekst handmatig in te voeren in plaats van audio'
+            );
+          }
+
+          throw new Error(errorMessage);
+        }
+
+        transcript = transcriptionResult.transcript;
+        console.log('Transcription complete:', transcript.substring(0, 100) + '...');
+
         inputData = {
-          type: 'recording',
-          data: state.recordingData.blob,
+          type: 'transcribed-audio',
+          data: transcript,
+          originalSource: 'recording',
           duration: state.recordingData.duration,
         };
-      } else if (state.inputMethod === 'file' && state.uploadedFile) {
+      }
+      // Handle file upload - transcribe first
+      else if (state.inputMethod === 'file' && state.uploadedFile) {
+        console.log('Transcribing uploaded file...');
+        const transcriptionResult = await transcribeAudio(state.uploadedFile);
+
+        if (!transcriptionResult.success || !transcriptionResult.transcript) {
+          throw new Error(transcriptionResult.error || 'Transcriptie mislukt');
+        }
+
+        transcript = transcriptionResult.transcript;
+        console.log('Transcription complete:', transcript.substring(0, 100) + '...');
+
         inputData = {
-          type: 'file',
-          data: state.uploadedFile,
+          type: 'transcribed-audio',
+          data: transcript,
+          originalSource: 'file',
         };
-      } else if (state.inputMethod === 'manual' && state.manualNotes.trim()) {
+      }
+      // Handle manual notes
+      else if (state.inputMethod === 'manual' && state.manualNotes.trim()) {
+        transcript = state.manualNotes.trim();
         inputData = {
           type: 'manual',
-          data: state.manualNotes.trim(),
+          data: transcript,
         };
       } else {
         throw new Error('Geen input data beschikbaar');
       }
 
-      // Process the intake
+      setState(prev => ({ ...prev, isTranscribing: false }));
+
+      // Process the intake with transcript
+      console.log('Processing intake with transcript...');
       const response = await fetch('/api/hhsb/process', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -256,9 +326,20 @@ export default function AutomatedIntakePage() {
 
     } catch (error) {
       console.error('Intake processing error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Onbekende fout';
+
+      let userFriendlyError = 'Kon intake niet verwerken. Probeer het opnieuw.';
+
+      // Handle transcription-specific errors
+      if (errorMessage.includes('Audio transcriptie is momenteel niet beschikbaar')) {
+        userFriendlyError = 'Audio transcriptie service is niet beschikbaar. Schakel over naar handmatige tekstinvoer of probeer het later opnieuw.';
+      } else if (errorMessage.includes('transcriptie') || errorMessage.includes('Groq')) {
+        userFriendlyError = 'Audio transcriptie mislukt. U kunt de tekst handmatig invoeren als alternatief.';
+      }
+
       setState(prev => ({
         ...prev,
-        error: 'Kon intake niet verwerken. Probeer het opnieuw.',
+        error: userFriendlyError,
         isProcessing: false,
       }));
     }
@@ -300,7 +381,7 @@ export default function AutomatedIntakePage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-hysio-deep-green">
-              Hysio Intake (Volledig Automatisch)
+              Hysio Intake (Automatisch)
             </h1>
             <p className="text-hysio-deep-green-900/70">
               {patientInfo.initials} ({patientInfo.birthYear}) - {patientInfo.chiefComplaint}
@@ -326,6 +407,23 @@ export default function AutomatedIntakePage() {
           <AlertCircle className="h-4 w-4 text-red-600" />
           <AlertDescription className="text-red-800">
             {state.error}
+            {(state.error.includes('transcriptie') || state.error.includes('Audio')) && (
+              <div className="mt-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setState(prev => ({
+                    ...prev,
+                    inputMethod: 'manual',
+                    error: null,
+                    manualNotes: ''
+                  }))}
+                  className="border-red-300 text-red-700 hover:bg-red-100"
+                >
+                  Schakel naar handmatige invoer
+                </Button>
+              </div>
+            )}
           </AlertDescription>
         </Alert>
       )}
@@ -384,6 +482,28 @@ export default function AutomatedIntakePage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {/* Context Document Upload */}
+            <div className="mb-4 pb-4 border-b border-hysio-mint/20">
+              <label className="block text-sm font-medium text-hysio-deep-green-900 mb-2">
+                Context Document (Optioneel)
+              </label>
+              <p className="text-xs text-hysio-deep-green-900/60 mb-3">
+                Upload een document met relevante context (bijv. verwijsbrief, vorig verslag) om de voorbereiding te verbeteren
+              </p>
+              <FileUpload
+                onFileUpload={handleContextDocumentUpload}
+                acceptedTypes={['text/*', '.pdf', '.doc', '.docx', '.txt']}
+                disabled={state.isProcessing}
+                maxSize={10}
+              />
+              {state.contextDocument && (
+                <div className="mt-2 flex items-center gap-2 text-sm text-hysio-deep-green-900">
+                  <FileText size={14} />
+                  <span>{state.contextDocument.name}</span>
+                </div>
+              )}
+            </div>
+
             {state.isProcessing && !state.preparationGenerated ? (
               <div className="flex items-center justify-center py-8">
                 <LoadingSpinner />
@@ -456,27 +576,6 @@ export default function AutomatedIntakePage() {
                     </div>
                   </div>
                 )}
-
-                {/* File Upload directly below recording */}
-                <div className="pt-2 border-t border-hysio-mint/20">
-                  <div className="flex items-center gap-2 text-hysio-deep-green mb-3">
-                    <Upload size={16} />
-                    <span className="text-sm font-medium">Bestand selecteren</span>
-                  </div>
-                  <FileUpload
-                    onFileUpload={handleFileUpload}
-                    acceptedTypes={['audio/*']}
-                    disabled={state.isProcessing}
-                  />
-                  {state.uploadedFile && (
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 mt-3">
-                      <div className="flex items-center gap-2 text-green-800">
-                        <CheckCircle size={16} />
-                        <span>Bestand geüpload: {state.uploadedFile.name}</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
               </div>
 
               {/* Manual Notes Section */}
@@ -497,29 +596,6 @@ export default function AutomatedIntakePage() {
                   Tip: Beschrijf de anamnese, onderzoeksbevindingen en uw klinische impressie
                 </p>
 
-                {/* Hysio Assistant Integration */}
-                {patientInfo && (
-                  <div className="mt-4">
-                    <HysioAssistant
-                      patientInfo={patientInfo}
-                      workflowType="intake-automatisch"
-                      workflowStep="intake"
-                      currentContext={{
-                        preparation: state.preparation,
-                        notes: state.manualNotes,
-                        inputMethod: state.inputMethod
-                      }}
-                      onSuggestionSelect={(suggestion) => {
-                        // Append suggestion to manual notes
-                        const currentNotes = state.manualNotes;
-                        const newNotes = currentNotes ?
-                          `${currentNotes}\n\n${suggestion}` :
-                          suggestion;
-                        handleManualNotesChange(newNotes);
-                      }}
-                    />
-                  </div>
-                )}
               </div>
             </div>
 
@@ -534,7 +610,7 @@ export default function AutomatedIntakePage() {
                 {state.isProcessing ? (
                   <>
                     <LoadingSpinner className="mr-2" />
-                    Verwerken...
+                    {state.isTranscribing ? 'Transcriberen...' : 'Verwerken...'}
                   </>
                 ) : state.isComplete ? (
                   <>
@@ -548,7 +624,14 @@ export default function AutomatedIntakePage() {
                   </>
                 )}
               </Button>
-              {!canProcess() && (
+              {state.isProcessing && (
+                <p className="text-xs text-hysio-deep-green-900/60 text-center mt-2">
+                  {state.isTranscribing
+                    ? '🎤 Audio wordt getranscribeerd...'
+                    : '🤖 AI analyseert intake gegevens...'}
+                </p>
+              )}
+              {!canProcess() && !state.isProcessing && (
                 <p className="text-xs text-hysio-deep-green-900/60 text-center mt-2">
                   Selecteer een invoermethode en voeg content toe om te verwerken
                 </p>

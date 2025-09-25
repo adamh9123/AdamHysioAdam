@@ -7,10 +7,10 @@ import type { EduPackContent } from '@/lib/types/edupack';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const eduPackId = params.id;
+    const { id: eduPackId } = await params;
 
     // In a real implementation, you would fetch the EduPack content from database
     // For now, we'll get it from request headers or session storage

@@ -204,7 +204,7 @@ export default function AutomatedIntakeConclusie() {
                 Intake Resultaten
               </h1>
               <p className="text-hysio-deep-green-900/70">
-                {patientInfo.initials} ({patientInfo.birthYear}) - Volledig automatisch
+                {patientInfo.initials} ({patientInfo.birthYear}) - Automatisch
               </p>
             </div>
           </div>
