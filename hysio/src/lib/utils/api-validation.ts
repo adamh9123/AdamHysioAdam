@@ -12,7 +12,7 @@ export function isValidPatientInfo(patientInfo: unknown): patientInfo is Patient
     typeof patientInfo.initials === 'string' &&
     typeof patientInfo.birthYear === 'string' &&
     typeof patientInfo.gender === 'string' &&
-    ['male', 'female', 'other'].includes(patientInfo.gender) &&
+    ['male', 'female'].includes(patientInfo.gender) &&
     typeof patientInfo.chiefComplaint === 'string' &&
     (patientInfo.additionalInfo === undefined || typeof patientInfo.additionalInfo === 'string')
   );
@@ -28,11 +28,11 @@ export function isValidInputData(inputData: unknown): inputData is InputData {
 
   const { type, data } = inputData;
 
-  if (!['recording', 'file', 'manual'].includes(type)) {
+  if (!['recording', 'file', 'manual', 'transcribed-audio'].includes(type)) {
     return false;
   }
 
-  if (type === 'manual') {
+  if (type === 'manual' || type === 'transcribed-audio') {
     return typeof data === 'string';
   }
 

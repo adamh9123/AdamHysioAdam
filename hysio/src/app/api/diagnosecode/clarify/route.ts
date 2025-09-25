@@ -2,7 +2,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { AIIntegration } from '@/lib/diagnosecode/ai-integration';
-import { DCSPHErrorHandler, ErrorType } from '@/lib/diagnosecode/error-handling';
+import { DCSPHErrorHandler } from '@/lib/diagnosecode/error-handling';
 
 export const runtime = 'nodejs';
 

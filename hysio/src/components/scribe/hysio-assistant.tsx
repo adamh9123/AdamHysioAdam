@@ -37,8 +37,8 @@ interface Message {
 interface HysioAssistantProps {
   patientInfo?: PatientInfo;
   workflowType: 'intake-automatisch' | 'intake-stapsgewijs' | 'consult';
-  workflowStep?: 'anamnese' | 'onderzoek' | 'klinische-conclusie' | 'consult';
-  currentContext?: string;
+  workflowStep?: 'anamnese' | 'onderzoek' | 'klinische-conclusie' | 'consult' | 'intake';
+  currentContext?: string | any;
   onSuggestionSelect?: (suggestion: string) => void;
   className?: string;
   minimized?: boolean;

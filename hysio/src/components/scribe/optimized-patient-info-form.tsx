@@ -308,8 +308,7 @@ const OptimizedPatientInfoForm: React.FC<OptimizedPatientInfoFormProps> = React.
                 <div className="flex gap-4">
                   {[
                     { value: 'male', label: 'Man' },
-                    { value: 'female', label: 'Vrouw' },
-                    { value: 'other', label: 'Anders' }
+                    { value: 'female', label: 'Vrouw' }
                   ].map((option) => (
                     <label key={option.value} className="flex items-center gap-2 cursor-pointer">
                       <input

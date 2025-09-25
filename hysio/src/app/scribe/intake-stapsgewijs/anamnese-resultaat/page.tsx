@@ -226,13 +226,13 @@ export default function AnamneseResultaatPage() {
       </div>
 
       {/* Red Flags Alert */}
-      {results.hhsbStructure.redFlags && results.hhsbStructure.redFlags.length > 0 && (
+      {results.hhsbStructure?.redFlags && results.hhsbStructure?.redFlags.length > 0 && (
         <Alert className="mb-6 border-red-200 bg-red-50">
           <AlertTriangle className="h-4 w-4 text-red-600" />
           <AlertDescription>
             <div className="font-semibold text-red-800 mb-2">Red Flags Gedetecteerd:</div>
             <ul className="list-disc list-inside text-red-700 space-y-1">
-              {results.hhsbStructure.redFlags.map((flag, index) => (
+              {results.hhsbStructure?.redFlags?.map((flag, index) => (
                 <li key={index}>{flag}</li>
               ))}
             </ul>
@@ -266,7 +266,7 @@ export default function AnamneseResultaatPage() {
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        copyToClipboard(results.hhsbStructure.hulpvraag, 'Hulpvraag');
+                        copyToClipboard(results.hhsbStructure?.hulpvraag || '', 'Hulpvraag');
                       }}
                     >
                       <Copy size={14} />
@@ -287,7 +287,7 @@ export default function AnamneseResultaatPage() {
               <CardContent>
                 <div className="bg-hysio-mint/10 rounded-lg p-4">
                   <div className="text-hysio-deep-green-900/80 whitespace-pre-wrap">
-                    {results.hhsbStructure.hulpvraag || 'Geen hulpvraag informatie beschikbaar'}
+                    {results.hhsbStructure?.hulpvraag || 'Geen hulpvraag informatie beschikbaar'}
                   </div>
                 </div>
               </CardContent>
@@ -319,7 +319,7 @@ export default function AnamneseResultaatPage() {
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        copyToClipboard(results.hhsbStructure.historie, 'Historie');
+                        copyToClipboard(results.hhsbStructure?.historie || '', 'Historie');
                       }}
                     >
                       <Copy size={14} />
@@ -340,7 +340,7 @@ export default function AnamneseResultaatPage() {
               <CardContent>
                 <div className="bg-hysio-mint/10 rounded-lg p-4">
                   <div className="text-hysio-deep-green-900/80 whitespace-pre-wrap">
-                    {results.hhsbStructure.historie || 'Geen historie informatie beschikbaar'}
+                    {results.hhsbStructure?.historie || 'Geen historie informatie beschikbaar'}
                   </div>
                 </div>
               </CardContent>
@@ -372,7 +372,7 @@ export default function AnamneseResultaatPage() {
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        copyToClipboard(results.hhsbStructure.stoornissen, 'Stoornissen');
+                        copyToClipboard(results.hhsbStructure?.stoornissen || '', 'Stoornissen');
                       }}
                     >
                       <Copy size={14} />
@@ -393,7 +393,7 @@ export default function AnamneseResultaatPage() {
               <CardContent>
                 <div className="bg-hysio-mint/10 rounded-lg p-4">
                   <div className="text-hysio-deep-green-900/80 whitespace-pre-wrap">
-                    {results.hhsbStructure.stoornissen || 'Geen stoornissen geïdentificeerd'}
+                    {results.hhsbStructure?.stoornissen || 'Geen stoornissen geïdentificeerd'}
                   </div>
                 </div>
               </CardContent>
@@ -425,7 +425,7 @@ export default function AnamneseResultaatPage() {
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        copyToClipboard(results.hhsbStructure.beperkingen, 'Beperkingen');
+                        copyToClipboard(results.hhsbStructure?.beperkingen || '', 'Beperkingen');
                       }}
                     >
                       <Copy size={14} />
@@ -446,7 +446,7 @@ export default function AnamneseResultaatPage() {
               <CardContent>
                 <div className="bg-hysio-mint/10 rounded-lg p-4">
                   <div className="text-hysio-deep-green-900/80 whitespace-pre-wrap">
-                    {results.hhsbStructure.beperkingen || 'Geen beperkingen geïdentificeerd'}
+                    {results.hhsbStructure?.beperkingen || 'Geen beperkingen geïdentificeerd'}
                   </div>
                 </div>
               </CardContent>
@@ -478,7 +478,7 @@ export default function AnamneseResultaatPage() {
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        copyToClipboard(results.hhsbStructure.anamneseSummary || 'Geen samenvatting beschikbaar', 'Samenvatting van Anamnese');
+                        copyToClipboard(results.hhsbStructure?.anamneseSummary || 'Geen samenvatting beschikbaar', 'Samenvatting van Anamnese');
                       }}
                     >
                       <Copy size={14} />
@@ -499,7 +499,7 @@ export default function AnamneseResultaatPage() {
               <CardContent>
                 <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
                   <div className="text-purple-900/90 whitespace-pre-wrap leading-relaxed">
-                    {results.hhsbStructure.anamneseSummary ||
+                    {results.hhsbStructure?.anamneseSummary ||
                      'Geen samenvatting van anamnese beschikbaar. Deze wordt automatisch gegenereerd op basis van de HHSB bevindingen.'}
                   </div>
                 </div>

@@ -1,7 +1,6 @@
 // Enhanced DCSPH Analysis API - Intelligent Analysis Engine
 
 import { NextRequest, NextResponse } from 'next/server';
-import { DCSPHErrorHandler, ErrorType } from '@/lib/diagnosecode/error-handling';
 
 export const runtime = 'nodejs';
 
@@ -292,7 +291,7 @@ export async function POST(request: NextRequest) {
  * GET /api/diagnosecode/analyze
  * Health check
  */
-export async function GET(request: NextRequest) {
+export async function GET() {
   return NextResponse.json({
     status: 'healthy',
     endpoint: '/api/diagnosecode/analyze',

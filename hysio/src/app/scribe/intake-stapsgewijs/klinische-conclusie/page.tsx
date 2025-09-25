@@ -124,22 +124,7 @@ export default function KlinischeConclusie() {
     }
   }, [workflowData.klinischeConclusieData]);
 
-  // Generate preparation on component mount
-  React.useEffect(() => {
-    if (patientInfo &&
-        workflowData.anamneseData?.completed &&
-        workflowData.onderzoekData?.completed &&
-        !state.preparationGenerated &&
-        !workflowData.klinischeConclusieData?.preparation) {
-      generatePreparation();
-    }
-  }, [
-    patientInfo,
-    workflowData.anamneseData?.completed,
-    workflowData.onderzoekData?.completed,
-    state.preparationGenerated,
-    workflowData.klinischeConclusieData?.preparation
-  ]);
+  // Removed automatic preparation generation - now only triggered by user button click
 
   const generatePreparation = async () => {
     if (!patientInfo || !workflowData.anamneseData?.result || !workflowData.onderzoekData?.result) return;

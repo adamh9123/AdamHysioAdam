@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { openaiClient } from '@/lib/api/openai';
 import { isValidInputData, isValidTranscript, createValidationError, createServerError } from '@/lib/utils/api-validation';
 import { getOptimizedProcessingPrompt } from '@/lib/prompts/optimized-prompts';
-import { apiCache } from '@/lib/cache/api-cache';
 import { generateOptimizedResponseWithMetadata, detectClientType } from '@/lib/utils/response-optimization';
+import { detectRedFlags, generateRedFlagsSummary, extractRedFlagsList } from '@/lib/medical/red-flags-detection';
 import type {
   SOEPProcessRequest,
   SOEPProcessResponse,
@@ -42,10 +42,19 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     // Process input data based on type
     if (inputData.type === 'manual') {
       transcript = inputData.data;
+      console.log('Processing manual input:', transcript.substring(0, 100) + '...');
+    } else if (inputData.type === 'transcribed-audio') {
+      transcript = inputData.data;
+      console.log('Processing transcribed audio (' + inputData.originalSource + '):', transcript.substring(0, 100) + '...');
     } else if (inputData.type === 'recording' || inputData.type === 'file') {
-      // For now, we'll simulate transcription since the audio data needs to be properly handled
-      // In a real implementation, you would need to process the audio file/blob
-      transcript = await processAudioInput(inputData);
+      // Critical fix: Audio/file should never reach here - must be transcribed client-side first
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'CRITICAL ERROR: Audio/file input must be transcribed client-side before API call. Only manual transcript text or transcribed-audio should be sent to this endpoint.'
+        },
+        { status: 400 }
+      );
     } else {
       return NextResponse.json(
         { error: 'Invalid input data type' },
@@ -60,33 +69,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       );
     }
 
-    // Check cache first for performance optimization
-    const cachedResult = await apiCache.getCachedSOEPResult(
-      patientInfo,
-      transcript,
-      preparation || undefined
-    );
-
-    if (cachedResult) {
-      console.log(`Cache HIT for SOEP processing: ${patientInfo.chiefComplaint}`);
-      return NextResponse.json({
-        success: true,
-        data: cachedResult
-      });
-    }
-
-    console.log(`Cache MISS for SOEP processing: ${patientInfo.chiefComplaint}`);
+    // Caching disabled to ensure fresh results for each request
 
     // Generate SOEP structured output
     const soepData = await generateSOEPAnalysis(patientInfo, preparation, transcript, workflowType);
 
-    // Cache the result for future requests
-    await apiCache.cacheSOEPResult(
-      patientInfo,
-      transcript,
-      soepData,
-      preparation || undefined
-    );
+    // Caching disabled - not storing results for future requests
 
     // Optimize response based on client type
     const userAgent = request.headers.get('user-agent') || undefined;
@@ -119,16 +107,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
   }
 }
 
-async function processAudioInput(inputData: InputData): Promise<string> {
-  // For demonstration purposes, return a simulated transcript
-  // In a real implementation, this would handle actual audio transcription
-  if (inputData.type === 'recording') {
-    return `[Simulatie] Follow-up consult - Patiënt rapporteert vooruitgang sinds vorige behandeling. Subjectieve klachten besproken, objectieve bevindingen verzameld, evaluatie uitgevoerd en behandelplan aangepast.`;
-  } else if (inputData.type === 'file') {
-    return `[Simulatie] Audio bestand follow-up consult verwerkt. SOEP methodiek toegepast voor systematische documentatie van het consult.`;
-  }
-  return '';
-}
+// REMOVED: processAudioInput function - audio transcription must happen client-side
+// This API endpoint should only receive pre-transcribed text, never raw audio
 
 async function generateSOEPAnalysis(
   patientInfo: PatientInfo,
@@ -167,6 +147,14 @@ async function generateSOEPAnalysis(
   // Parse the analysis into structured format
   const soepStructure = parseSOEPAnalysis(analysisText);
 
+  // Systematic Red Flags Detection using comprehensive medical criteria
+  const detectedRedFlags = detectRedFlags(transcript, { age, gender: genderText, chiefComplaint });
+  const redFlagsSummary = generateRedFlagsSummary(detectedRedFlags);
+  const redFlagsList = extractRedFlagsList(detectedRedFlags);
+
+  // Add systematic red flags to SOEP structure
+  soepStructure.redFlags = redFlagsList;
+
   return {
     soepStructure,
     fullStructuredText: analysisText,
@@ -178,7 +166,9 @@ async function generateSOEPAnalysis(
       age,
       gender: genderText,
       chiefComplaint
-    }
+    },
+    redFlagsDetailed: detectedRedFlags, // Full structured red flags
+    redFlagsSummary // Clinical summary for documentation
   };
 }
 

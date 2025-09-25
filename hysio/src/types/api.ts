@@ -1,10 +1,11 @@
 // API Request and Response Types for Hysio Medical Scribe
+import type { RedFlagResult } from '@/lib/medical/red-flags-detection';
 
 // Common types
 export interface PatientInfo {
   initials: string;
   birthYear: string;
-  gender: 'male' | 'female' | 'other';
+  gender: 'male' | 'female';
   chiefComplaint: string;
   additionalInfo?: string;
 }
@@ -29,12 +30,20 @@ export interface AudioInputData {
   duration?: number;
 }
 
+export interface TranscribedAudioInputData {
+  type: 'transcribed-audio';
+  data: string;
+  originalSource: 'recording' | 'file';
+  duration?: number;
+  transcriptionConfidence?: number;
+}
+
 export interface ManualInputData {
   type: 'manual';
   data: string;
 }
 
-export type InputData = AudioInputData | ManualInputData;
+export type InputData = AudioInputData | TranscribedAudioInputData | ManualInputData;
 
 // Preparation API
 export interface PreparationRequest {
@@ -89,6 +98,9 @@ export interface HHSBProcessResponse {
     gender: string;
     chiefComplaint: string;
   };
+  // Enhanced red flags detection
+  redFlagsDetailed?: RedFlagResult[];
+  redFlagsSummary?: string;
 }
 
 // SOEP Processing API
@@ -121,6 +133,9 @@ export interface SOEPProcessResponse {
     gender: string;
     chiefComplaint: string;
   };
+  // Enhanced red flags detection
+  redFlagsDetailed?: RedFlagResult[];
+  redFlagsSummary?: string;
 }
 
 // Transcription API
@@ -201,6 +216,10 @@ export interface AutomatedIntakeResult {
   workflowType: string;
   processedAt: string;
   patientInfo: PatientInfo;
+  // Enhanced red flags detection
+  redFlags?: string[];
+  redFlagsDetailed?: RedFlagResult[];
+  redFlagsSummary?: string;
 }
 
 export interface ConsultResult {
@@ -211,6 +230,9 @@ export interface ConsultResult {
   processingDuration: number;
   generatedAt: string;
   redFlags: string[];
+  // Enhanced red flags detection
+  redFlagsDetailed?: RedFlagResult[];
+  redFlagsSummary?: string;
 }
 
 // Distribution details types

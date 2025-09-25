@@ -2197,7 +2197,7 @@ AI-verwerking van klinische gegevens was niet beschikbaar.
                   </div>
 
                   <div className="grid gap-3">
-                    {/* Hysio Intake (Volledig Automatisch) */}
+                    {/* Hysio Intake (Automatisch) */}
                     <div
                       className={cn(
                         "p-4 border-2 rounded-lg cursor-pointer transition-all",
@@ -2220,7 +2220,7 @@ AI-verwerking van klinische gegevens was niet beschikbaar.
                             )}
                           </div>
                           <div>
-                            <h4 className="font-semibold text-[#004B3A]">Hysio Intake (Volledig Automatisch)</h4>
+                            <h4 className="font-semibold text-[#004B3A]">Hysio Intake (Automatisch)</h4>
                             <p className="text-xs text-[#003728] mt-1">Complete intake in één gestroomlijnde stap • 15-20 min</p>
                           </div>
                         </div>
@@ -2355,7 +2355,7 @@ AI-verwerking van klinische gegevens was niet beschikbaar.
 
                 {/* Dynamic Content Based on Selected Workflow */}
 
-                {/* Volledig Automatisch: Show Intake Voorbereiding */}
+                {/* Automatisch: Show Intake Voorbereiding */}
                 {selectedWorkflow === 'intake' && (
                   <>
                     <CollapsibleSection
@@ -2405,7 +2405,7 @@ AI-verwerking van klinische gegevens was niet beschikbaar.
                       )}
                     </CollapsibleSection>
 
-                    {/* Progress or Instructions for Volledig Automatisch */}
+                    {/* Progress or Instructions for Automatisch */}
                     {automationState === 'initial' && (
                       <div className="text-center py-8 text-gray-500">
                         <FileText size={48} className="mx-auto mb-4 opacity-50" />
@@ -2504,7 +2504,7 @@ AI-verwerking van klinische gegevens was niet beschikbaar.
               <>
                 {/* Dynamic Right Panel Based on Selected Workflow */}
 
-                {/* Volledig Automatisch: Full Intake Input Panel */}
+                {/* Automatisch: Full Intake Input Panel */}
                 {selectedWorkflow === 'intake' && (
                   <FullIntakeInputPanel
                     onRecordingComplete={handleFullIntakeRecording}

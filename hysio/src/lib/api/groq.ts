@@ -100,8 +100,20 @@ export async function transcribeAudioWithGroq(
       }
     }
     
-    // If all attempts failed, throw the last error
+    // If all attempts failed, provide detailed error information
     if (!transcription) {
+      const errorMessage = lastError?.message || 'All transcription attempts failed';
+      const isNetworkError = errorMessage.includes('Access denied') || errorMessage.includes('network');
+      const is403Error = lastError?.status === 403 || errorMessage.includes('403');
+
+      if (is403Error || isNetworkError) {
+        throw new Error(
+          'Groq transcriptie service is momenteel niet beschikbaar. ' +
+          'Dit kan door netwerkproblemen of tijdelijke servicebeperkingen komen. ' +
+          'Probeer het opnieuw of gebruik handmatige tekstinvoer als alternatief.'
+        );
+      }
+
       throw lastError || new Error('All transcription attempts failed');
     }
 
