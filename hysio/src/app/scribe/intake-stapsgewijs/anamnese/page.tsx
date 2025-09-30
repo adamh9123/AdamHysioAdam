@@ -2,14 +2,15 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { createSafeHTML } from '@/lib/utils/sanitize';
+import { createSafeHTML, cleanMarkdownArtifacts } from '@/lib/utils/sanitize';
 import { useScribeStore } from '@/lib/state/scribe-store';
 import { transcribeAudio } from '@/lib/api/transcription';
+import { useWorkflowResumption } from '@/lib/utils/workflow-resumption';
+import { useWorkflowNavigation } from '@/hooks/useWorkflowNavigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { AudioRecorder } from '@/components/ui/audio-recorder';
-import { FileUpload } from '@/components/ui/file-upload';
+import { UnifiedAudioInput } from '@/components/ui/unified-audio-input';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -35,7 +36,7 @@ import {
 
 interface AnamneseState {
   preparation: string | null;
-  inputMethod: 'recording' | 'file' | 'manual' | null;
+  inputMethod: 'recording' | 'upload' | 'manual' | null;
   recordingData: {
     blob: Blob | null;
     duration: number;
@@ -48,6 +49,7 @@ interface AnamneseState {
   error: string | null;
   preparationGenerated: boolean;
   resultExpanded: boolean;
+  showManualNavigation: boolean;
 }
 
 export default function AnamnesePage() {
@@ -58,6 +60,10 @@ export default function AnamnesePage() {
   const workflowData = useScribeStore(state => state.workflowData);
   const setAnamneseData = useScribeStore(state => state.setAnamneseData);
   const markStepComplete = useScribeStore(state => state.markStepComplete);
+
+  // Workflow interruption tracking and navigation
+  const { saveInterruption } = useWorkflowResumption();
+  const { navigateWithStateWait, navigateToStep, navigateToPatientInfo, navigateToWorkflowSelection } = useWorkflowNavigation();
 
   const [state, setState] = React.useState<AnamneseState>({
     preparation: null,
@@ -74,6 +80,7 @@ export default function AnamnesePage() {
     error: null,
     preparationGenerated: false,
     resultExpanded: false,
+    showManualNavigation: false,
   });
 
   // Set current workflow
@@ -83,12 +90,13 @@ export default function AnamnesePage() {
     }
   }, [currentWorkflow, setCurrentWorkflow]);
 
-  // Redirect if no patient info
+  // Safe redirect if no patient info using navigation hook
   React.useEffect(() => {
     if (!patientInfo) {
-      router.push('/scribe');
+      console.log('No patient info, navigating to patient info page');
+      navigateToPatientInfo();
     }
-  }, [patientInfo, router]);
+  }, [patientInfo, navigateToPatientInfo]);
 
   // Load existing data from workflow state
   React.useEffect(() => {
@@ -97,12 +105,32 @@ export default function AnamnesePage() {
       setState(prev => ({
         ...prev,
         preparation: existingData.preparation || null,
-        manualNotes: existingData.transcript || '',
+        // Only load manual notes if they were manually entered, not from transcription
+        manualNotes: (existingData.inputMethod === 'manual' && existingData.transcript) ? existingData.transcript : '',
         result: existingData.result || null,
         preparationGenerated: !!existingData.preparation,
       }));
     }
   }, [workflowData.anamneseData]);
+
+  // Track workflow interruptions
+  React.useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (currentWorkflow === 'intake-stapsgewijs' && (state.isProcessing || state.preparation || state.manualNotes)) {
+        saveInterruption('intake-stapsgewijs', 'anamnese', 'browser_close');
+      }
+    };
+
+    // Listen for page unload
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    // Note: Router mutation removed - this was an anti-pattern
+    // Workflow interruption on navigation is now handled by the workflow resumption system
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [currentWorkflow, state.isProcessing, state.preparation, state.manualNotes, saveInterruption]);
 
   // Removed automatic preparation generation - now only triggered by user button click
 
@@ -161,29 +189,17 @@ export default function AnamnesePage() {
   };
 
 
-  const handleRecordingComplete = (blob: Blob, duration: number) => {
+  const handleAudioReady = (blob: Blob, duration: number, source: 'recording' | 'upload') => {
     setState(prev => ({
       ...prev,
-      inputMethod: 'recording',
-      recordingData: { blob, duration, isRecording: false },
-      uploadedFile: null, // Clear file upload when recording
+      inputMethod: source,
+      recordingData: source === 'recording' ? { blob, duration, isRecording: false } : { blob: null, duration: 0, isRecording: false },
+      uploadedFile: source === 'upload' ? blob as unknown as File : null,
     }));
 
+    const audioFile = blob instanceof File ? blob : new File([blob], `anamnese-${source}.webm`, { type: 'audio/webm' });
     setAnamneseData({
-      recording: new File([blob], 'anamnese-recording.webm', { type: 'audio/webm' }),
-    });
-  };
-
-  const handleFileUpload = (file: File) => {
-    setState(prev => ({
-      ...prev,
-      inputMethod: 'file',
-      uploadedFile: file,
-      recordingData: { blob: null, duration: 0, isRecording: false }, // Clear recording when uploading file
-    }));
-
-    setAnamneseData({
-      recording: file,
+      recording: audioFile,
     });
   };
 
@@ -210,12 +226,27 @@ export default function AnamnesePage() {
 
       // STEP 1: Handle transcription for audio/file inputs
       if (state.inputMethod === 'recording' && state.recordingData.blob) {
-        console.log('Transcribing audio recording...');
+        console.log('Transcribing audio recording...', {
+          blobSize: state.recordingData.blob.size,
+          duration: state.recordingData.duration
+        });
         const transcriptionResult = await transcribeAudio(state.recordingData.blob);
+
+        console.log('Transcription result received:', {
+          success: transcriptionResult.success,
+          hasTranscript: !!transcriptionResult.transcript,
+          transcriptLength: transcriptionResult.transcript?.length || 0,
+          error: transcriptionResult.error
+        });
 
         if (!transcriptionResult.success || !transcriptionResult.transcript) {
           const errorMessage = transcriptionResult.error || 'Transcriptie mislukt';
-          console.log('Audio transcription failed:', errorMessage);
+          console.error('Audio transcription failed:', {
+            success: transcriptionResult.success,
+            transcript: transcriptionResult.transcript,
+            error: errorMessage,
+            fullResult: transcriptionResult
+          });
 
           // Provide helpful error message to user
           if (errorMessage.includes('Groq transcriptie service is momenteel niet beschikbaar')) {
@@ -231,7 +262,10 @@ export default function AnamnesePage() {
         }
 
         transcript = transcriptionResult.transcript;
-        console.log('Audio transcription complete:', transcript.substring(0, 100) + '...');
+        console.log('Audio transcription complete:', {
+          transcriptLength: transcript.length,
+          preview: transcript.substring(0, 100) + '...'
+        });
 
         // Convert to transcribed audio input
         inputData = {
@@ -242,14 +276,30 @@ export default function AnamnesePage() {
         };
       }
       // Handle file upload - transcribe first
-      else if (state.inputMethod === 'file' && state.uploadedFile) {
-        console.log('Transcribing uploaded file...');
+      else if (state.inputMethod === 'upload' && state.uploadedFile) {
+        console.log('Transcribing uploaded file...', {
+          fileName: state.uploadedFile.name,
+          fileSize: state.uploadedFile.size,
+          fileType: state.uploadedFile.type
+        });
         const fileBlob = new Blob([await state.uploadedFile.arrayBuffer()], { type: state.uploadedFile.type });
         const transcriptionResult = await transcribeAudio(fileBlob);
 
+        console.log('File transcription result received:', {
+          success: transcriptionResult.success,
+          hasTranscript: !!transcriptionResult.transcript,
+          transcriptLength: transcriptionResult.transcript?.length || 0,
+          error: transcriptionResult.error
+        });
+
         if (!transcriptionResult.success || !transcriptionResult.transcript) {
           const errorMessage = transcriptionResult.error || 'Bestandstranscriptie mislukt';
-          console.log('File transcription failed:', errorMessage);
+          console.error('File transcription failed:', {
+            success: transcriptionResult.success,
+            transcript: transcriptionResult.transcript,
+            error: errorMessage,
+            fullResult: transcriptionResult
+          });
 
           if (errorMessage.includes('Groq transcriptie service is momenteel niet beschikbaar')) {
             throw new Error(
@@ -264,7 +314,10 @@ export default function AnamnesePage() {
         }
 
         transcript = transcriptionResult.transcript;
-        console.log('File transcription complete:', transcript.substring(0, 100) + '...');
+        console.log('File transcription complete:', {
+          transcriptLength: transcript.length,
+          preview: transcript.substring(0, 100) + '...'
+        });
 
         // Convert to transcribed audio input
         inputData = {
@@ -292,8 +345,14 @@ export default function AnamnesePage() {
         patientInfo,
         preparation: state.preparation ? 'present' : 'missing',
         transcriptLength: transcript.length,
-        inputDataType: inputData.type
+        transcriptPreview: transcript.substring(0, 100) + '...',
+        inputDataType: inputData.type,
+        inputDataLength: inputData.data?.length || 0
       });
+
+      if (!transcript || transcript.trim().length < 10) {
+        throw new Error(`Transcript te kort of leeg. Transcript lengte: ${transcript?.length || 0}`);
+      }
 
       const response = await fetch('/api/hhsb/process', {
         method: 'POST',
@@ -322,32 +381,42 @@ export default function AnamnesePage() {
         resultExpanded: true,
       }));
 
-      // Save results to workflow state with transcript
+      // Save results to workflow state with transcript and input method
       console.log('Saving anamnese results to workflow state:', data);
       setAnamneseData({
         result: data,
         transcript: transcript, // Save the transcribed text
+        inputMethod: state.inputMethod, // Save how the input was provided
         completed: true,
       });
 
       // Mark step as complete
       markStepComplete('anamnese');
 
-      console.log('Anamnese processing completed successfully, navigating to results page...');
+      console.log('Anamnese processing completed successfully, using enhanced navigation...');
 
-      // Enhanced navigation with better timing for state stabilization
-      setTimeout(async () => {
-        try {
-          console.log('Navigating to anamnese results page...');
-          await router.push('/scribe/intake-stapsgewijs/anamnese-resultaat');
-        } catch (navigationError) {
-          console.error('Navigation to results failed:', navigationError);
-          setState(prev => ({
-            ...prev,
-            error: 'Navigatie naar resultaten mislukt. Probeer handmatig naar de resultaten te gaan.',
-          }));
-        }
-      }, 2000); // 2 second delay for state stabilization
+      // Use enhanced navigation system with state stabilization
+      const navigationSuccess = await navigateWithStateWait(
+        '/scribe/intake-stapsgewijs/anamnese-resultaat',
+        () => {
+          // Verify state is properly set before navigation
+          const currentState = useScribeStore.getState();
+          return Boolean(
+            currentState.workflowData.anamneseData?.completed &&
+            currentState.workflowData.completedSteps.includes('anamnese')
+          );
+        },
+        8000 // 8 second max wait for state stabilization
+      );
+
+      if (!navigationSuccess) {
+        console.warn('Enhanced navigation failed, showing manual fallback');
+        setState(prev => ({
+          ...prev,
+          error: 'Navigatie naar resultaten werd vertraagd. Klik hieronder om door te gaan.',
+          showManualNavigation: true,
+        }));
+      }
 
     } catch (error) {
       console.error('Anamnese processing error:', error);
@@ -370,19 +439,25 @@ export default function AnamnesePage() {
     }
   };
 
-  const handleNext = () => {
-    // Navigate to onderzoek step
-    router.push('/scribe/intake-stapsgewijs/onderzoek');
+  const handleNext = async () => {
+    // Navigate to onderzoek step with state validation
+    console.log('Navigating to onderzoek step');
+    const success = await navigateToStep('intake-stapsgewijs', 'onderzoek');
+    if (!success) {
+      console.warn('Navigation to onderzoek failed');
+      setState(prev => ({ ...prev, error: 'Navigatie naar onderzoek mislukt. Probeer het opnieuw.' }));
+    }
   };
 
   const handleBack = () => {
-    router.push('/scribe/workflow');
+    console.log('Navigating back to workflow selection');
+    navigateToWorkflowSelection();
   };
 
   const canProcess = () => {
     return (
       (state.inputMethod === 'recording' && state.recordingData.blob) ||
-      (state.inputMethod === 'file' && state.uploadedFile) ||
+      (state.inputMethod === 'upload' && state.uploadedFile) ||
       (state.inputMethod === 'manual' && state.manualNotes.trim().length > 0)
     );
   };
@@ -486,6 +561,57 @@ export default function AnamnesePage() {
         </Alert>
       )}
 
+      {/* Manual Navigation Button */}
+      {state.showManualNavigation && (
+        <div className="mb-6 text-center">
+          <Button
+            onClick={async () => {
+              console.log('Manual navigation triggered to anamnese-resultaat page');
+              const success = await navigateToStep('intake-stapsgewijs', 'anamnese-resultaat');
+              if (!success) {
+                console.warn('Manual navigation failed');
+                setState(prev => ({ ...prev, error: 'Navigatie mislukt. Probeer het opnieuw.' }));
+              }
+            }}
+            className="bg-hysio-deep-green hover:bg-hysio-deep-green/90 text-white"
+            size="lg"
+          >
+            <ArrowRight size={18} className="mr-2" />
+            Ga naar Anamnese Resultaten
+          </Button>
+        </div>
+      )}
+
+      {/* Enhanced Success Alert with Progress Tracking */}
+      {state.result && !state.showManualNavigation && (
+        <Alert className="mb-6 border-green-200 bg-green-50">
+          <CheckCircle className="h-4 w-4 text-green-600" />
+          <AlertDescription className="text-green-800">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <span className="font-semibold">Anamnese succesvol verwerkt!</span>
+              </div>
+              <div className="text-sm">
+                • HHSB Anamnesekaart gegenereerd ✓
+              </div>
+              <div className="text-sm">
+                • Hulpvraag en geschiedenis geanalyseerd ✓
+              </div>
+              <div className="text-sm">
+                • Stoornissen en beperkingen geïdentificeerd ✓
+              </div>
+              <div className="text-sm">
+                • Anamnese samenvatting opgesteld ✓
+              </div>
+              <div className="text-sm text-green-700 mt-2">
+                → Anamnese resultaten worden nu geladen...
+              </div>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
+
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Left Panel - Preparation */}
         <Card className="h-fit">
@@ -509,21 +635,10 @@ export default function AnamnesePage() {
             ) : state.preparation ? (
               <div className="space-y-4">
                 <div className="bg-hysio-mint/10 rounded-lg p-4">
-                  <div
-                    className="text-sm text-hysio-deep-green-900/80 whitespace-pre-wrap"
-                    dangerouslySetInnerHTML={createSafeHTML(state.preparation)}
-                  />
+                  <div className="text-sm text-hysio-deep-green-900/80 whitespace-pre-wrap">
+                    {cleanMarkdownArtifacts(state.preparation || '')}
+                  </div>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={generatePreparation}
-                  disabled={state.isProcessing}
-                  className="text-hysio-deep-green border-hysio-mint"
-                >
-                  <RotateCcw size={14} className="mr-1" />
-                  Regenereren
-                </Button>
               </div>
             ) : (
               <div className="text-center py-8">
@@ -559,9 +674,16 @@ export default function AnamnesePage() {
                   <Mic size={18} />
                   <h3 className="text-lg font-medium">Live Opname</h3>
                 </div>
-                <AudioRecorder
-                  onRecordingComplete={handleRecordingComplete}
+                <UnifiedAudioInput
+                  onAudioReady={handleAudioReady}
+                  onError={(error) => setState(prev => ({ ...prev, error }))}
                   disabled={state.isProcessing}
+                  allowUpload={true}
+                  maxUploadSize={70}
+                  showTips={true}
+                  showTimer={true}
+                  autoTranscribe={false}
+                  variant="default"
                 />
                 {state.recordingData.blob && (
                   <div className="bg-green-50 border border-green-200 rounded-lg p-3">
