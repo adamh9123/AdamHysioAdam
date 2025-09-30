@@ -83,11 +83,14 @@ function deleteDraft(sessionId: string): boolean {
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: { sessionId: string } }
+  { params }: { params: Promise<{ sessionId: string }> }
 ): Promise<NextResponse> {
   try {
+    // Await params (Next.js 15 requirement)
+    const { sessionId: sessionIdParam } = await params;
+
     // Validate session ID format
-    const validation = sessionIdSchema.safeParse(params.sessionId);
+    const validation = sessionIdSchema.safeParse(sessionIdParam);
 
     if (!validation.success) {
       return NextResponse.json(
@@ -153,11 +156,14 @@ export async function GET(
 
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: { sessionId: string } }
+  { params }: { params: Promise<{ sessionId: string }> }
 ): Promise<NextResponse> {
   try {
+    // Await params (Next.js 15 requirement)
+    const { sessionId: sessionIdParam } = await params;
+
     // Validate session ID format
-    const validation = sessionIdSchema.safeParse(params.sessionId);
+    const validation = sessionIdSchema.safeParse(sessionIdParam);
 
     if (!validation.success) {
       return NextResponse.json(

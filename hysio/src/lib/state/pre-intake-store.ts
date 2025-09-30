@@ -20,12 +20,17 @@ import type {
   FunctionalLimitationsData,
 } from '@/types/pre-intake';
 import { QUESTIONNAIRE_STEPS } from '@/lib/pre-intake/constants';
+import type { Language } from '@/lib/pre-intake/translations';
 
 // ============================================================================
 // STATE INTERFACE
 // ============================================================================
 
 interface PreIntakeState {
+  // Language support
+  language: Language;
+  setLanguage: (lang: Language) => void;
+
   // Session management
   sessionId: string | null;
   setSessionId: (id: string | null) => void;
@@ -96,6 +101,7 @@ interface PreIntakeState {
 // ============================================================================
 
 const initialState = {
+  language: 'nl' as Language,
   sessionId: null,
   currentStep: 'welcome' as QuestionnaireStep,
   questionnaireData: {},
@@ -118,6 +124,9 @@ const initialState = {
 export const usePreIntakeStore = create<PreIntakeState>()(
   immer((set, get) => ({
     ...initialState,
+
+    // Language management
+    setLanguage: (lang) => set({ language: lang }),
 
     // Session management
     setSessionId: (id) => set({ sessionId: id }),

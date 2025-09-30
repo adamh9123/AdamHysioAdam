@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { ChevronDown, Menu, X, ArrowRight } from 'lucide-react';
 import { Button } from './button';
@@ -22,11 +23,12 @@ const MarketingNavigation: React.FC<MarketingNavigationProps> = ({ className }) 
     { name: 'SmartMail', href: '/smartmail', description: 'Geautomatiseerde communicatie' },
     { name: 'Diagnosecode', href: '/diagnosecode', description: 'Slimme diagnose herkenning' },
     { name: 'Hysio EduPack', href: '/edupack', description: 'Educatieve content generatie' },
+    { name: 'Hysio Pre-intake', href: '/pre-intake', description: 'Digitale vragenlijst voor intakes' },
   ];
 
   const mainNavItems = [
     { name: 'Hysio Modules', href: '/modules' },
-    { name: 'Over Ons', href: '/over-ons' },
+    { name: 'Over Hysio', href: '/over-hysio' },
     { name: 'Blog', href: '/blog' },
     { name: 'Prijzen', href: '/prijzen' },
     { name: 'Contact', href: '/contact' },
@@ -41,8 +43,15 @@ const MarketingNavigation: React.FC<MarketingNavigationProps> = ({ className }) 
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <div className="w-10 h-10 bg-hysio-mint/20 rounded-lg flex items-center justify-center">
-              <span className="text-hysio-deep-green font-bold text-lg">H</span>
+            <div className="w-10 h-10 relative">
+              <Image
+                src="/hysio-logo.png"
+                alt="Hysio Logo"
+                width={40}
+                height={40}
+                className="object-contain"
+                priority
+              />
             </div>
             <span className="text-2xl font-bold text-hysio-deep-green">Hysio</span>
           </Link>
@@ -110,13 +119,22 @@ const MarketingNavigation: React.FC<MarketingNavigationProps> = ({ className }) 
               </Link>
             ))}
 
-            {/* CTA Button */}
-            <Button
-              onClick={() => router.push('/scribe')}
-              className="bg-hysio-mint hover:bg-hysio-mint-dark text-hysio-deep-green font-semibold px-6"
-            >
-              Start Nu
-            </Button>
+            {/* Auth Buttons */}
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={() => router.push('/registreer')}
+                className="bg-hysio-mint hover:bg-hysio-mint-dark text-hysio-deep-green font-semibold px-6"
+              >
+                Start Nu
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => router.push('/inloggen')}
+                className="border-hysio-deep-green text-hysio-deep-green hover:bg-hysio-deep-green hover:text-white font-semibold px-6 transition-all duration-200"
+              >
+                Inloggen
+              </Button>
+            </div>
           </div>
 
           {/* Mobile Menu Button */}
@@ -170,16 +188,26 @@ const MarketingNavigation: React.FC<MarketingNavigationProps> = ({ className }) 
                 </div>
               </div>
 
-              {/* Mobile CTA */}
-              <div className="border-t border-hysio-mint/20 pt-4">
+              {/* Mobile Auth Buttons */}
+              <div className="border-t border-hysio-mint/20 pt-4 space-y-3">
                 <Button
                   onClick={() => {
-                    router.push('/scribe');
+                    router.push('/registreer');
                     setIsMenuOpen(false);
                   }}
                   className="w-full bg-hysio-mint hover:bg-hysio-mint-dark text-hysio-deep-green font-semibold"
                 >
                   Start Nu
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    router.push('/inloggen');
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full border-hysio-deep-green text-hysio-deep-green hover:bg-hysio-deep-green hover:text-white font-semibold transition-all duration-200"
+                >
+                  Inloggen
                 </Button>
               </div>
             </div>
