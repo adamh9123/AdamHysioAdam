@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **PRE-INTAKE HOMEPAGE INTEGRATION**: Added Pre-intake module Card to homepage modules grid (6th position) with ClipboardList icon, emerald branding, key features display (LOFTIG/SCEGS frameworks, DTF red flags detection, 10+ minute time savings), and footer navigation link under Platform section
+- **PRE-INTAKE DASHBOARD QUICK ACTION**: Added Pre-intake Quick Action button to dashboard with ClipboardList icon, emerald hover styling, and direct link to `/pre-intake` for therapist access
+
+### Fixed
+- **PRE-INTAKE SESSION PAGE ERROR**: Fixed "Fout bij laden van concept" error in `/pre-intake/[sessionId]/page.tsx` by correcting store method calls from non-existent `setCompletedSteps`/`resetQuestionnaire` to proper `loadDraft`/`resetState` methods, and resolved function naming conflict by renaming local `loadDraft` to `loadDraftData`
+
+### Added (Previous)
 - **PRE-INTAKE MODULE COMPLETE (PHASES 2-5)**: Fully autonomous implementation of complete Pre-intake Module including questionnaire flow orchestration, therapist dashboard integration, comprehensive test suite, accessibility/security audits, and production-ready documentation
 - **QUESTIONNAIRE FLOW ORCHESTRATOR**: Implemented `hysio/src/components/pre-intake/QuestionnaireFlow.tsx` as main multi-step form controller with welcome screen, all section components integration, review screen, consent screen, navigation controls (Previous/Next buttons with validation), auto-save status indicators, success screen post-submission, loading states, error handling, and smooth transitions between steps
 - **PATIENT ENTRY PAGES**: Created `/pre-intake/page.tsx` generating unique session IDs (nanoid with 139 bits entropy) and `/pre-intake/[sessionId]/page.tsx` for session-specific questionnaire with draft loading, expiration handling, loading states, error screens, and draft loaded notifications

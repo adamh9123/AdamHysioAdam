@@ -24,13 +24,11 @@ export default function PreIntakeSessionPage() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isDraftLoaded, setIsDraftLoaded] = useState(false);
 
-  const setQuestionnaireData = usePreIntakeStore((state) => state.setQuestionnaireData);
-  const setCurrentStep = usePreIntakeStore((state) => state.setCurrentStep);
-  const setCompletedSteps = usePreIntakeStore((state) => state.setCompletedSteps);
-  const resetQuestionnaire = usePreIntakeStore((state) => state.resetQuestionnaire);
+  const loadDraftToStore = usePreIntakeStore((state) => state.loadDraft);
+  const resetState = usePreIntakeStore((state) => state.resetState);
 
   useEffect(() => {
-    const loadDraft = async () => {
+    const loadDraftData = async () => {
       if (!sessionId) {
         setLoadError('Geen geldige sessie-ID gevonden');
         setIsLoading(false);
@@ -50,17 +48,19 @@ export default function PreIntakeSessionPage() {
           // Check if draft is expired
           if (draft.isExpired) {
             setLoadError(UI_MESSAGES.draftExpired);
-            resetQuestionnaire();
+            resetState();
           } else {
             // Load draft data into store
-            setQuestionnaireData(draft.questionnaireData);
-            setCurrentStep(draft.currentStep || 'welcome');
-            setCompletedSteps(draft.completedSteps || []);
+            loadDraftToStore({
+              questionnaireData: draft.questionnaireData,
+              currentStep: draft.currentStep || 'welcome',
+              lastSavedAt: draft.lastSavedAt,
+            });
             setIsDraftLoaded(true);
           }
         } else if (response.status === 404) {
           // No draft found, start fresh (this is normal for new sessions)
-          resetQuestionnaire();
+          resetState();
         } else {
           // Other error
           const error = await response.json();
@@ -69,14 +69,14 @@ export default function PreIntakeSessionPage() {
       } catch (error) {
         console.error('Draft load error:', error);
         // Network error - start fresh rather than blocking user
-        resetQuestionnaire();
+        resetState();
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadDraft();
-  }, [sessionId, setQuestionnaireData, setCurrentStep, setCompletedSteps, resetQuestionnaire]);
+    loadDraftData();
+  }, [sessionId, loadDraftToStore, resetState]);
 
   const handleComplete = () => {
     // Redirect to success page or dashboard

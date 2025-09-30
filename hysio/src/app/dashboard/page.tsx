@@ -27,7 +27,8 @@ import {
   Download,
   ArrowRight,
   Sparkles,
-  Target
+  Target,
+  ClipboardList
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -315,6 +316,13 @@ export default function DashboardPage() {
                     <span className="text-sm font-medium">EduPack</span>
                   </Button>
                 </Link>
+
+                <Link href="/pre-intake">
+                  <Button variant="outline" className="w-full h-20 flex-col gap-2 hover:bg-emerald-50 border-emerald-200">
+                    <ClipboardList size={20} className="text-emerald-600" />
+                    <span className="text-sm font-medium">Pre-intake</span>
+                  </Button>
+                </Link>
               </div>
             </CardContent>
           </Card>
@@ -439,7 +447,7 @@ export default function DashboardPage() {
               </div>
             ) : (
               <SessionHistory
-                sessions={filteredSessions}
+                sessions={filteredSessions as any}
                 onSessionLoad={handleSessionLoad}
                 onSessionDelete={handleSessionDelete}
                 onSessionExport={handleSessionExport}
