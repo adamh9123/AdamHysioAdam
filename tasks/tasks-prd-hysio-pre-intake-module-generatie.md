@@ -229,7 +229,7 @@ This task list guides the implementation of the Hysio Pre-intake Module, a digit
   - Keyboard accessible (arrow keys)
   - **Acceptance**: Slider smooth, value visible, color-coded, keyboard navigable, WCAG AA compliant
 
-- [ ] **2.9 Build Red Flags Screening Section**
+- [x] **2.9 Build Red Flags Screening Section**
   - Create `hysio/src/components/pre-intake/questions/RedFlagsSection.tsx`
   - Implement DTF (Directe Toegang Fysiotherapie) screening questions as Yes/No toggles:
     - "Heeft u onverklaarbaar gewichtsverlies?"
@@ -242,7 +242,7 @@ This task list guides the implementation of the Hysio Pre-intake Module, a digit
   - If any "Yes": show reassuring message "We bespreken dit tijdens uw afspraak"
   - **Acceptance**: All red flag questions present, conditional display works, reassuring tone, no false positives
 
-- [ ] **2.10 Build Medical History Section**
+- [x] **2.10 Build Medical History Section**
   - Create `hysio/src/components/pre-intake/questions/MedicalHistorySection.tsx`
   - Questions:
     - "Heeft u recente operaties gehad?" (Yes/No + details textarea)
@@ -253,7 +253,7 @@ This task list guides the implementation of the Hysio Pre-intake Module, a digit
   - Dynamic list component for medications (add/remove rows)
   - **Acceptance**: All fields functional, list input works, character limits, B1 language, mobile-friendly
 
-- [ ] **2.11 Build Goals Section (SCEGS Framework)**
+- [x] **2.11 Build Goals Section (SCEGS Framework)**
   - Create `hysio/src/components/pre-intake/questions/GoalsSection.tsx`
   - Questions based on SCEGS (Somatisch, Cognitief, Emotioneel, Gedragsmatig, Sociaal):
     - "Wat hoopt u met fysiotherapie te bereiken?" (textarea, 500 chars)
@@ -263,7 +263,7 @@ This task list guides the implementation of the Hysio Pre-intake Module, a digit
   - Empathetic microcopy: "Uw antwoorden helpen ons u beter te begrijpen"
   - **Acceptance**: All SCEGS elements covered, empathetic tone, character limits, B1 language
 
-- [ ] **2.12 Build Functional Limitations Section**
+- [x] **2.12 Build Functional Limitations Section**
   - Create `hysio/src/components/pre-intake/questions/FunctionalLimitationsSection.tsx`
   - Checkbox list of common activities: Werk, Sport, Huishouden, Autorijden, Slapen, Hobby's, Sociale activiteiten
   - "Anders" option with text input
