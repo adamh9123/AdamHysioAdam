@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,10 +21,10 @@ import {
   Eye,
   Star,
   Play,
-  Calculator,
   Award,
   Lock,
-  Zap
+  Zap,
+  ClipboardList
 } from 'lucide-react';
 
 export default function Home() {
@@ -61,7 +62,7 @@ export default function Home() {
                     <div className="flex flex-col">
                       <Button
                         size="lg"
-                        onClick={() => router.push('/scribe')}
+                        onClick={() => router.push('/registreer')}
                         className="bg-hysio-deep-green hover:bg-hysio-deep-green-900 text-white font-semibold text-lg px-8 py-6 h-auto mb-2"
                       >
                         Probeer Hysio Gratis
@@ -496,6 +497,45 @@ export default function Home() {
                 </div>
               </CardContent>
             </Card>
+
+            <Card className="border-emerald-200 hover:border-emerald-300 hover:shadow-lg transition-all duration-300 group cursor-pointer"
+                  onClick={() => router.push('/pre-intake')}>
+              <CardHeader className="pb-4">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center group-hover:bg-emerald-600 transition-colors">
+                    <ClipboardList className="h-6 w-6 text-emerald-600 group-hover:text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-hysio-deep-green text-xl">Hysio Pre-intake</CardTitle>
+                    <div className="text-hysio-deep-green/60 text-sm">Digitale Vragenlijst</div>
+                  </div>
+                </div>
+                <CardDescription className="text-base">
+                  Patiënten vullen thuis een gestructureerde intake in. HHSB-format klaar voor uw eerste afspraak.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-sm text-hysio-deep-green-900/80">
+                    <CheckCircle className="h-4 w-4 text-hysio-emerald" />
+                    <span>LOFTIG & SCEGS frameworks</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-hysio-deep-green-900/80">
+                    <CheckCircle className="h-4 w-4 text-hysio-emerald" />
+                    <span>Automatische red flags detectie (DTF)</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-hysio-deep-green-900/80">
+                    <CheckCircle className="h-4 w-4 text-hysio-emerald" />
+                    <span>10+ minuten tijdsbesparing per intake</span>
+                  </div>
+                </div>
+                <div className="mt-4 pt-4 border-t border-emerald-100">
+                  <div className="text-sm font-medium text-emerald-600">
+                    🆕 Nieuw: Pre-intake module →
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Dashboard - Wide Card */}
@@ -683,7 +723,7 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-12">
               <Button
                 size="lg"
-                onClick={() => router.push('/scribe')}
+                onClick={() => router.push('/registreer')}
                 className="bg-hysio-mint hover:bg-hysio-mint-dark text-hysio-deep-green font-bold text-xl px-12 py-8 h-auto shadow-xl"
               >
                 Probeer Hysio Gratis
@@ -742,7 +782,7 @@ export default function Home() {
               </p>
               <div className="flex gap-4">
                 <Button
-                  onClick={() => router.push('/scribe')}
+                  onClick={() => router.push('/registreer')}
                   className="bg-hysio-mint hover:bg-hysio-mint-dark text-hysio-deep-green font-semibold"
                 >
                   Probeer Nu
@@ -784,6 +824,12 @@ export default function Home() {
                   EduPack
                 </button>
                 <button
+                  onClick={() => router.push('/pre-intake')}
+                  className="block text-hysio-deep-green-900/70 hover:text-hysio-mint-dark transition-colors"
+                >
+                  Pre-intake
+                </button>
+                <button
                   onClick={() => router.push('/dashboard')}
                   className="block text-hysio-deep-green-900/70 hover:text-hysio-mint-dark transition-colors"
                 >
@@ -795,10 +841,19 @@ export default function Home() {
             <div>
               <h4 className="font-semibold text-hysio-deep-green mb-4">Bedrijf</h4>
               <div className="space-y-3">
-                <div className="text-hysio-deep-green-900/70">Over Hysio</div>
-                <div className="text-hysio-deep-green-900/70">Privacy</div>
-                <div className="text-hysio-deep-green-900/70">Voorwaarden</div>
-                <div className="text-hysio-deep-green-900/70">Contact</div>
+                <Link href="/over-hysio" className="block text-hysio-deep-green-900/70 hover:text-hysio-mint-dark transition-colors cursor-pointer">
+                  Over Hysio
+                </Link>
+                <Link href="/contact" className="block text-hysio-deep-green-900/70 hover:text-hysio-mint-dark transition-colors cursor-pointer">
+                  Contact
+                </Link>
+                <div className="border-t border-hysio-mint/10 my-2"></div>
+                <Link href="/privacybeleid" className="block text-hysio-deep-green-900/70 hover:text-hysio-mint-dark transition-colors cursor-pointer">
+                  Privacybeleid
+                </Link>
+                <Link href="/algemene-voorwaarden" className="block text-hysio-deep-green-900/70 hover:text-hysio-mint-dark transition-colors cursor-pointer">
+                  Algemene Voorwaarden
+                </Link>
               </div>
             </div>
           </div>
@@ -806,7 +861,7 @@ export default function Home() {
           <div className="border-t border-hysio-mint/20 mt-12 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <p className="text-sm text-hysio-deep-green-900/60">
-                © 2024 Hysio.nl - Professional Platform for Physiotherapy Documentation
+                © 2025 Hysio.nl - Professional Platform for Physiotherapy Documentation
               </p>
               <div className="flex items-center gap-4 text-sm text-hysio-deep-green-900/60">
                 <span>KNGF-conform</span>
