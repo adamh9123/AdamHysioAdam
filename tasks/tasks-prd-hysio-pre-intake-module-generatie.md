@@ -320,7 +320,7 @@ This task list guides the implementation of the Hysio Pre-intake Module, a digit
   - Add unit tests covering all mappings and edge cases
   - **Acceptance**: Function maps all data correctly, handles missing data, tests pass with >95% coverage
 
-- [ ] **3.2 Implement NLP Text Summarization**
+- [x] **3.2 Implement NLP Text Summarization**
   - Create `hysio/src/lib/pre-intake/nlp-summarizer.ts` with function `summarizeText(text: string, maxLength: number): Promise<string>`
   - Integrate with existing Groq API setup (`hysio/src/lib/api/groq.ts`)
   - Create summarization prompt: "Vat de volgende patiëntbeschrijving samen in maximaal [maxLength] woorden, behoud alle klinisch relevante details:"
@@ -352,7 +352,7 @@ This task list guides the implementation of the Hysio Pre-intake Module, a digit
   - Export validation function: `validateQuestionnaire(data)`
   - **Acceptance**: All schemas defined, validation catches invalid data, error messages in Dutch (B1), comprehensive tests
 
-- [ ] **3.5 Create Draft Save API Endpoint**
+- [x] **3.5 Create Draft Save API Endpoint**
   - Implement `hysio/src/app/api/pre-intake/save-draft/route.ts` (POST)
   - Accept: `{ sessionId, questionnaireData (partial), currentStep }`
   - Validate sessionId format (UUID)
@@ -362,7 +362,7 @@ This task list guides the implementation of the Hysio Pre-intake Module, a digit
   - Apply rate limiting (10/min per session)
   - **Acceptance**: Saves draft successfully, upserts correctly, rate limited, returns timestamp, handles errors
 
-- [ ] **3.6 Create Draft Retrieval API Endpoint**
+- [x] **3.6 Create Draft Retrieval API Endpoint**
   - Implement `hysio/src/app/api/pre-intake/[sessionId]/route.ts` (GET)
   - Fetch draft from database by sessionId
   - Verify draft hasn't expired (delete if expired)
@@ -370,7 +370,7 @@ This task list guides the implementation of the Hysio Pre-intake Module, a digit
   - Return 404 if not found or expired
   - **Acceptance**: Retrieves existing drafts, handles expired drafts, 404 for missing, auth verified
 
-- [ ] **3.7 Create Final Submission API Endpoint**
+- [x] **3.7 Create Final Submission API Endpoint**
   - Implement `hysio/src/app/api/pre-intake/submit/route.ts` (POST)
   - Accept: `{ sessionId, questionnaireData (complete), consentGiven: true }`
   - Validate consent = true (reject if false with 400)
@@ -386,7 +386,7 @@ This task list guides the implementation of the Hysio Pre-intake Module, a digit
   - Return: `{ success: true, submissionId: UUID, redirectUrl: '/pre-intake/success' }`
   - **Acceptance**: Full validation, HHSB processing works, consent logged, draft cleaned up, rate limited (3/hour)
 
-- [ ] **3.8 Create HHSB Processing API Endpoint**
+- [x] **3.8 Create HHSB Processing API Endpoint**
   - Implement `hysio/src/app/api/pre-intake/process-hhsb/route.ts` (POST) for therapist use
   - Accept: `{ submissionId }`
   - Verify therapist authorization (assigned to this patient)
