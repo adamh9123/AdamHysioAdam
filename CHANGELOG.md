@@ -10,9 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **PRE-INTAKE HOMEPAGE INTEGRATION**: Added Pre-intake module Card to homepage modules grid (6th position) with ClipboardList icon, emerald branding, key features display (LOFTIG/SCEGS frameworks, DTF red flags detection, 10+ minute time savings), and footer navigation link under Platform section
 - **PRE-INTAKE DASHBOARD QUICK ACTION**: Added Pre-intake Quick Action button to dashboard with ClipboardList icon, emerald hover styling, and direct link to `/pre-intake` for therapist access
+- **PRE-INTAKE NAVIGATION INTEGRATION**: Added Pre-intake to Hysio Toolkit dropdown menu in marketing navigation with description "Digitale vragenlijst voor intakes"
+- **PRE-INTAKE MULTI-FORMAT EXPORT**: Implemented comprehensive export functionality in therapist detail view with dropdown menu offering TXT (plain text), HTML (styled webpage), PDF (print dialog), and DOCX (Word-compatible) formats
+- **PRE-INTAKE BILINGUAL SUPPORT INFRASTRUCTURE**: Created translations system (`hysio/src/lib/pre-intake/translations.ts`) with complete Dutch and English translations for all UI elements, questionnaire sections, LOFTIG/SCEGS frameworks, and messages; added language state management to pre-intake store with `language` property and `setLanguage` action
+
+### Changed
+- **HOMEPAGE MODULE COUNT**: Updated Hysio Toolkit section text from "Vier AI-modules" to "Zes AI-modules" to accurately reflect six available modules
 
 ### Fixed
 - **PRE-INTAKE SESSION PAGE ERROR**: Fixed "Fout bij laden van concept" error in `/pre-intake/[sessionId]/page.tsx` by correcting store method calls from non-existent `setCompletedSteps`/`resetQuestionnaire` to proper `loadDraft`/`resetState` methods, and resolved function naming conflict by renaming local `loadDraft` to `loadDraftData`
+- **PRE-INTAKE API ASYNC PARAMS**: Fixed Next.js 15 async params requirement in `/api/pre-intake/[sessionId]/route.ts` by awaiting params before accessing properties in both GET and DELETE handlers to resolve "params should be awaited" runtime errors
 
 ### Added (Previous)
 - **PRE-INTAKE MODULE COMPLETE (PHASES 2-5)**: Fully autonomous implementation of complete Pre-intake Module including questionnaire flow orchestration, therapist dashboard integration, comprehensive test suite, accessibility/security audits, and production-ready documentation

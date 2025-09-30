@@ -298,7 +298,7 @@ export default function Home() {
                   Complete Hysio-Platform
                 </h2>
                 <p className="text-lg text-hysio-deep-green-900/80">
-                  Vier AI-modules voor je complete workflow
+                  Zes AI-modules voor je complete workflow
                 </p>
               </div>
 
