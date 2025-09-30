@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **COMPREHENSIVE SYSTEM AUDIT REPORT**: Created `HYSIO_MEDICAL_SCRIBE_COMPREHENSIVE_AUDIT_REPORT.md` documenting 32 identified issues across 6 categories (architecture, state management, performance, UX, error handling, security) with severity ratings, root cause analysis, recommended fixes, and 4-phase action plan estimated at 64-92 hours of engineering effort
+- **CLINICAL DATA FORMATTER UTILITY**: Created `hysio/src/lib/utils/clinical-formatter.ts` with intelligent formatters for structured clinical JSON (klinische conclusie, zorgplan) transforming complex nested objects into readable, professionally formatted Dutch text with emoji icons and hierarchical sections
+
+### Fixed
+- **KLINISCHE CONCLUSIE DISPLAY**: Fixed raw JSON display in `hysio/src/app/scribe/intake-stapsgewijs/klinische-conclusie/page.tsx` by implementing structured formatter that converts complex JSON (fysiotherapeutischeDiagnose, behandelplan, prognose, behandeladvies) into readable Dutch text with visual hierarchy, emoji icons, and proper sectioning
+- **ZORGPLAN DISPLAY**: Fixed raw JSON display in `hysio/src/app/scribe/intake-stapsgewijs/zorgplan/page.tsx` using same formatter to present zorgplan data in user-friendly format with treatment goals, intervention strategies, prognosis, and self-management advice clearly organized
+- **CONTEXT CARDS COPYABILITY**: Added copy buttons to anamnese and onderzoek context cards in both klinische conclusie and zorgplan pages; cards now display formatted structured data (HHSB sections, onderzoeksbevindingen) instead of raw JSON, with increased max-height (48px) for better readability and monospace font for professional appearance
+- **COPYABLE TEXT SANITIZATION**: Implemented `getCopyableText` function that strips emojis and visual formatting from clinical data when copying to clipboard, providing clean professional text suitable for medical documentation systems
 
 ### Fixed
 - **CRITICAL SECURITY: API KEY LOGGING EXPOSURE**: Removed logging of API key content, length, and prefix from Groq API client (`hysio/src/lib/api/groq.ts`) to prevent key exposure in browser console, server logs, and error reporting services; replaced with boolean `isConfigured` flag only

@@ -2,83 +2,61 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { createSafeHTML, cleanMarkdownArtifacts } from '@/lib/utils/sanitize';
-import { formatKlinischeConclusie, formatContextData, getCopyableText } from '@/lib/utils/clinical-formatter';
+import { cleanMarkdownArtifacts } from '@/lib/utils/sanitize';
+import { formatZorgplan, formatContextData, getCopyableText } from '@/lib/utils/clinical-formatter';
 import { useScribeStore } from '@/lib/state/scribe-store';
 import { useSessionState } from '@/hooks/useSessionState';
 import { exportDocument } from '@/lib/utils/export';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { UnifiedAudioInput } from '@/components/ui/unified-audio-input';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import {
   ArrowLeft,
-  FileText,
-  Mic,
-  Upload,
-  Edit3,
-  Lightbulb,
-  Clock,
-  Calendar,
   CheckCircle,
-  AlertCircle,
+  FileText,
+  Download,
+  Copy,
   ChevronDown,
   ChevronRight,
-  Copy,
-  RotateCcw,
-  Home,
-  Download,
+  AlertTriangle,
   Heart,
-  Activity
+  Activity,
+  Calendar,
+  Home,
+  RotateCcw,
+  Clock,
+  Search,
+  Lightbulb,
+  Award,
+  Target
 } from 'lucide-react';
 
-interface KlinischeConclusieState {
-  preparation: string | null;
-  inputMethod: 'recording' | 'upload' | 'manual' | null;
-  recordingData: {
-    blob: Blob | null;
-    duration: number;
-    isRecording: boolean;
-  };
-  uploadedFile: File | null;
-  manualNotes: string;
-  isProcessing: boolean;
+interface ZorgplanState {
   result: any | null;
+  isProcessing: boolean;
   error: string | null;
-  preparationGenerated: boolean;
   resultExpanded: boolean;
   isComplete: boolean;
 }
 
-export default function KlinischeConclusie() {
+export default function ZorgplanPage() {
   const router = useRouter();
   const patientInfo = useScribeStore(state => state.patientInfo);
   const currentWorkflow = useScribeStore(state => state.currentWorkflow);
   const setCurrentWorkflow = useScribeStore(state => state.setCurrentWorkflow);
   const sessionState = useSessionState({ autoSave: true, autoSaveInterval: 30000 });
   const workflowData = useScribeStore(state => state.workflowData);
-  const setKlinischeConclusieData = useScribeStore(state => state.setKlinischeConclusieData);
+  const setZorgplanData = useScribeStore(state => state.setZorgplanData);
   const markStepComplete = useScribeStore(state => state.markStepComplete);
 
-  const [state, setState] = React.useState<KlinischeConclusieState>({
-    preparation: null,
-    inputMethod: null,
-    recordingData: {
-      blob: null,
-      duration: 0,
-      isRecording: false,
-    },
-    uploadedFile: null,
-    manualNotes: '',
-    isProcessing: false,
+  const [state, setState] = React.useState<ZorgplanState>({
     result: null,
+    isProcessing: false,
     error: null,
-    preparationGenerated: false,
     resultExpanded: false,
     isComplete: false,
   });
@@ -97,7 +75,7 @@ export default function KlinischeConclusie() {
       return;
     }
 
-    // Check if anamnese and onderzoek steps are completed
+    // Check if all previous steps are completed
     if (!workflowData.anamneseData?.completed) {
       router.push('/scribe/intake-stapsgewijs/anamnese');
       return;
@@ -107,129 +85,53 @@ export default function KlinischeConclusie() {
       router.push('/scribe/intake-stapsgewijs/onderzoek');
       return;
     }
-  }, [patientInfo, workflowData.anamneseData, workflowData.onderzoekData, router]);
+
+    if (!workflowData.klinischeConclusieData?.completed) {
+      router.push('/scribe/intake-stapsgewijs/klinische-conclusie');
+      return;
+    }
+  }, [patientInfo, workflowData.anamneseData, workflowData.onderzoekData, workflowData.klinischeConclusieData, router]);
 
   // Load existing data from workflow state
   React.useEffect(() => {
-    const existingData = workflowData.klinischeConclusieData;
+    const existingData = workflowData.zorgplanData;
     if (existingData) {
       setState(prev => ({
         ...prev,
-        preparation: existingData.preparation || null,
-        manualNotes: existingData.transcript || '',
         result: existingData.result || null,
-        preparationGenerated: !!existingData.preparation,
         isComplete: existingData.completed || false,
       }));
     }
-  }, [workflowData.klinischeConclusieData]);
+  }, [workflowData.zorgplanData]);
 
-  // Removed automatic preparation generation - now only triggered by user button click
-
-  const generatePreparation = async () => {
-    if (!patientInfo || !workflowData.anamneseData?.result || !workflowData.onderzoekData?.result) return;
+  const generateZorgplan = async () => {
+    if (!patientInfo || !workflowData.anamneseData?.result || !workflowData.onderzoekData?.result || !workflowData.klinischeConclusieData?.result) return;
 
     try {
       setState(prev => ({ ...prev, isProcessing: true, error: null }));
 
-      // Call preparation generation API with anamnese and onderzoek data
-      const response = await fetch('/api/preparation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          workflowType: 'intake-stapsgewijs',
-          step: 'klinische-conclusie',
-          patientInfo,
-          previousStepData: {
-            anamneseResult: workflowData.anamneseData.result,
-            onderzoekResult: workflowData.onderzoekData.result,
-          },
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to generate preparation');
-      }
-
-      const { data } = await response.json();
-
-      setState(prev => ({
-        ...prev,
-        preparation: data.content,
-        preparationGenerated: true,
-        isProcessing: false,
-      }));
-
-      // Save to workflow state
-      setKlinischeConclusieData({
-        preparation: data.content,
-      });
-
-    } catch (error) {
-      console.error('Preparation generation error:', error);
-      setState(prev => ({
-        ...prev,
-        error: 'Kon klinische conclusie voorbereiding niet genereren. Probeer het opnieuw.',
-        isProcessing: false,
-      }));
-    }
-  };
-
-
-  const handleAudioReady = (blob: Blob, duration: number, source: 'recording' | 'upload') => {
-    setState(prev => ({
-      ...prev,
-      inputMethod: source,
-      recordingData: source === 'recording' ? { blob, duration, isRecording: false } : { blob: null, duration: 0, isRecording: false },
-      uploadedFile: source === 'upload' ? blob as unknown as File : null,
-    }));
-
-    const audioFile = blob instanceof File ? blob : new File([blob], `klinische-conclusie-${source}.webm`, { type: 'audio/webm' });
-    setKlinischeConclusieData({
-      recording: audioFile,
-    });
-  };
-
-
-  const handleManualNotesChange = (notes: string) => {
-    setState(prev => ({
-      ...prev,
-      inputMethod: notes.trim() ? 'manual' : null,
-      manualNotes: notes,
-    }));
-
-    setKlinischeConclusieData({
-      transcript: notes,
-    });
-  };
-
-  const processKlinischeConclusie = async () => {
-    if (!patientInfo || !workflowData.anamneseData?.result || !workflowData.onderzoekData?.result) return;
-
-    try {
-      setState(prev => ({ ...prev, isProcessing: true, error: null }));
-
-      // Process the klinische conclusie using AI
+      // Call the API to generate zorgplan using step 6 prompt
       const response = await fetch('/api/hhsb/process', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           workflowType: 'intake-stapsgewijs',
-          step: 'klinische-conclusie',
+          step: 'zorgplan',
           patientInfo,
           inputData: {
             type: 'manual',
-            data: 'Genereer klinische conclusie op basis van anamnese en onderzoek'
+            data: 'Genereer zorgplan op basis van alle voorgaande stappen'
           },
           previousStepData: {
             anamneseResult: workflowData.anamneseData.result,
             onderzoekResult: workflowData.onderzoekData.result,
+            klinischeConclusieResult: workflowData.klinischeConclusieData.result,
           },
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to process klinische conclusie');
+        throw new Error('Failed to generate zorgplan');
       }
 
       const { data } = await response.json();
@@ -243,26 +145,31 @@ export default function KlinischeConclusie() {
       }));
 
       // Save results to workflow state
-      setKlinischeConclusieData({
+      setZorgplanData({
         result: data,
         completed: true,
       });
 
       // Mark step as complete
-      markStepComplete('klinische-conclusie');
+      markStepComplete('zorgplan');
+
+      // Complete the session
+      if (sessionState) {
+        sessionState.completeSession();
+      }
 
     } catch (error) {
-      console.error('Klinische conclusie processing error:', error);
+      console.error('Zorgplan generation error:', error);
       setState(prev => ({
         ...prev,
-        error: 'Kon klinische conclusie niet verwerken. Probeer het opnieuw.',
+        error: 'Kon zorgplan niet genereren. Probeer het opnieuw.',
         isProcessing: false,
       }));
     }
   };
 
   const handleBack = () => {
-    router.push('/scribe/intake-stapsgewijs/onderzoek-resultaat');
+    router.push('/scribe/intake-stapsgewijs/klinische-conclusie');
   };
 
   const handleStartNewSession = () => {
@@ -278,45 +185,41 @@ export default function KlinischeConclusie() {
 
   const handleExport = async (format: 'html' | 'txt' | 'docx' | 'pdf') => {
     if (!state.result || !patientInfo) {
-      console.error('No klinische conclusie result or patient info available for export');
+      console.error('No zorgplan result or patient info available for export');
       return;
     }
 
     try {
       const exportData = {
         patientInfo,
-        workflowType: 'Stapsgewijze Intake - Klinische Conclusie',
-        content: state.result,
+        workflowType: 'Stapsgewijze Intake - Volledig',
+        content: {
+          anamnese: workflowData.anamneseData?.result,
+          onderzoek: workflowData.onderzoekData?.result,
+          klinischeConclusie: workflowData.klinischeConclusieData?.result,
+          zorgplan: state.result
+        },
         timestamp: new Date().toISOString(),
-        title: `Klinische Conclusie - ${patientInfo.initials}`
+        title: `Volledige Intake + Zorgplan - ${patientInfo.initials}`
       };
 
       await exportDocument(format, exportData);
-      console.log(`Successfully exported klinische conclusie in ${format} format`);
+      console.log(`Successfully exported complete intake with care plan in ${format} format`);
     } catch (error) {
       console.error(`Export failed for ${format} format:`, error);
-      // You could add a toast notification here
     }
-  };
-
-  const canProcess = () => {
-    return (
-      (state.inputMethod === 'recording' && state.recordingData.blob) ||
-      (state.inputMethod === 'upload' && state.uploadedFile) ||
-      (state.inputMethod === 'manual' && state.manualNotes.trim().length > 0)
-    );
   };
 
   const copyToClipboard = async (content: string) => {
     try {
       await navigator.clipboard.writeText(content);
-      console.log('Klinische conclusie result copied to clipboard');
+      console.log('Zorgplan result copied to clipboard');
     } catch (error) {
       console.error('Failed to copy to clipboard:', error);
     }
   };
 
-  if (!patientInfo || !workflowData.anamneseData?.completed || !workflowData.onderzoekData?.completed) {
+  if (!patientInfo || !workflowData.anamneseData?.completed || !workflowData.onderzoekData?.completed || !workflowData.klinischeConclusieData?.completed) {
     return null;
   }
 
@@ -331,16 +234,16 @@ export default function KlinischeConclusie() {
           disabled={state.isProcessing}
         >
           <ArrowLeft size={16} className="mr-2" />
-          Terug naar Onderzoeksbevindingen
+          Terug naar Klinische Conclusie
         </Button>
 
         <div className="flex items-center gap-3 mb-4">
           <div className="w-12 h-12 bg-hysio-mint/20 rounded-full flex items-center justify-center">
-            <Calendar size={24} className="text-hysio-deep-green" />
+            <Target size={24} className="text-hysio-deep-green" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-hysio-deep-green">
-              Stap 3: Klinische Conclusie
+              Stap 4: Zorgplan
             </h1>
             <p className="text-hysio-deep-green-900/70">
               {patientInfo.initials} ({patientInfo.birthYear}) - Hysio Intake (Stapsgewijs)
@@ -352,24 +255,24 @@ export default function KlinischeConclusie() {
         <div className="mb-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-hysio-deep-green">Voortgang</span>
-            <span className="text-sm text-hysio-deep-green-900/70">Stap 3 van 4</span>
+            <span className="text-sm text-hysio-deep-green-900/70">Stap 4 van 4</span>
           </div>
-          <Progress value={75} className="h-2" />
+          <Progress value={100} className="h-2" />
         </div>
 
         <div className="flex items-center gap-2 mb-4">
           <Badge variant="outline" className="text-hysio-deep-green border-hysio-mint">
             <Clock size={14} className="mr-1" />
-            Geschatte tijd: 10 minuten
+            Geschatte tijd: 5 minuten
           </Badge>
           <Badge variant="outline" className="text-hysio-deep-green border-hysio-mint">
-            <FileText size={14} className="mr-1" />
-            Klinische Conclusie
+            <Target size={14} className="mr-1" />
+            Zorgplan Generatie
           </Badge>
           {state.isComplete && (
             <Badge className="bg-green-100 text-green-800 border-green-200">
               <CheckCircle size={14} className="mr-1" />
-              Conclusie Voltooid
+              Zorgplan Voltooid
             </Badge>
           )}
         </div>
@@ -378,44 +281,89 @@ export default function KlinischeConclusie() {
       {/* Error Alert */}
       {state.error && (
         <Alert className="mb-6 border-red-200 bg-red-50">
-          <AlertCircle className="h-4 w-4 text-red-600" />
+          <AlertTriangle className="h-4 w-4 text-red-600" />
           <AlertDescription className="text-red-800">
             {state.error}
           </AlertDescription>
         </Alert>
       )}
 
-      {/* AI Generation Section */}
+      {/* Previous Steps Summary */}
+      <div className="grid md:grid-cols-3 gap-4 mb-6">
+        <Card className="bg-green-50 border-green-200">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-green-800 text-sm">
+              <Heart size={16} />
+              Anamnese Voltooid
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <p className="text-green-700 text-xs">
+              HHSB anamnesekaart is succesvol gegenereerd
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-green-50 border-green-200">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-green-800 text-sm">
+              <Activity size={16} />
+              Onderzoek Voltooid
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <p className="text-green-700 text-xs">
+              Onderzoeksbevindingen zijn geregistreerd
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-green-50 border-green-200">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-green-800 text-sm">
+              <Calendar size={16} />
+              Conclusie Voltooid
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <p className="text-green-700 text-xs">
+              Klinische conclusie is vastgesteld
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Main Zorgplan Section */}
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-hysio-deep-green">
-            <Lightbulb size={20} />
-            Genereer Klinische Conclusie
+            <Target size={20} />
+            Fysiotherapeutisch Zorgplan
           </CardTitle>
           <CardDescription>
-            AI-aangedreven analyse op basis van anamnese en onderzoeksbevindingen
+            Gestructureerd behandelplan gebaseerd op diagnose en bevindingen
           </CardDescription>
         </CardHeader>
         <CardContent>
           {!state.result ? (
             <div className="text-center py-8">
               <div className="bg-hysio-mint/10 rounded-lg p-6 mb-4">
-                <Calendar size={48} className="mx-auto text-hysio-deep-green mb-4" />
+                <Target size={48} className="mx-auto text-hysio-deep-green mb-4" />
                 <h3 className="text-lg font-semibold text-hysio-deep-green mb-2">
-                  Klaar voor Conclusie Generatie
+                  Klaar voor Zorgplan Generatie
                 </h3>
                 <p className="text-hysio-deep-green-900/70 mb-4">
-                  De anamnese en onderzoeksbevindingen zijn voltooid. Genereer nu de klinische conclusie.
+                  Alle voorgaande stappen zijn voltooid. Genereer nu een volledig, op maat gemaakt fysiotherapeutisch zorgplan.
                 </p>
                 <ul className="text-sm text-hysio-deep-green-900/60 text-left max-w-md mx-auto space-y-1">
-                  <li>• Diagnose op basis van bevindingen</li>
-                  <li>• Koppeling met hulpvraag patiënt</li>
-                  <li>• Synthese van alle informatie</li>
-                  <li>• Onderbouwde conclusie</li>
+                  <li>• Behandeldoelen gebaseerd op hulpvraag</li>
+                  <li>• Gefaseerde behandelstrategie</li>
+                  <li>• Prognose en verwachtingen</li>
+                  <li>• Evaluatiemomenten</li>
                 </ul>
               </div>
               <Button
-                onClick={processKlinischeConclusie}
+                onClick={generateZorgplan}
                 disabled={state.isProcessing}
                 className="bg-hysio-deep-green hover:bg-hysio-deep-green/90 text-white"
                 size="lg"
@@ -423,12 +371,12 @@ export default function KlinischeConclusie() {
                 {state.isProcessing ? (
                   <>
                     <LoadingSpinner className="mr-2" />
-                    Conclusie Genereren...
+                    Zorgplan Genereren...
                   </>
                 ) : (
                   <>
-                    <Calendar size={18} className="mr-2" />
-                    Genereer Klinische Conclusie
+                    <Target size={18} className="mr-2" />
+                    Genereer Zorgplan
                   </>
                 )}
               </Button>
@@ -437,18 +385,18 @@ export default function KlinischeConclusie() {
             <div className="space-y-4">
               <div className="bg-hysio-mint/10 rounded-lg p-6">
                 <div className="text-sm text-hysio-deep-green-900/80 whitespace-pre-wrap leading-relaxed font-mono">
-                  {formatKlinischeConclusie(state.result)}
+                  {formatZorgplan(state.result)}
                 </div>
               </div>
               <div className="flex gap-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => copyToClipboard(getCopyableText(state.result, formatKlinischeConclusie))}
+                  onClick={() => copyToClipboard(getCopyableText(state.result, formatZorgplan))}
                   className="text-hysio-deep-green border-hysio-mint"
                 >
                   <Copy size={14} className="mr-1" />
-                  Kopieer Conclusie
+                  Kopieer Zorgplan
                 </Button>
               </div>
             </div>
@@ -525,8 +473,6 @@ export default function KlinischeConclusie() {
         </div>
       )}
 
-
-
       {/* Export Options */}
       {state.isComplete && (
         <Card className="mt-6">
@@ -536,7 +482,7 @@ export default function KlinischeConclusie() {
               Export Opties
             </CardTitle>
             <CardDescription>
-              Download de complete intake in verschillende formaten
+              Download de complete intake inclusief zorgplan in verschillende formaten
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -579,27 +525,39 @@ export default function KlinischeConclusie() {
       )}
 
       {/* Navigation */}
-      <div className="mt-8 flex justify-between">
-        <Button
-          variant="outline"
-          onClick={handleBack}
-          disabled={state.isProcessing}
-          className="text-hysio-deep-green border-hysio-mint"
-        >
-          <ArrowLeft size={16} className="mr-2" />
-          Terug naar Onderzoeksbevindingen
-        </Button>
-        {state.isComplete && (
+      {!state.isComplete ? (
+        <div className="mt-8 flex justify-between">
           <Button
-            onClick={() => router.push('/scribe/intake-stapsgewijs/zorgplan')}
+            variant="outline"
+            onClick={handleBack}
+            disabled={state.isProcessing}
+            className="text-hysio-deep-green border-hysio-mint"
+          >
+            <ArrowLeft size={16} className="mr-2" />
+            Terug naar Klinische Conclusie
+          </Button>
+        </div>
+      ) : (
+        <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+          <Button
+            onClick={handleStartNewSession}
             className="bg-hysio-deep-green hover:bg-hysio-deep-green/90 text-white"
             size="lg"
           >
-            Volgende: Zorgplan
-            <ArrowLeft size={18} className="ml-2 rotate-180" />
+            <RotateCcw size={18} className="mr-2" />
+            Nieuwe Sessie Starten
           </Button>
-        )}
-      </div>
+          <Button
+            variant="outline"
+            onClick={handleBackToDashboard}
+            size="lg"
+            className="text-hysio-deep-green border-hysio-mint"
+          >
+            <Home size={18} className="mr-2" />
+            Terug naar Dashboard
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
