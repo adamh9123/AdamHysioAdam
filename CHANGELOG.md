@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **COMPREHENSIVE SYSTEM AUDIT REPORT**: Created `HYSIO_MEDICAL_SCRIBE_COMPREHENSIVE_AUDIT_REPORT.md` documenting 32 identified issues across 6 categories (architecture, state management, performance, UX, error handling, security) with severity ratings, root cause analysis, recommended fixes, and 4-phase action plan estimated at 64-92 hours of engineering effort
 - **CLINICAL DATA FORMATTER UTILITY**: Created `hysio/src/lib/utils/clinical-formatter.ts` with intelligent formatters for structured clinical JSON (klinische conclusie, zorgplan) transforming complex nested objects into readable, professionally formatted Dutch text with emoji icons and hierarchical sections
+- **HYSIO ASSISTANT v7.0 - ENTERPRISE-LEVEL AI CHATBOT**: Complete refactor of Hysio Assistant module with new ultrathink system prompt, real AI integration with streaming responses, prominent quick-start questions, enterprise-level UI with gradients and professional styling, permanent disclaimer with algemene-voorwaarden link, and full removal of auto-scroll behavior for user control
+
+### Changed
+- **HYSIO ASSISTANT SYSTEM PROMPT**: Replaced basic system prompt with comprehensive v7.0 ultrathink prompt (`New - Stap 0 - Hysio Assistant Systemprompt.txt`) featuring ICF-model integration, biopsychosocial perspective, evidence-based practice principles, GDPR zero-tolerance protocol, red flags safety protocol, and Hysio ecosystem awareness with references to Medical Scribe, EduPack, SmartMail, and Diagnosecode modules
+- **HYSIO ASSISTANT UI/UX**: Transformed from mock-based component to enterprise-level streaming chat with gradient designs, shadow effects, professional color scheme, improved message bubbles with timestamps, streaming indicators with animated dots, and enhanced minimized state with hover effects
+- **HYSIO ASSISTANT INTERACTION**: Removed auto-scroll behavior to give users full control over reading AI responses; users can now scroll freely while new content streams in without forced viewport changes
 
 ### Fixed
 - **KLINISCHE CONCLUSIE DISPLAY**: Fixed raw JSON display in `hysio/src/app/scribe/intake-stapsgewijs/klinische-conclusie/page.tsx` by implementing structured formatter that converts complex JSON (fysiotherapeutischeDiagnose, behandelplan, prognose, behandeladvies) into readable Dutch text with visual hierarchy, emoji icons, and proper sectioning
