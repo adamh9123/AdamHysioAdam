@@ -61,6 +61,15 @@ const birthDateSchema = z
  */
 const bodyRegionSchema = z.enum(BODY_REGIONS as [string, ...string[]]);
 
+/**
+ * Session ID validator (nanoid format: 21 URL-safe characters)
+ */
+const sessionIdSchema = z
+  .string()
+  .min(21, 'Session ID moet minimaal 21 tekens bevatten')
+  .max(21, 'Session ID moet maximaal 21 tekens bevatten')
+  .regex(/^[A-Za-z0-9_-]{21}$/, 'Session ID heeft een ongeldig formaat');
+
 // ============================================================================
 // SECTION SCHEMAS
 // ============================================================================
@@ -207,7 +216,7 @@ export const PartialPreIntakeQuestionnaireSchema = z.object({
  * Save draft request validation
  */
 export const SaveDraftRequestSchema = z.object({
-  sessionId: z.string().uuid('Session ID moet een geldige UUID zijn'),
+  sessionId: sessionIdSchema,
   questionnaireData: PartialPreIntakeQuestionnaireSchema,
   currentStep: z.number().min(0, 'Stap moet minimaal 0 zijn').max(8, 'Stap moet maximaal 8 zijn'),
 });
@@ -216,7 +225,7 @@ export const SaveDraftRequestSchema = z.object({
  * Submit pre-intake request validation
  */
 export const SubmitPreIntakeRequestSchema = z.object({
-  sessionId: z.string().uuid('Session ID moet een geldige UUID zijn'),
+  sessionId: sessionIdSchema,
   questionnaireData: PreIntakeQuestionnaireSchema,
   consentGiven: z.literal(true, {
     errorMap: () => ({ message: 'Toestemming is verplicht om door te gaan' }),
