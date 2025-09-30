@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **COMPREHENSIVE SYSTEM AUDIT REPORT**: Created `HYSIO_MEDICAL_SCRIBE_COMPREHENSIVE_AUDIT_REPORT.md` documenting 32 identified issues across 6 categories (architecture, state management, performance, UX, error handling, security) with severity ratings, root cause analysis, recommended fixes, and 4-phase action plan estimated at 64-92 hours of engineering effort
+
+### Fixed
+- **CRITICAL SECURITY: API KEY LOGGING EXPOSURE**: Removed logging of API key content, length, and prefix from Groq API client (`hysio/src/lib/api/groq.ts`) to prevent key exposure in browser console, server logs, and error reporting services; replaced with boolean `isConfigured` flag only
+- **CRITICAL ARCHITECTURE: ROUTER MUTATION ANTI-PATTERN**: Fixed router mutation in `hysio/src/app/scribe/intake-stapsgewijs/anamnese/page.tsx:134-138` by removing direct mutation of `router.push` method which violated React/Next.js principles and caused navigation bugs; workflow interruption now handled by existing workflow resumption system
+- **SECURITY: SERVER-SIDE INPUT VALIDATION**: Added maximum transcript length validation (50KB limit) to `/api/hhsb/process` route to prevent malicious clients from bypassing client-side validation and sending huge payloads that could crash server or cause excessive OpenAI API costs
+
+### Added
 - **PRE-INTAKE HOMEPAGE INTEGRATION**: Added Pre-intake module Card to homepage modules grid (6th position) with ClipboardList icon, emerald branding, key features display (LOFTIG/SCEGS frameworks, DTF red flags detection, 10+ minute time savings), and footer navigation link under Platform section
 - **PRE-INTAKE DASHBOARD QUICK ACTION**: Added Pre-intake Quick Action button to dashboard with ClipboardList icon, emerald hover styling, and direct link to `/pre-intake` for therapist access
 - **PRE-INTAKE NAVIGATION INTEGRATION**: Added Pre-intake to Hysio Toolkit dropdown menu in marketing navigation with description "Digitale vragenlijst voor intakes"
