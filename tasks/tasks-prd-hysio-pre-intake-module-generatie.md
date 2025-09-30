@@ -163,7 +163,7 @@ This task list guides the implementation of the Hysio Pre-intake Module, a digit
 
 **Goal**: Build the interactive, multi-step questionnaire interface that guides patients through structured data collection using body maps, sliders, and conditional logic.
 
-- [ ] **2.1 Create Pre-intake Zustand Store**
+- [x] **2.1 Create Pre-intake Zustand Store**
   - Implement `hysio/src/lib/state/pre-intake-store.ts` following existing scribe-store patterns
   - State properties: `currentStep`, `questionnaireData`, `sessionId`, `isDirty`, `lastSavedAt`, `errors`
   - Actions: `setCurrentStep()`, `updateQuestionData()`, `saveProgress()`, `resetQuestionnaire()`, `loadDraft()`
@@ -186,7 +186,7 @@ This task list guides the implementation of the Hysio Pre-intake Module, a digit
   - Handle conditional logic: if red flags = high severity, show warning message
   - **Acceptance**: Smooth step transitions, back button preserves data, conditional branches work, unsaved warning triggers
 
-- [ ] **2.4 Create Progress Bar Component**
+- [x] **2.4 Create Progress Bar Component**
   - Implement `hysio/src/components/pre-intake/ProgressBar.tsx` with step labels
   - Show "Vraag X van Y" or visual progress bar (0-100%)
   - Highlight completed steps with checkmark icon
@@ -194,7 +194,7 @@ This task list guides the implementation of the Hysio Pre-intake Module, a digit
   - Make it sticky at top on mobile
   - **Acceptance**: Progress updates on step change, visually clear, WCAG AA compliant, mobile-optimized
 
-- [ ] **2.5 Build Personalia Section Component**
+- [x] **2.5 Build Personalia Section Component**
   - Create `hysio/src/components/pre-intake/questions/PersonaliaSection.tsx`
   - Fields: Naam (text), Geboortedatum (date picker), Telefoonnummer (phone input), Email (email input), Verzekering (dropdown)
   - Pre-fill from existing Hysio Go profile if available
@@ -202,7 +202,7 @@ This task list guides the implementation of the Hysio Pre-intake Module, a digit
   - Use existing UI components from `@/components/ui`
   - **Acceptance**: All fields render correctly, validation works, pre-fill from profile, keyboard accessible
 
-- [ ] **2.6 Build Complaint Section (LOFTIG Framework)**
+- [x] **2.6 Build Complaint Section (LOFTIG Framework)**
   - Create `hysio/src/components/pre-intake/questions/ComplaintSection.tsx`
   - **Locatie (L)**: Integrate BodyMap component (sub-task 2.7)
   - **Ontstaan (O)**: "Hoe is de klacht ontstaan?" (textarea, 500 char limit)
@@ -212,7 +212,7 @@ This task list guides the implementation of the Hysio Pre-intake Module, a digit
   - **Geschiedenis (G)**: "Heeft u deze klacht eerder gehad?" (Yes/No toggle, if Yes: textarea for details)
   - **Acceptance**: All LOFTIG elements present, conditional logic for G works, character limits enforced, B1 language
 
-- [ ] **2.7 Build Interactive Body Map Component**
+- [x] **2.7 Build Interactive Body Map Component**
   - Create `hysio/src/components/pre-intake/BodyMap.tsx` using SVG
   - Define clickable regions: Head, Neck, Shoulders (L/R), Arms (L/R), Hands (L/R), Upper back, Lower back, Chest, Abdomen, Hips (L/R), Legs (L/R), Knees (L/R), Ankles (L/R), Feet (L/R)
   - Implement multi-select: patient can click multiple regions
