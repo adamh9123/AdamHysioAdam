@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - **PRE-INTAKE SESSION PAGE ERROR**: Fixed "Fout bij laden van concept" error in `/pre-intake/[sessionId]/page.tsx` by correcting store method calls from non-existent `setCompletedSteps`/`resetQuestionnaire` to proper `loadDraft`/`resetState` methods, and resolved function naming conflict by renaming local `loadDraft` to `loadDraftData`
 - **PRE-INTAKE API ASYNC PARAMS**: Fixed Next.js 15 async params requirement in `/api/pre-intake/[sessionId]/route.ts` by awaiting params before accessing properties in both GET and DELETE handlers to resolve "params should be awaited" runtime errors
+- **PRE-INTAKE VALIDATION IMPORT ERROR**: Added missing `validateStep` function to `hysio/src/lib/pre-intake/validation.ts` to resolve "validateStep is not exported" error in QuestionnaireFlow component; function maps questionnaire steps to sections and returns validation results with `isValid` flag and error messages
 
 ### Added (Previous)
 - **PRE-INTAKE MODULE COMPLETE (PHASES 2-5)**: Fully autonomous implementation of complete Pre-intake Module including questionnaire flow orchestration, therapist dashboard integration, comprehensive test suite, accessibility/security audits, and production-ready documentation

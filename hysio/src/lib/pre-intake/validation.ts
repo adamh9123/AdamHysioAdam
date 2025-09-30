@@ -368,3 +368,65 @@ export function getCompletionPercentage(data: any): number {
 
   return Math.round((completedSections / sections.length) * 100);
 }
+
+/**
+ * Validate a questionnaire step
+ *
+ * Maps steps to their corresponding sections and validates the data.
+ * Steps like 'welcome', 'review', and 'consent' don't require validation.
+ *
+ * @param step - Current questionnaire step
+ * @param data - Questionnaire data
+ * @returns Validation result with isValid flag and error messages
+ */
+export function validateStep(
+  step: string,
+  data: any
+): { isValid: boolean; errors: string[] } {
+  // Steps that don't require validation
+  const nonValidationSteps = ['welcome', 'review', 'consent', 'success'];
+  if (nonValidationSteps.includes(step)) {
+    return { isValid: true, errors: [] };
+  }
+
+  // Map steps to sections
+  const stepToSection: Record<string, string> = {
+    personalia: 'personalia',
+    complaint: 'complaint',
+    redFlags: 'redFlags',
+    medicalHistory: 'medicalHistory',
+    goals: 'goals',
+    functionalLimitations: 'functionalLimitations',
+  };
+
+  const sectionName = stepToSection[step];
+  if (!sectionName) {
+    // Unknown step, skip validation
+    return { isValid: true, errors: [] };
+  }
+
+  // Get section data
+  const sectionData = data[sectionName];
+  if (!sectionData || Object.keys(sectionData).length === 0) {
+    return {
+      isValid: false,
+      errors: ['Vul alle verplichte velden in voordat u doorgaat'],
+    };
+  }
+
+  // Validate section
+  const result = validateSection(sectionName as any, sectionData);
+
+  if (result.success) {
+    return { isValid: true, errors: [] };
+  }
+
+  // Extract error messages
+  const errors = extractValidationErrors(result.error);
+  const errorMessages = Object.values(errors);
+
+  return {
+    isValid: false,
+    errors: errorMessages.length > 0 ? errorMessages : ['Controleer de invoer en probeer opnieuw'],
+  };
+}
