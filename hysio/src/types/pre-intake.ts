@@ -221,6 +221,15 @@ export interface RedFlag {
 export type PreIntakeStatus = 'draft' | 'submitted' | 'reviewed' | 'imported';
 
 /**
+ * Detected red flag summary for UI display
+ */
+export interface DetectedRedFlag {
+  type: string;
+  severity: RedFlagSeverity;
+  recommendation?: string;
+}
+
+/**
  * Complete pre-intake submission with metadata
  */
 export interface PreIntakeSubmission {
@@ -238,6 +247,10 @@ export interface PreIntakeSubmission {
   hhsbStructuredData: PreIntakeHHSBData;
   /** Detected red flags */
   redFlags: RedFlag[];
+  /** Summary of detected red flags for quick display */
+  redFlagsSummary: DetectedRedFlag[];
+  /** Whether this submission has been processed to HHSB */
+  isProcessed: boolean;
   /** Current status */
   status: PreIntakeStatus;
   /** Whether consent was given */
