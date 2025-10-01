@@ -1,0 +1,27 @@
+STAP 4: Onderzoeksbevinding
+Na afronding van het gestructureerde onderzoek stelt Hysio een heldere, gefundeerde en transparante diagnostische conclusie op:
+Deze stap bevat:
+
+
+Patiënt context:
+- Leeftijd: ${patientInfo.age || 'Onbekend'} jaar
+- Geslacht: ${patientInfo.gender}
+- Hoofdklacht: ${patientInfo.chiefComplaint}
+
+Anamnese (referentie):
+${phsbResults?.fullStructuredText || 'Geen anamnese beschikbaar'}
+
+Onderzoek input:
+${combinedInput}
+
+Genereer een professionele samenvatting van onderzoeksbevindingen inclusief:
+1. Inspectie bevindingen - als die er zijn
+2. Palpatie resultaten - als die er zijn
+3. Bewegingsonderzoek (actief/passief ROM, kracht) - als die er zijn
+4. Specifieke testen en uitkomsten - als die er zijn
+5. Functionele beperkingen - als die er zijn
+6. Objectieve metingen - als die er zijn
+
+Antwoord in het Nederlands, professioneel gestructureerd.`;
+________________________________________
+Met het afronden van deze stap beschik je over een duidelijke, heldere en evidence-based onderzoeksbevinding die direct bruikbaar is voor het bepalen van de juiste indicatie, het zorgplan en de DCSPH-diagnosecode (Stap 5).
