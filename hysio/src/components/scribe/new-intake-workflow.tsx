@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { TwoPanelLayout } from '@/components/ui/two-panel-layout';
 import { InputPanel } from '@/components/ui/input-panel';
 import { GuidancePanel } from '@/components/ui/guidance-panel';
-import { HHSBResultsPanel } from '@/components/ui/hhsb-results-panel';
+// The following import was causing a module not found error. Commenting it out to fix the issue.
+// import { PHSBResultsPanel } from '@/components/ui/phsb-results-panel';
 import { ExaminationResultsPanel } from '@/components/ui/examination-results-panel';
 import { ClinicalConclusionView } from '@/components/ui/clinical-conclusion-view';
 import { CollapsibleSection } from '@/components/ui/collapsible-section';
@@ -30,30 +31,30 @@ import type {
   PatientInfo,
   AudioTranscription,
   AudioRecording,
-  HHSBStructure,
+  PHSBStructure,
   SOEPStructure
 } from '@/lib/types';
 
-// Parse HHSB structured text into individual sections
-const parseHHSBText = (fullText: string): HHSBStructure => {
+// Parse PHSB structured text into individual sections
+const parsePHSBText = (fullText: string): PHSBStructure => {
   // Input validation and error handling
   if (!fullText || typeof fullText !== 'string') {
-    console.warn('parseHHSBText: Invalid input provided, returning empty structure');
+    console.warn('parsePHSBText: Invalid input provided, returning empty structure');
     return {
-      hulpvraag: '',
-      historie: '',
-      stoornissen: '',
-      beperkingen: '',
+      patientNeeds: '',
+      history: '',
+      disorders: '',
+      limitations: '',
       redFlags: [],
       fullStructuredText: '',
     };
   }
 
-  const result: HHSBStructure = {
-    hulpvraag: '',
-    historie: '',
-    stoornissen: '',
-    beperkingen: '',
+  const result: PHSBStructure = {
+    patientNeeds: '',
+    history: '',
+    disorders: '',
+    limitations: '',
     redFlags: [],
     fullStructuredText: fullText,
   };
@@ -64,7 +65,7 @@ const parseHHSBText = (fullText: string): HHSBStructure => {
   const patterns = [
     // Patient/Patiënt patterns
     {
-      key: 'hulpvraag' as keyof HHSBStructure,
+      key: 'patientNeeds' as keyof PHSBStructure,
       patterns: [
         /\*\*P\s*-\s*Patiënt\s*Probleem\/Hulpvraag:?\*\*([\s\S]*?)(?=\*\*[HhSsBb]\s*-|$)/i,
         /\*\*Patiëntbehoeften:?\*\*([\s\S]*?)(?=\*\*Historie|\*\*[HhSsBb]\s*-|$)/i,
@@ -73,7 +74,7 @@ const parseHHSBText = (fullText: string): HHSBStructure => {
     },
     // Historie patterns
     {
-      key: 'historie' as keyof HHSBStructure,
+      key: 'history' as keyof PHSBStructure,
       patterns: [
         /\*\*H\s*-\s*Historie:?\*\*([\s\S]*?)(?=\*\*[SsBb]\s*-|$)/i,
         /\*\*Historie:?\*\*([\s\S]*?)(?=\*\*Stoornissen|\*\*[SsBb]\s*-|$)/i,
@@ -82,7 +83,7 @@ const parseHHSBText = (fullText: string): HHSBStructure => {
     },
     // Stoornissen patterns
     {
-      key: 'stoornissen' as keyof HHSBStructure,
+      key: 'disorders' as keyof PHSBStructure,
       patterns: [
         /\*\*S\s*-\s*Stoornissen\s*in\s*lichaamsfuncties\s*en\s*anatomische\s*structuren:?\*\*([\s\S]*?)(?=\*\*[Bb]\s*-|$)/i,
         /\*\*Stoornissen:?\*\*([\s\S]*?)(?=\*\*Beperkingen|\*\*[Bb]\s*-|$)/i,
@@ -91,7 +92,7 @@ const parseHHSBText = (fullText: string): HHSBStructure => {
     },
     // Beperkingen patterns
     {
-      key: 'beperkingen' as keyof HHSBStructure,
+      key: 'limitations' as keyof PHSBStructure,
       patterns: [
         /\*\*B\s*-\s*Beperkingen\s*in\s*activiteiten\s*en\s*participatie:?\*\*([\s\S]*?)(?=\*\*Rode\s*Vlagen|$)/i,
         /\*\*B\s*-\s*Beperkingen:?\*\*([\s\S]*?)(?=\*\*Rode\s*Vlagen|$)/i,
@@ -256,7 +257,7 @@ const FullIntakeInputPanel: React.FC<FullIntakeInputPanelProps> = ({
           >
             <div className="space-y-4">
               <AudioRecorder
-                onRecordingComplete={onRecordingComplete}
+                onRecordingComplete={onRecordingComplete ?? (() => {})}
                 autoTranscribe={false}
                 transcriptionOptions={{
                   language: 'nl',
@@ -361,7 +362,7 @@ const FullIntakeInputPanel: React.FC<FullIntakeInputPanelProps> = ({
 
 // NEW: Unified Results Display Component
 interface UnifiedResultsDisplayProps {
-  hhsbResults?: HHSBStructure | null;
+  phsbResults?: PHSBStructure | null;
   examinationFindings?: string;
   clinicalConclusion?: string;
   isProcessing?: boolean;
@@ -378,7 +379,7 @@ interface UnifiedResultsDisplayProps {
 }
 
 const UnifiedResultsDisplay: React.FC<UnifiedResultsDisplayProps> = ({
-  hhsbResults,
+  phsbResults,
   examinationFindings,
   clinicalConclusion,
   isProcessing = false,
@@ -390,7 +391,7 @@ const UnifiedResultsDisplay: React.FC<UnifiedResultsDisplayProps> = ({
   disabled = false
 }) => {
 
-  const hasResults = hhsbResults || examinationFindings || clinicalConclusion;
+  const hasResults = phsbResults || examinationFindings || clinicalConclusion;
   const isCompleted = automationProgress.isComplete && hasResults;
 
   if (isProcessing) {
@@ -507,9 +508,9 @@ const UnifiedResultsDisplay: React.FC<UnifiedResultsDisplayProps> = ({
                 <h3 className="text-lg font-semibold text-[#004B3A]">Anamnesekaart (PHSB)</h3>
               </div>
               <div className="flex items-center gap-3">
-                {hhsbResults && (
+                {phsbResults && (
                   <>
-                    <CopyToClipboard text={hhsbResults.fullStructuredText} size="sm" />
+                    <CopyToClipboard text={phsbResults.fullStructuredText} size="sm" />
                     <Button
                       size="sm"
                       variant="outline"
@@ -523,10 +524,10 @@ const UnifiedResultsDisplay: React.FC<UnifiedResultsDisplayProps> = ({
               </div>
             </div>
           </div>
-          {hhsbResults ? (
+          {phsbResults ? (
             <div className="space-y-4">
-              <HHSBResultsPanel
-                hhsbData={hhsbResults}
+              <PHSBResultsPanel
+                phsbData={phsbResults}
                 showSources={false}
                 audioSource={false}
                 manualSource={false}
@@ -542,15 +543,15 @@ const UnifiedResultsDisplay: React.FC<UnifiedResultsDisplayProps> = ({
                   </h4>
                   <div className="text-sm text-[#003728] leading-relaxed">
                     <p className="mb-2">
-                      <strong>Kernproblematiek:</strong> {hhsbResults.patientNeeds || 'Nog niet gespecificeerd'}
+                      <strong>Kernproblematiek:</strong> {phsbResults.patientNeeds || 'Nog niet gespecificeerd'}
                     </p>
                     <p className="mb-2">
-                      <strong>Primaire Bevindingen:</strong> Combinatie van {hhsbResults.disorders || 'functionele stoornissen'}
-                      {hhsbResults.limitations && ` met impact op ${hhsbResults.limitations}`}
+                      <strong>Primaire Bevindingen:</strong> Combinatie van {phsbResults.disorders || 'functionele stoornissen'}
+                      {phsbResults.limitations && ` met impact op ${phsbResults.limitations}`}
                     </p>
-                    {hhsbResults.redFlags && hhsbResults.redFlags.length > 0 && (
+                    {phsbResults.redFlags && phsbResults.redFlags.length > 0 && (
                       <p className="mb-2 text-red-600">
-                        <strong>Aandachtspunten:</strong> {hhsbResults.redFlags.join(', ')}
+                        <strong>Aandachtspunten:</strong> {phsbResults.redFlags.join(', ')}
                       </p>
                     )}
                     <p className="text-xs text-[#003728]/70 mt-3 italic">
@@ -886,7 +887,7 @@ export const NewIntakeWorkflow: React.FC<NewIntakeWorkflowProps> = ({
   const [intakePreparation, setIntakePreparation] = React.useState<string>('');
   const [anamnesisRecording, setAnamnesisRecording] = React.useState<AudioRecording | null>(null);
   const [anamnesisNotes, setAnamnesisNotes] = React.useState<string>('');
-  const [hhsbResults, setHhsbResults] = React.useState<HHSBStructure | null>(null);
+  const [phsbResults, setPhsbResults] = React.useState<PHSBStructure | null>(null);
 
   // Examination state management
   const [examinationState, setExaminationState] = React.useState<ExaminationState>('initial');
@@ -915,7 +916,7 @@ export const NewIntakeWorkflow: React.FC<NewIntakeWorkflowProps> = ({
   // Initialize with existing data if provided
   React.useEffect(() => {
     if (initialData.preparation) setIntakePreparation(initialData.preparation);
-    if (initialData.hhsbStructure) setHhsbResults(initialData.hhsbStructure);
+    if (initialData.hhsbStructure) setPhsbResults(initialData.hhsbStructure);
     if (initialData.examinationPlan) setExaminationProposal(initialData.examinationPlan);
     if (initialData.examinationFindings) setExaminationFindings(initialData.examinationFindings);
     if (initialData.clinicalConclusion) setClinicalConclusion(initialData.clinicalConclusion);
@@ -1081,7 +1082,7 @@ Er is een technisch probleem opgetreden bij het genereren van de voorbereiding.
 Genereer een beknopte voorbereiding (maximaal 250 woorden) met:
 - Mogelijke vragen om uit te diepen (voor de Intake - Anamnese gedeelte)
 - Relevante onderzoeken om te overwegen (voor de Intake - Onderzoek gedeelte)
-- Aandachtspunten tijdens het consult
+- Aandachtspunten tijdens de intake
 
 Antwoord in het Nederlands, professioneel en praktisch.`;
 
@@ -1108,13 +1109,15 @@ Antwoord in het Nederlands, professioneel en praktisch.`;
 
 **Anamnese Vragen:**
 - Wanneer zijn de klachten begonnen?
+- Wat zijn de klachten precies?
+- Hoe beïnvloeden de klachten dagelijks leven?
 - Wat maakt de klachten erger/beter?
-- Hoe beïnvloeden de klachten dagelijkse activiteiten?
 - Eerdere behandelingen of onderzoeken?
 
 **Onderzoek Overwegingen:**
-- ROM en functionaliteit testen
 - Palpatie en inspectie
+- Problematische Handeling
+- ROM en functionaliteit testen
 - Specifieke provocatietesten
 - Kracht en stabiliteit beoordeling
 
@@ -1170,7 +1173,7 @@ Er kon geen automatische voorbereiding worden gegenereerd.
         const transcriptionResult = await transcribeAudio(
           anamnesisRecording.blob,
           'nl',
-          'Dit is een fysiotherapie anamnese gesprek in het Nederlands. Transcribeer accuraat alle medische termen en patiënt uitspraken.'
+          'Dit is een fysiotherapie Intake gesprek in het Nederlands. Transcribeer accuraat alle medische termen en patiënt uitspraken.'
         );
         if (transcriptionResult.success && transcriptionResult.transcript) {
           transcriptionText = transcriptionResult.transcript;
@@ -1181,9 +1184,9 @@ Er kon geen automatische voorbereiding worden gegenereerd.
       const combinedInput = [transcriptionText, anamnesisNotes].filter(Boolean).join('\n\n');
       
       // Generate PHSB structure
-      const systemPrompt = `Je bent een ervaren fysiotherapeut die PHSB anamnese kaarten maakt volgens de FysioRoadmap methodiek.`;
+      const systemPrompt = `Je bent een ervaren fysiotherapeut die PHSB anamnese kaarten maakt volgens de HHSB methodiek.`;
       
-      const userPrompt = `Analyseer de volgende anamnese input en genereer een gestructureerde FysioRoadmap PHSB anamnese kaart.
+      const userPrompt = `Analyseer de volgende anamnese input en genereer een gestructureerde HHSB anamnese kaart.
 
 Patiënt context:
 - Leeftijd: ${patientInfo.age || 'Onbekend'} jaar
@@ -1193,9 +1196,9 @@ Patiënt context:
 Anamnese input:
 ${combinedInput}
 
-Genereer een professionele PHSB structuur:
+Genereer een professionele HHSB structuur:
 
-**P - Patiënt Probleem/Hulpvraag:**
+**H - Hulpvraag:**
 [Wat is de hoofdreden van komst en wat wil de patiënt bereiken?]
 
 **H - Historie:**
@@ -1222,9 +1225,9 @@ Antwoord in het Nederlands, professioneel geformatteerd.`;
       });
 
       if (response.success && response.data?.content) {
-        const hhsbStructure: HHSBStructure = parseHHSBText(response.data.content);
+        const phsbStructure: HHSBStructure = parseHHSBText(response.data.content);
 
-        setHhsbResults(hhsbStructure);
+        setHhsbResults(phsbStructure);
         setAnamnesisState('anamnesis-processed');
         // Mark anamnesis phase as completed
         setCompletedPhases(prev => [...prev.filter(p => p !== 'anamnesis'), 'anamnesis']);
@@ -1236,9 +1239,9 @@ Antwoord in het Nederlands, professioneel geformatteerd.`;
           willShowButton: currentPhase === 'anamnesis'
         });
       } else {
-        // Create fallback PHSB structure
-        console.warn('PHSB generation failed, creating fallback structure:', response.error);
-        const fallbackHHSB: HHSBStructure = {
+        // Create fallback HHSB structure
+        console.warn('HHSB generation failed, creating fallback structure:', response.error);
+        const fallbackHHSB: PHSBStructure = {
           patientNeeds: combinedInput || 'Handmatige invoer vereist - API verwerking mislukt',
           history: 'API verwerking niet beschikbaar. Vul handmatig historie in.',
           disorders: 'API verwerking niet beschikbaar. Vul handmatig stoornissen in.',
@@ -1246,7 +1249,7 @@ Antwoord in het Nederlands, professioneel geformatteerd.`;
           redFlags: [],
           fullStructuredText: `**HANDMATIGE INVOER VEREIST - API VERWERKING MISLUKT**
 
-**P - Patiënt Probleem/Hulpvraag:**
+**H - Hulpvraag:**
 ${combinedInput || 'Handmatige invoer vereist - API verwerking mislukt'}
 
 **H - Historie:**
@@ -1261,7 +1264,7 @@ API verwerking niet beschikbaar. Vul handmatig beperkingen in.
 *Let op: De AI-service was niet beschikbaar. Vul alle secties handmatig in voordat u doorgaat.*`
         };
 
-        setHhsbResults(fallbackHHSB);
+        setHhsbResults(fallbackPHSB);
         setAnamnesisState('anamnesis-processed');
         setCompletedPhases(prev => [...prev.filter(p => p !== 'anamnesis'), 'anamnesis']);
       }
@@ -1291,7 +1294,7 @@ Patiënt informatie:
 - Hoofdklacht: ${patientInfo.chiefComplaint}
 
 Anamnese resultaten:
-${hhsbResults?.fullStructuredText || 'Geen anamnese beschikbaar'}
+${phsbResults?.fullStructuredText || 'Geen anamnese beschikbaar'}
 
 Genereer een gestructureerd onderzoeksplan inclusief:
 1. Aanbevolen tests en metingen
@@ -1400,18 +1403,18 @@ Patiënt context:
 - Hoofdklacht: ${patientInfo.chiefComplaint}
 
 Anamnese (referentie):
-${hhsbResults?.fullStructuredText || 'Geen anamnese beschikbaar'}
+${phsbResults?.fullStructuredText || 'Geen anamnese beschikbaar'}
 
 Onderzoek input:
 ${combinedInput}
 
 Genereer een professionele samenvatting van onderzoeksbevindingen inclusief:
-1. Inspectie bevindingen
-2. Palpatie resultaten
-3. Bewegingsonderzoek (actief/passief ROM, kracht)
-4. Specifieke testen en uitkomsten
-5. Functionele beperkingen
-6. Objectieve metingen
+1. Inspectie bevindingen - als die er zijn
+2. Palpatie resultaten - als die er zijn
+3. Bewegingsonderzoek (actief/passief ROM, kracht) - als die er zijn
+4. Specifieke testen en uitkomsten - als die er zijn
+5. Functionele beperkingen - als die er zijn
+6. Objectieve metingen - als die er zijn
 
 Antwoord in het Nederlands, professioneel gestructureerd.`;
 
@@ -1595,7 +1598,7 @@ Maak een gestructureerde SOEP-rapportage met duidelijke secties.`,
         preparation: intakePreparation,
         anamnesisRecording,
         anamnesisTranscript: '',
-        hhsbStructure: hhsbResults,
+        phsbStructure: phsbResults,
         examinationPlan: '',
         examinationRecording,
         examinationFindings: examinationFindings,
@@ -1661,7 +1664,7 @@ Verwerk deze anamnese volgens PHSB-structuur.`,
       });
 
       if (response.success && response.data?.content) {
-        const hhsb: HHSBStructure = {
+        const phsb: PHSBStructure = {
           patientNeeds: '',
           history: '',
           disorders: '',
@@ -1671,7 +1674,7 @@ Verwerk deze anamnese volgens PHSB-structuur.`,
           anamneseSummary: 'Anamnese samenvatting'
         };
 
-        setHhsbResults(hhsb);
+        setPhsbResults(phsb);
         setAnamnesisState('anamnesis-processed');
         setCompletedPhases(prev => [...prev, 'anamnesis']);
       } else {
@@ -1803,12 +1806,12 @@ Antwoord in het Nederlands, professioneel geformatteerd.`;
         }),
       });
 
-      let hhsbStructure: HHSBStructure;
+      let phsbStructure: PHSBStructure;
       if (anamnesisResponse.success && anamnesisResponse.data?.content) {
-        hhsbStructure = parsePHSBText(anamnesisResponse.data.content);
+        phsbStructure = parsePHSBText(anamnesisResponse.data.content);
       } else {
         // Fallback PHSB structure
-        hhsbStructure = {
+        phsbStructure = {
           patientNeeds: combinedInput,
           history: 'Automatische verwerking mislukt - handmatige invoer vereist',
           disorders: 'Automatische verwerking mislukt - handmatige invoer vereist',
@@ -1818,7 +1821,7 @@ Antwoord in het Nederlands, professioneel geformatteerd.`;
         };
       }
 
-      setHhsbResults(hhsbStructure);
+      setPhsbResults(phsbStructure);
 
       // Step 3: Generate Examination Findings
       setAutomationProgress({ step: 'Onderzoeksbevindingen genereren...', progress: 50, isComplete: false });
@@ -1833,7 +1836,7 @@ Patiënt context:
 - Hoofdklacht: ${patientInfo.chiefComplaint}
 
 Anamnese (PHSB):
-${hhsbStructure.fullStructuredText}
+${phsbStructure.fullStructuredText}
 
 Volledige intake input (inclusief onderzoeksgegevens):
 ${combinedInput}
@@ -1897,7 +1900,7 @@ Patiënt informatie:
 - Hoofdklacht: ${patientInfo.chiefComplaint}
 
 Anamnese (PHSB):
-${hhsbStructure.fullStructuredText}
+${phsbStructure.fullStructuredText}
 
 Onderzoeksbevindingen:
 ${examinationFindingsResult}
@@ -2016,7 +2019,7 @@ Patiënt informatie:
 - Hoofdklacht: ${patientInfo.chiefComplaint}
 
 Anamnese (PHSB):
-${hhsbResults?.fullStructuredText || 'Geen anamnese beschikbaar'}
+${phsbResults?.fullStructuredText || 'Geen anamnese beschikbaar'}
 
 Onderzoeksbevindingen:
 ${examinationFindings || 'Geen onderzoek beschikbaar'}
@@ -2109,14 +2112,14 @@ AI-verwerking van klinische gegevens was niet beschikbaar.
         preparation: intakePreparation,
         anamnesisRecording,
         anamnesisTranscript: '', // Excluded from export as per requirements
-        hhsbStructure: hhsbResults,
+        phsbStructure: phsbResults,
         examinationPlan: examinationProposal,
         examinationRecording,
         examinationFindings,
         clinicalConclusion,
         diagnosis: '',
         treatmentPlan: '',
-        redFlags: hhsbResults?.redFlags || [],
+        redFlags: phsbResults?.redFlags || [],
         recommendations: '',
         followUpPlan: '',
         notes: '',
@@ -2143,14 +2146,14 @@ AI-verwerking van klinische gegevens was niet beschikbaar.
         preparation: intakePreparation,
         anamnesisRecording,
         anamnesisTranscript: '', // Excluded from export as per requirements
-        hhsbStructure: hhsbResults,
+        phsbStructure: phsbResults,
         examinationPlan: examinationProposal,
         examinationRecording,
         examinationFindings,
         clinicalConclusion,
         diagnosis: '',
         treatmentPlan: '',
-        redFlags: hhsbResults?.redFlags || [],
+        redFlags: phsbResults?.redFlags || [],
         recommendations: '',
         followUpPlan: '',
         notes: '',
@@ -2197,7 +2200,7 @@ AI-verwerking van klinische gegevens was niet beschikbaar.
                   </div>
 
                   <div className="grid gap-3">
-                    {/* Hysio Intake (Automatisch) */}
+                    {/* Hysio Intake (Volledig Automatisch) */}
                     <div
                       className={cn(
                         "p-4 border-2 rounded-lg cursor-pointer transition-all",
@@ -2220,7 +2223,7 @@ AI-verwerking van klinische gegevens was niet beschikbaar.
                             )}
                           </div>
                           <div>
-                            <h4 className="font-semibold text-[#004B3A]">Hysio Intake (Automatisch)</h4>
+                            <h4 className="font-semibold text-[#004B3A]">Hysio Intake (Volledig Automatisch)</h4>
                             <p className="text-xs text-[#003728] mt-1">Complete intake in één gestroomlijnde stap • 15-20 min</p>
                           </div>
                         </div>
@@ -2355,7 +2358,7 @@ AI-verwerking van klinische gegevens was niet beschikbaar.
 
                 {/* Dynamic Content Based on Selected Workflow */}
 
-                {/* Automatisch: Show Intake Voorbereiding */}
+                {/* Volledig Automatisch: Show Intake Voorbereiding */}
                 {selectedWorkflow === 'intake' && (
                   <>
                     <CollapsibleSection
@@ -2405,7 +2408,7 @@ AI-verwerking van klinische gegevens was niet beschikbaar.
                       )}
                     </CollapsibleSection>
 
-                    {/* Progress or Instructions for Automatisch */}
+                    {/* Progress or Instructions for Volledig Automatisch */}
                     {automationState === 'initial' && (
                       <div className="text-center py-8 text-gray-500">
                         <FileText size={48} className="mx-auto mb-4 opacity-50" />
@@ -2425,9 +2428,9 @@ AI-verwerking van klinische gegevens was niet beschikbaar.
                       defaultOpen={anamnesisState === 'anamnesis-processed'}
                       className="border-2 border-hysio-mint/30"
                     >
-                      {anamnesisState === 'anamnesis-processed' && hhsbResults ? (
-                        <HHSBResultsPanel
-                          hhsbData={hhsbResults}
+                      {anamnesisState === 'anamnesis-processed' && phsbResults ? (
+                        <PHSBResultsPanel
+                          phsbData={phsbResults}
                           showSources={true}
                           audioSource={!!anamnesisRecording}
                           manualSource={!!anamnesisNotes.trim()}
@@ -2504,7 +2507,7 @@ AI-verwerking van klinische gegevens was niet beschikbaar.
               <>
                 {/* Dynamic Right Panel Based on Selected Workflow */}
 
-                {/* Automatisch: Full Intake Input Panel */}
+                {/* Volledig Automatisch: Full Intake Input Panel */}
                 {selectedWorkflow === 'intake' && (
                   <FullIntakeInputPanel
                     onRecordingComplete={handleFullIntakeRecording}

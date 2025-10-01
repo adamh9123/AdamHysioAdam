@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { useScribeStore } from '@/lib/state/scribe-store';
+import { useWorkflowNavigation } from '@/hooks/useWorkflowNavigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Clock, List, MessageSquare, Play, Zap } from 'lucide-react';
@@ -11,32 +12,45 @@ export default function WorkflowPage() {
   const router = useRouter();
   const patientInfo = useScribeStore(state => state.patientInfo);
   const setCurrentWorkflow = useScribeStore(state => state.setCurrentWorkflow);
+  const resetWorkflowState = useScribeStore(state => state.resetWorkflowState);
+  const { navigateToPatientInfo, navigateToWorkflow, navigateToStep } = useWorkflowNavigation();
 
-  // Redirect if no patient info
+  // ✅ CRITICAL ARCHITECTURE: Reset workflow state on page mount
+  // This ensures absolute isolation between workflow sessions - every new workflow
+  // starts with a completely pristine state, preventing data leakage from previous sessions
+  React.useEffect(() => {
+    console.log('🔄 Workflow selection page mounted - resetting workflow state');
+    resetWorkflowState();
+  }, []); // Empty deps - only run once on mount
+
+  // Safe redirect if no patient info using navigation hook
   React.useEffect(() => {
     if (!patientInfo) {
-      router.push('/scribe');
+      console.log('No patient info, navigating to patient info page');
+      navigateToPatientInfo();
     }
-  }, [patientInfo, router]);
+  }, [patientInfo, navigateToPatientInfo]);
 
   const handleWorkflowSelection = (workflow: 'intake-automatisch' | 'intake-stapsgewijs' | 'consult') => {
+    console.log(`Selected workflow: ${workflow}`);
     setCurrentWorkflow(workflow);
 
     switch (workflow) {
       case 'intake-automatisch':
-        router.push('/scribe/intake-automatisch');
+        navigateToWorkflow('intake-automatisch');
         break;
       case 'intake-stapsgewijs':
-        router.push('/scribe/intake-stapsgewijs/anamnese');
+        navigateToStep('intake-stapsgewijs', 'anamnese');
         break;
       case 'consult':
-        router.push('/scribe/consult');
+        navigateToWorkflow('consult');
         break;
     }
   };
 
   const handleBack = () => {
-    router.push('/scribe');
+    console.log('Navigating back to patient info');
+    navigateToPatientInfo();
   };
 
   if (!patientInfo) {
@@ -220,12 +234,9 @@ export default function WorkflowPage() {
         <h3 className="text-lg font-semibold text-hysio-deep-green mb-2">
           Niet zeker welke workflow te kiezen?
         </h3>
-        <p className="text-hysio-deep-green-900/70 text-sm mb-4">
+        <p className="text-hysio-deep-green-900/70 text-sm">
           Kies "Automatisch" voor snelle intakes, "Stapsgewijs" voor complexe gevallen met begeleiding,
           of "Vervolgconsult" voor bestaande patiënten.
-        </p>
-        <p className="text-xs text-hysio-deep-green-900/60">
-          U kunt altijd teruggaan en een andere workflow kiezen als nodig.
         </p>
       </div>
     </div>

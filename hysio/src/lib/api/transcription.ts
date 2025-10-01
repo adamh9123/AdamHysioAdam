@@ -9,24 +9,39 @@ export interface TranscriptionOptions {
 }
 
 // Client-side function to transcribe audio via API with comprehensive logging
+// This function routes through our server-side API which handles automatic splitting for large files
 export async function transcribeAudio(
   audioBlob: Blob,
   options: TranscriptionOptions = {}
 ): Promise<TranscriptionResponse> {
   const startTime = Date.now();
+  const audioSizeMB = audioBlob.size / (1024 * 1024);
+
   console.log('🎤 TRANSCRIPTION START:', {
     audioSize: `${(audioBlob.size / 1024).toFixed(1)}KB`,
+    audioSizeMB: `${audioSizeMB.toFixed(1)}MB`,
     audioType: audioBlob.type,
     language: options.language,
     hasPrompt: !!options.prompt,
     temperature: options.temperature,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    willUseSplitting: audioSizeMB > 25 // Files >25MB will be split automatically
   });
 
   try {
     // Prepare form data
     const formData = new FormData();
-    formData.append('audio', audioBlob, 'recording.wav');
+
+    // Create a File object with proper extension for better processing
+    const extension = audioBlob.type.includes('webm') ? 'webm' :
+                     audioBlob.type.includes('wav') ? 'wav' :
+                     audioBlob.type.includes('mp4') ? 'mp4' : 'wav';
+
+    const audioFile = new File([audioBlob], `recording.${extension}`, {
+      type: audioBlob.type || 'audio/wav'
+    });
+
+    formData.append('audio', audioFile);
 
     if (options.language) {
       formData.append('language', options.language);
@@ -41,7 +56,7 @@ export async function transcribeAudio(
       formData.append('temperature', options.temperature.toString());
     }
 
-    // Make API request
+    // Use our server-side API which handles splitting automatically
     const response = await fetch('/api/transcribe', {
       method: 'POST',
       body: formData,
@@ -54,11 +69,29 @@ export async function transcribeAudio(
       console.error('❌ TRANSCRIPTION FAILED:', {
         status: response.status,
         statusText: response.statusText,
-        error: result.error,
+        error: result?.error || 'No error message',
         duration: `${duration}ms`,
-        audioSize: `${(audioBlob.size / 1024).toFixed(1)}KB`
+        audioSize: `${(audioBlob.size / 1024).toFixed(1)}KB`,
+        audioSizeMB: `${audioSizeMB.toFixed(1)}MB`,
+        details: result?.details || 'No details available',
+        fullResult: result
       });
-      throw new Error(result.error || `HTTP ${response.status}: ${response.statusText}`);
+
+      // Enhanced error handling for large files
+      if (response.status === 413) {
+        // Use the server's error message if available, fallback to generic Dutch message
+        const serverError = result?.error || result?.details?.suggestion;
+        const errorMessage = serverError ||
+          `Audio bestand te groot (${audioSizeMB.toFixed(1)}MB). Upload een kleiner bestand of splits de audio vooraf.`;
+        throw new Error(errorMessage);
+      }
+
+      // Handle other specific error cases
+      if (result?.error && result.error.includes('te groot')) {
+        throw new Error(result.error);
+      }
+
+      throw new Error(result?.error || `HTTP ${response.status}: ${response.statusText}`);
     }
 
     console.log('✅ TRANSCRIPTION SUCCESS:', {
@@ -66,10 +99,20 @@ export async function transcribeAudio(
       transcriptLength: result.transcript?.length || 0,
       confidence: result.confidence,
       hasTranscript: !!result.transcript,
-      transcriptPreview: result.transcript?.substring(0, 100) + '...'
+      transcriptPreview: result.transcript?.substring(0, 100) + '...',
+      wasSegmented: result.segmented || false,
+      fileSize: result.fileSize
     });
 
-    return result;
+    // Convert server response to expected format
+    return {
+      success: true,
+      transcript: result.transcript,
+      duration: result.duration,
+      confidence: result.confidence || 1.0,
+      segmented: result.segmented,
+      fileSize: result.fileSize
+    };
 
   } catch (error) {
     const duration = Date.now() - startTime;
@@ -77,7 +120,9 @@ export async function transcribeAudio(
       error: error instanceof Error ? error.message : 'Unknown error',
       duration: `${duration}ms`,
       audioSize: `${(audioBlob.size / 1024).toFixed(1)}KB`,
-      stack: error instanceof Error ? error.stack : null
+      audioSizeMB: `${audioSizeMB.toFixed(1)}MB`,
+      stack: error instanceof Error ? error.stack : null,
+      errorType: error instanceof Error ? error.constructor.name : typeof error
     });
 
     return {
@@ -103,7 +148,7 @@ export function getSupportedAudioFormats(): string[] {
 
 // Utility to validate audio file
 export function validateAudioFile(file: File): { valid: boolean; error?: string } {
-  const maxSize = 25 * 1024 * 1024; // 25MB
+  const maxSize = 100 * 1024 * 1024; // 100MB
   const supportedFormats = getSupportedAudioFormats();
 
   if (!file.type.startsWith('audio/')) {
@@ -118,7 +163,7 @@ export function validateAudioFile(file: File): { valid: boolean; error?: string 
   }
 
   if (file.size > maxSize) {
-    return { valid: false, error: 'File size must be less than 25MB' };
+    return { valid: false, error: 'File size must be less than 100MB' };
   }
 
   return { valid: true };

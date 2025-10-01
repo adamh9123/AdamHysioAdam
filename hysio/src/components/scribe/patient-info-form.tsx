@@ -126,7 +126,7 @@ const PatientInfoForm: React.FC<PatientInfoFormProps> = ({
 
 
   return (
-    <div className={cn('min-h-screen bg-[#E6F5F3] w-full py-8', className)}>
+    <div className={cn('min-h-screen bg-hysio-mint w-full py-8', className)}>
       <div className="w-full max-w-4xl mx-auto px-6">
         {/* Welcome Header */}
         <div className="text-center mb-8">
@@ -144,7 +144,7 @@ const PatientInfoForm: React.FC<PatientInfoFormProps> = ({
           </p>
         </div>
 
-        <Card className="border-2 border-[#A5E1C5]/40 bg-[#F8F8F5] shadow-lg">
+        <Card className="border-2 border-[#A5E1C5]/40 shadow-lg">
         <CardHeader>
           <div className="flex items-center gap-3 mb-2">
             <div className="w-12 h-12 bg-[#A5E1C5]/30 rounded-full flex items-center justify-center">
@@ -277,7 +277,7 @@ const PatientInfoForm: React.FC<PatientInfoFormProps> = ({
               <div className="space-y-2">
                 <Label htmlFor="chiefComplaint" className="text-hysio-deep-green">
                   Hoofdklacht
-                  <span className="text-hysio-deep-green-900/60 text-sm font-normal ml-1">(optioneel)</span>
+                  <span className="text-hysio-deep-green-900/60 text-sm font-normal ml-1">(Hoe meer info, context en details, hoe beter)</span>
                 </Label>
                 <Textarea
                   id="chiefComplaint"
@@ -307,7 +307,7 @@ const PatientInfoForm: React.FC<PatientInfoFormProps> = ({
                   className="mb-2"
                 />
                 <p className="text-xs text-hysio-deep-green-900/60">
-                  Upload verwijsbrieven, vorige verslagen of andere relevante documenten voor context
+                  Upload Hysio Pre-Intakes, verwijsbrieven, vorige verslagen of andere relevante documenten voor context
                 </p>
                 {documentContext && documentFilename && (
                   <div className="text-xs text-green-600 bg-green-50 border border-green-200 rounded-md p-2">

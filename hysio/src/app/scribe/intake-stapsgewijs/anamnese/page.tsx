@@ -204,15 +204,15 @@ export default function AnamnesePage() {
   };
 
   const handleManualNotesChange = (notes: string) => {
-    setState(prev => ({
-      ...prev,
-      inputMethod: notes.trim() ? 'manual' : null,
-      manualNotes: notes,
-    }));
-
-    setAnamneseData({
-      transcript: notes,
-    });
+    // ✅ V7.0 FIX: Only update local state during typing to prevent glitches
+    // Store sync happens during processing, not during typing
+    if (notes.length <= 4000) {  // 4000 character limit
+      setState(prev => ({
+        ...prev,
+        inputMethod: notes.trim() ? 'manual' : null,
+        manualNotes: notes,
+      }));
+    }
   };
 
   const processAnamnese = async () => {
@@ -220,6 +220,14 @@ export default function AnamnesePage() {
 
     try {
       setState(prev => ({ ...prev, isProcessing: true, error: null }));
+
+      // ✅ V7.0 FIX: Sync manual notes to store before processing
+      if (state.inputMethod === 'manual' && state.manualNotes) {
+        setAnamneseData({
+          transcript: state.manualNotes,
+          inputMethod: 'manual',
+        });
+      }
 
       let transcript = '';
       let inputData: any = {};

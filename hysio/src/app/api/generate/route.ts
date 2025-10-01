@@ -132,9 +132,9 @@ export async function POST(request: NextRequest) {
       );
 
       console.log('Generation completed successfully:', {
-        contentLength: result.data?.content?.length || 0,
-        model: result.data?.model,
-        usage: result.data?.usage
+        contentLength: result.content?.length || 0,
+        model: result.model,
+        usage: result.usage
       });
 
       return NextResponse.json(result);

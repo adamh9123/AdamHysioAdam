@@ -160,10 +160,7 @@ FORMAT JE ANTWOORD EXACT ALS VOLGT:
 • Overige: [slaap, concentratie, stemming, sexualiteit indien relevant]
 
 **SAMENVATTING ANAMNESE:**
-• Kernbevindingen: [3-5 belangrijkste bevindingen uit anamnese]
-• Klinische indruk: [voorlopige hypothese over problematiek]
-• Prioriteiten: [belangrijkste aandachtsgebieden voor behandeling]
-• Bijzonderheden: [rode vlaggen, complicerende factoren]
+Schrijf een samenvattende paragraaf van 10-15 volledige zinnen die de complete anamnese samenvat. Baseer de samenvatting volledig op de informatie uit het gesprek. Begin met de hoofdklacht en ontstaansgeschiedenis. Beschrijf vervolgens de huidige klachten, pijn, beperkingen in dagelijkse activiteiten, werk en sport. Vermeld relevante voorgeschiedenis, eerdere behandelingen en hun effecten. Concludeer met de impact op het dagelijks functioneren en de hulpvraag van de patiënt. Gebruik doorlopende tekst, geen bulletpoints. Zorg dat de samenvatting logisch en chronologisch opgebouwd is en alle belangrijke aspecten uit het gesprek bevat.
 
 Zorg ervoor dat elke sectie volledig ingevuld wordt op basis van de transcriptie. Als informatie ontbreekt, vermeld dat expliciet.`;
 }
@@ -201,7 +198,7 @@ Als bepaalde informatie niet in de transcriptie staat, vermeld dit expliciet als
 }
 
 /**
- * Parse enhanced HHSB analysis with robust error handling
+ * Parse enhanced HHSB analysis with robust error handling and fallback parsing
  */
 export function parseEnhancedHHSBAnalysis(analysisText: string): EnhancedHHSBStructure {
   const result: EnhancedHHSBStructure = {
@@ -250,15 +247,26 @@ export function parseEnhancedHHSBAnalysis(analysisText: string): EnhancedHHSBStr
   };
 
   try {
-    // Parse HULPVRAAG section
+    // Parse HULPVRAAG section with fallback parsing
     const hulpvraagSection = extractSection(analysisText, 'HULPVRAAG');
     if (hulpvraagSection) {
       result.hulpvraag.primaryConcern = extractBulletPoint(hulpvraagSection, 'Primaire zorg') ||
-                                       extractBulletPoint(hulpvraagSection, 'Hoofdklacht') || '';
-      result.hulpvraag.patientGoals = extractList(extractBulletPoint(hulpvraagSection, 'Functionele doelen') || '');
-      result.hulpvraag.functionalLimitations = extractList(extractBulletPoint(hulpvraagSection, 'Beperkingen ervaring') || '');
-      result.hulpvraag.qualityOfLifeImpact = extractBulletPoint(hulpvraagSection, 'Kwaliteit van leven impact') || '';
+                                       extractBulletPoint(hulpvraagSection, 'Hoofdklacht') ||
+                                       extractBulletPoint(hulpvraagSection, 'Primaire klacht') ||
+                                       extractFirstLine(hulpvraagSection) || '';
+      result.hulpvraag.patientGoals = extractList(extractBulletPoint(hulpvraagSection, 'Functionele doelen') ||
+                                                  extractBulletPoint(hulpvraagSection, 'Doelen') || '');
+      result.hulpvraag.functionalLimitations = extractList(extractBulletPoint(hulpvraagSection, 'Beperkingen ervaring') ||
+                                                           extractBulletPoint(hulpvraagSection, 'Beperkingen') || '');
+      result.hulpvraag.qualityOfLifeImpact = extractBulletPoint(hulpvraagSection, 'Kwaliteit van leven impact') ||
+                                            extractBulletPoint(hulpvraagSection, 'Impact') || '';
       result.hulpvraag.expectations = extractBulletPoint(hulpvraagSection, 'Verwachtingen') || '';
+    } else {
+      // Fallback: Try to extract from any HULPVRAAG content in the text
+      const fallbackHulpvraag = extractFallbackContent(analysisText, ['hulpvraag', 'hoofdklacht', 'primaire zorg']);
+      if (fallbackHulpvraag) {
+        result.hulpvraag.primaryConcern = fallbackHulpvraag;
+      }
     }
 
     // Parse HISTORIE section
@@ -309,13 +317,15 @@ export function parseEnhancedHHSBAnalysis(analysisText: string): EnhancedHHSBStr
       result.beperkingen.socialParticipationImpact = extractList(extractBulletPoint(beperkingenSection, 'Sociale participatie') || '');
     }
 
-    // Parse SAMENVATTING section
+    // Parse SAMENVATTING section - now as continuous text instead of bullet points
     const summarySection = extractSection(analysisText, 'SAMENVATTING ANAMNESE');
     if (summarySection) {
-      result.anamneseSummary.keyFindings = extractList(extractBulletPoint(summarySection, 'Kernbevindingen') || '');
-      result.anamneseSummary.clinicalImpression = extractBulletPoint(summarySection, 'Klinische indruk') || '';
-      result.anamneseSummary.priorityAreas = extractList(extractBulletPoint(summarySection, 'Prioriteiten') || '');
-      result.anamneseSummary.redFlagsNoted = extractList(extractBulletPoint(summarySection, 'Bijzonderheden') || '');
+      // Store the entire summary as clinical impression since it's now continuous text
+      result.anamneseSummary.clinicalImpression = summarySection.trim();
+      // Clear the structured fields since we now have narrative summary
+      result.anamneseSummary.keyFindings = [];
+      result.anamneseSummary.priorityAreas = [];
+      result.anamneseSummary.redFlagsNoted = [];
     }
 
   } catch (error) {
@@ -325,9 +335,14 @@ export function parseEnhancedHHSBAnalysis(analysisText: string): EnhancedHHSBStr
   return result;
 }
 
-// Helper parsing functions
+// Helper parsing functions with enhanced robustness
 function extractSection(text: string, sectionName: string): string | null {
-  const regex = new RegExp(`\\*\\*${sectionName}\\*\\*([\\s\\S]*?)(?=\\*\\*[A-Z]|$)`, 'i');
+  // First try robust extraction
+  const robustResult = extractSectionRobust(text, sectionName);
+  if (robustResult) return robustResult;
+
+  // Original fallback
+  const regex = new RegExp(`\\*\\*${sectionName}:?\\*\\*([\\s\\S]*?)(?=\\*\\*[A-Z]|$)`, 'i');
   const match = text.match(regex);
   return match ? match[1].trim() : null;
 }
@@ -503,4 +518,40 @@ export function validateHHSBCompleteness(hhsb: EnhancedHHSBStructure): {
     qualityScore: Math.max(0, qualityScore),
     recommendations
   };
+}
+
+// Additional helper functions for robust parsing
+function extractFirstLine(text: string): string {
+  const lines = text.split('\n').filter(line => line.trim().length > 0);
+  return lines.length > 0 ? lines[0].trim().replace(/^[•\-\*]\s*/, '') : '';
+}
+
+function extractFallbackContent(text: string, keywords: string[]): string {
+  for (const keyword of keywords) {
+    const regex = new RegExp(`${keyword}[:\\s]*([^\\n]*(?:\\n(?!\\*\\*)[^\\n]*)*)`, 'i');
+    const match = text.match(regex);
+    if (match && match[1].trim()) {
+      return match[1].trim();
+    }
+  }
+  return '';
+}
+
+// Enhanced section extraction with multiple patterns
+function extractSectionRobust(text: string, sectionName: string): string | null {
+  const patterns = [
+    `\\*\\*${sectionName}:?\\*\\*([\\s\\S]*?)(?=\\*\\*[A-Z]|###|$)`,
+    `### ${sectionName} ###([\\s\\S]*?)(?=###|\\*\\*|$)`,
+    `${sectionName}:([\\s\\S]*?)(?=\\n\\w+:|$)`
+  ];
+
+  for (const pattern of patterns) {
+    const regex = new RegExp(pattern, 'i');
+    const match = text.match(regex);
+    if (match && match[1].trim()) {
+      return match[1].trim();
+    }
+  }
+
+  return null;
 }

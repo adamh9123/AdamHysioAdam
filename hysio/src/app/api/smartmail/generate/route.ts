@@ -25,7 +25,6 @@ import { SUBJECT_PATTERNS } from '@/lib/smartmail/email-templates';
 import { ErrorHandlerUtils } from '@/lib/smartmail/error-handling';
 import {
   DocumentContentExtractor,
-  combineDocumentContents,
   type DocumentExtractionResult
 } from '@/lib/utils/document-content-extractor';
 
@@ -111,7 +110,7 @@ function generateSubjectLine(
   patientInitials?: string
 ): string {
   const patterns = SUBJECT_PATTERNS[recipient.language];
-  const pattern = patterns[context.objective];
+  const pattern = (patterns as any)[context.objective];
   
   if (!pattern) {
     return context.subject;
@@ -163,7 +162,7 @@ function generateContentWarnings(
       message: warning.message,
       severity: 'warning',
       actionable: true,
-      suggestedAction: warning.suggestion
+      suggestedAction: warning.suggestion || 'Review content for privacy compliance'
     });
   });
   
@@ -176,7 +175,7 @@ function generateContentWarnings(
         message: `Document ${index + 1} (${doc.filename}): ${warning.message}`,
         severity: 'warning',
         actionable: true,
-        suggestedAction: warning.suggestion
+        suggestedAction: warning.suggestion || 'Review document content for privacy compliance'
       });
     });
   });
@@ -329,16 +328,16 @@ export async function POST(request: NextRequest) {
       throw new Error('Invalid AI response format');
     }
     
-    if (!aiResponse.success || !aiResponse.content) {
+    if (!(aiResponse as any).success || !(aiResponse as any).content) {
       return NextResponse.json({
         success: false,
-        error: aiResponse.error || 'Failed to generate email content',
+        error: (aiResponse as any).error || 'Failed to generate email content',
         suggestions: allSuggestions
       } satisfies EmailGenerationResponse, { status: 500 });
     }
     
     // Process generated content
-    const generatedContent = aiResponse.content.trim();
+    const generatedContent = (aiResponse as any).content.trim();
     
     // Extract subject line (if generated in content) or use generated subject
     let subject = generateSubjectLine(context, recipient);
@@ -392,9 +391,9 @@ export async function POST(request: NextRequest) {
       warnings: validation.warnings.map(warning => warning.message),
       suggestions: allSuggestions,
       usage: {
-        promptTokens: aiResponse.usage?.prompt_tokens || 0,
-        completionTokens: aiResponse.usage?.completion_tokens || 0,
-        totalTokens: aiResponse.usage?.total_tokens || 0,
+        promptTokens: (aiResponse as any).usage?.prompt_tokens || 0,
+        completionTokens: (aiResponse as any).usage?.completion_tokens || 0,
+        totalTokens: (aiResponse as any).usage?.total_tokens || 0,
         processingTime
       }
     };

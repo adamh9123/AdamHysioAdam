@@ -2,7 +2,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { validateDCSPHCode, validateMultipleCodes } from '@/lib/diagnosecode/code-validator';
-import { DCSPHKnowledgeBase } from '@/lib/diagnosecode/dcsph-knowledge-base';
 import { DCSPHErrorHandler, ErrorType } from '@/lib/diagnosecode/error-handling';
 
 export const runtime = 'nodejs';

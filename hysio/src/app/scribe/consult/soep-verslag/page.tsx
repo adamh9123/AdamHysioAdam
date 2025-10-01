@@ -4,13 +4,16 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { useScribeStore } from '@/lib/state/scribe-store';
 import { useSessionState } from '@/hooks/useSessionState';
-import { exportSOEPData } from '@/lib/utils/export';
+import { useWorkflowNavigation } from '@/hooks/useWorkflowNavigation';
+import { exportManager } from '@/lib/utils/advanced-export';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { Textarea } from '@/components/ui/textarea';
+import { HysioClinicalDisclaimer } from '@/components/ui/hysio-disclaimer';
 import {
   ArrowLeft,
   CheckCircle,
@@ -18,41 +21,50 @@ import {
   Download,
   Copy,
   Edit,
+  Save,
   ChevronDown,
   ChevronRight,
   AlertTriangle,
   MessageSquare,
-  Calendar,
   Home,
   RotateCcw,
   Eye,
-  Search,
   TrendingUp,
-  Target
+  Target,
+  LayoutGrid,
+  FileText as FileIcon
 } from 'lucide-react';
 
-import type { ConsultResult } from '@/types/api';
-
 interface SOEPResults {
-  subjectief: string;
-  objectief: string;
-  evaluatie: string;
-  plan: string;
-  consultSummary?: string;
-  redFlags: string[];
-  processingDuration: number;
-  generatedAt: string;
+  soepStructure: {
+    subjectief: string;
+    objectief: string;
+    evaluatie: string;
+    plan: string;
+    consultSummary: string;
+    redFlags: string[];
+    fullStructuredText: string;
+  };
+  processedAt: string;
+  transcript: string;
+  workflowType: string;
+  patientInfo: any;
+  // Computed fields for display
+  processingDuration?: number;
+  generatedAt?: string;
 }
 
 export default function SOEPVerslagPage() {
   const router = useRouter();
-  const patientInfo = useScribeStore(state => state.patientInfo);
+  const patientInfo = useScribeStore((state: any) => state.patientInfo);
+  const { navigateToPatientInfo, navigateToWorkflow } = useWorkflowNavigation();
   const sessionState = useSessionState({ autoSave: true, autoSaveInterval: 30000 });
-  const workflowData = useScribeStore(state => state.workflowData);
+  const workflowData = useScribeStore((state: any) => state.workflowData);
 
   const [results, setResults] = React.useState<SOEPResults | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [viewMode, setViewMode] = React.useState<'divided' | 'full'>('divided');
   const [expandedSections, setExpandedSections] = React.useState<Record<string, boolean>>({
     subjectief: true,
     objectief: true,
@@ -61,14 +73,16 @@ export default function SOEPVerslagPage() {
     samenvatting: true,
     redflags: true,
   });
+  const [editingSections, setEditingSections] = React.useState<Record<string, boolean>>({});
+  const [editedContent, setEditedContent] = React.useState<Record<string, string>>({});
 
   // Enhanced state loading with comprehensive validation and lifecycle logging
   React.useEffect(() => {
     console.log('SOEP Verslag: useEffect triggered', { patientInfo, workflowData });
 
     if (!patientInfo) {
-      console.log('SOEP Verslag: No patient info, redirecting to scribe');
-      router.push('/scribe');
+      console.log('SOEP Verslag: No patient info, navigating to patient info page');
+      navigateToPatientInfo();
       return;
     }
 
@@ -87,8 +101,24 @@ export default function SOEPVerslagPage() {
     if (consultData?.soepResult) {
       // Validate result structure
       if (typeof consultData.soepResult === 'object' && consultData.soepResult !== null) {
-        console.log('SOEP Verslag: Results successfully loaded', consultData.soepResult);
-        setResults(consultData.soepResult);
+        console.log('🔍 DEBUG - SOEP Verslag Loading:', {
+          consultData: consultData,
+          soepResult: consultData.soepResult,
+          soepResultKeys: Object.keys(consultData.soepResult),
+          soepStructure: consultData.soepResult.soepStructure,
+          soepStructureKeys: consultData.soepResult.soepStructure ? Object.keys(consultData.soepResult.soepStructure) : 'NO SOEP STRUCTURE'
+        });
+
+        // Transform API response to expected format
+        const transformedResults = {
+          ...consultData.soepResult,
+          generatedAt: consultData.soepResult.processedAt,
+          processingDuration: Date.now() - new Date(consultData.soepResult.processedAt).getTime()
+        };
+
+        console.log('🔍 DEBUG - Transformed Results:', transformedResults);
+
+        setResults(transformedResults);
         setIsLoading(false);
       } else {
         console.error('SOEP Verslag: Invalid result data structure', consultData.soepResult);
@@ -96,16 +126,11 @@ export default function SOEPVerslagPage() {
         setIsLoading(false);
       }
     } else {
-      // Enhanced fallback with delayed redirect to prevent phantom redirects
-      console.warn('SOEP Verslag: No results found, showing error message with delayed redirect');
-      setError('Geen SOEP verslag gevonden. U wordt over 5 seconden doorgestuurd naar de consult pagina...');
+      // Enhanced fallback WITHOUT automatic redirect
+      console.warn('SOEP Verslag: No results found, showing error with user control');
+      setError('Geen SOEP verslag gevonden. Klik op "Terug naar Consult" om door te gaan.');
       setIsLoading(false);
-
-      // Delayed redirect to give user time to see the error
-      setTimeout(() => {
-        console.log('SOEP Verslag: Executing delayed redirect to consult page');
-        router.push('/scribe/consult');
-      }, 5000);
+      // No automatic redirect - let user control navigation
     }
   }, [patientInfo, workflowData, router]);
 
@@ -114,6 +139,10 @@ export default function SOEPVerslagPage() {
       ...prev,
       [section]: !prev[section],
     }));
+  };
+
+  const toggleViewMode = () => {
+    setViewMode(prev => prev === 'divided' ? 'full' : 'divided');
   };
 
   const copyToClipboard = async (content: string, sectionName: string) => {
@@ -125,18 +154,73 @@ export default function SOEPVerslagPage() {
     }
   };
 
+  const startEditing = (section: string, currentContent: string) => {
+    setEditingSections(prev => ({ ...prev, [section]: true }));
+    setEditedContent(prev => ({ ...prev, [section]: currentContent }));
+  };
+
+  const cancelEditing = (section: string) => {
+    setEditingSections(prev => ({ ...prev, [section]: false }));
+    setEditedContent(prev => ({ ...prev, [section]: '' }));
+  };
+
+  const saveEdit = (section: string) => {
+    if (results && editedContent[section] !== undefined) {
+      // Update the results with edited content
+      const updatedResults = {
+        ...results,
+        soepStructure: {
+          ...results.soepStructure,
+          [section]: editedContent[section]
+        }
+      };
+      setResults(updatedResults);
+      setEditingSections(prev => ({ ...prev, [section]: false }));
+    }
+  };
+
   const handleExport = async (format: 'html' | 'txt' | 'docx' | 'pdf') => {
-    if (!soepResult || !patientInfo) {
+    if (!results || !patientInfo) {
       console.error('No SOEP result or patient info available for export');
+      setError('Geen SOEP resultaten beschikbaar voor export');
       return;
     }
 
     try {
-      await exportSOEPData(format, soepResult, patientInfo);
-      console.log(`Successfully exported SOEP data in ${format} format`);
+      console.log(`Starting SOEP export in ${format.toUpperCase()} format...`);
+
+      const blob = await exportManager.exportSOEP(
+        results as any,
+        patientInfo,
+        {
+          format,
+          includePatientInfo: true,
+          includeTimestamp: true,
+          includeRedFlags: true,
+          template: 'detailed',
+          customFileName: `SOEP_Verslag_${patientInfo.initials}_${new Date().toISOString().split('T')[0]}`,
+        }
+      );
+
+      // Generate filename with proper extension
+      const fileName = `SOEP_Verslag_${patientInfo.initials}_${new Date().toISOString().split('T')[0]}.${format === 'docx' ? 'rtf' : format}`;
+
+      // Create download link and trigger download
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      console.log(`✅ Successfully exported and downloaded SOEP data as ${fileName}`);
     } catch (error) {
       console.error(`SOEP export failed for ${format} format:`, error);
-      // You could add a toast notification here
+      setError(`Export naar ${format.toUpperCase()} formaat is mislukt. Probeer het opnieuw.`);
     }
   };
 
@@ -144,15 +228,19 @@ export default function SOEPVerslagPage() {
     if (sessionState) {
       sessionState.resetSession();
     }
-    router.push('/scribe');
+    console.log('Starting new session, navigating to patient info');
+    navigateToPatientInfo();
   };
 
   const handleBackToDashboard = () => {
+    // Navigation to dashboard still uses router since it's outside the scribe workflow
+    console.log('Navigating to dashboard');
     router.push('/dashboard');
   };
 
   const handleBack = () => {
-    router.push('/scribe/consult');
+    console.log('Navigating back to consult');
+    navigateToWorkflow('consult');
   };
 
   if (!patientInfo) {
@@ -229,27 +317,50 @@ export default function SOEPVerslagPage() {
           </div>
         </div>
 
-        {/* Processing Info */}
+        {/* Processing Info with View Toggle */}
         <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-          <div className="flex items-center gap-2 text-green-800 text-sm">
-            <CheckCircle size={16} />
-            <span>
-              Consult succesvol verwerkt in {Math.round(results.processingDuration)} seconden
-            </span>
-            <span className="text-green-600">•</span>
-            <span>Gegenereerd op {new Date(results.generatedAt).toLocaleString('nl-NL')}</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-green-800 text-sm">
+              <CheckCircle size={16} />
+              <span>
+                Consult succesvol verwerkt in {results.processingDuration ? Math.round(results.processingDuration / 1000) : 'N/A'} seconden
+              </span>
+              <span className="text-green-600">•</span>
+              <span>Gegenereerd op {new Date(results.generatedAt || results.processedAt).toLocaleString('nl-NL')}</span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleViewMode}
+              className="text-green-700 border-green-300 hover:bg-green-100"
+            >
+              {viewMode === 'divided' ? (
+                <>
+                  <FileIcon size={14} className="mr-1" />
+                  Volledig
+                </>
+              ) : (
+                <>
+                  <LayoutGrid size={14} className="mr-1" />
+                  Onderverdeeld
+                </>
+              )}
+            </Button>
           </div>
         </div>
       </div>
 
+      {/* Clinical Disclaimer */}
+      <HysioClinicalDisclaimer className="mb-6" />
+
       {/* Red Flags Alert */}
-      {results.redFlags && results.redFlags.length > 0 && (
+      {results.soepStructure?.redFlags && results.soepStructure.redFlags.length > 0 && (
         <Alert className="mb-6 border-red-200 bg-red-50">
           <AlertTriangle className="h-4 w-4 text-red-600" />
           <AlertDescription>
             <div className="font-semibold text-red-800 mb-2">Red Flags Gedetecteerd:</div>
             <ul className="list-disc list-inside text-red-700 space-y-1">
-              {results.redFlags.map((flag, index) => (
+              {results.soepStructure.redFlags.map((flag, index) => (
                 <li key={index}>{flag}</li>
               ))}
             </ul>
@@ -258,7 +369,78 @@ export default function SOEPVerslagPage() {
       )}
 
       {/* SOEP Sections */}
-      <div className="space-y-6">
+      {viewMode === 'full' ? (
+        // Full View - All content in one continuous text
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-hysio-deep-green">
+              <MessageSquare size={20} />
+              SOEP Verslag - Volledige Weergave
+            </CardTitle>
+            <CardDescription>
+              Alle SOEP bevindingen in één doorlopende tekst
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="bg-hysio-mint/10 rounded-lg p-6">
+              <div className="text-hysio-deep-green-900/80 whitespace-pre-wrap leading-relaxed space-y-4 prose prose-sm max-w-none prose-ul:list-disc prose-ul:ml-6 prose-ul:pl-0 prose-li:ml-0">
+                {results.soepStructure?.subjectief && (
+                  <div>
+                    <h3 className="font-semibold text-hysio-deep-green mb-2">Subjectief:</h3>
+                    <div className="mb-4">{results.soepStructure.subjectief}</div>
+                  </div>
+                )}
+                {results.soepStructure?.objectief && (
+                  <div>
+                    <h3 className="font-semibold text-hysio-deep-green mb-2">Objectief:</h3>
+                    <div className="mb-4">{results.soepStructure.objectief}</div>
+                  </div>
+                )}
+                {results.soepStructure?.evaluatie && (
+                  <div>
+                    <h3 className="font-semibold text-hysio-deep-green mb-2">Evaluatie:</h3>
+                    <div className="mb-4">{results.soepStructure.evaluatie}</div>
+                  </div>
+                )}
+                {results.soepStructure?.plan && (
+                  <div>
+                    <h3 className="font-semibold text-hysio-deep-green mb-2">Plan:</h3>
+                    <div className="mb-4">{results.soepStructure.plan}</div>
+                  </div>
+                )}
+                {results.soepStructure?.consultSummary && (
+                  <div>
+                    <h3 className="font-semibold text-orange-600 mb-2">Samenvatting van Consult:</h3>
+                    <div className="text-orange-900/90">{results.soepStructure.consultSummary}</div>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="mt-4 flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const fullText = [
+                    results.soepStructure?.subjectief && `Subjectief: ${results.soepStructure.subjectief}`,
+                    results.soepStructure?.objectief && `Objectief: ${results.soepStructure.objectief}`,
+                    results.soepStructure?.evaluatie && `Evaluatie: ${results.soepStructure.evaluatie}`,
+                    results.soepStructure?.plan && `Plan: ${results.soepStructure.plan}`,
+                    results.soepStructure?.consultSummary && `Samenvatting: ${results.soepStructure.consultSummary}`
+                  ].filter(Boolean).join('\n\n');
+                  copyToClipboard(fullText, 'Volledig SOEP Verslag');
+                }}
+                className="text-hysio-deep-green border-hysio-mint"
+              >
+                <Copy size={14} className="mr-1" />
+                Kopieer Alles
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        // Divided View - Collapsible sections
+        <div className="space-y-6">
         {/* Subjectief */}
         <Card>
           <Collapsible
@@ -283,12 +465,19 @@ export default function SOEPVerslagPage() {
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        copyToClipboard(JSON.stringify(results.subjectief, null, 2), 'Subjectief');
+                        copyToClipboard(results.soepStructure?.subjectief || 'Geen data', 'Subjectief');
                       }}
                     >
                       <Copy size={14} />
                     </Button>
-                    <Button variant="ghost" size="sm">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        startEditing('subjectief', results.soepStructure?.subjectief || '');
+                      }}
+                    >
                       <Edit size={14} />
                     </Button>
                     {expandedSections.subjectief ? (
@@ -303,13 +492,38 @@ export default function SOEPVerslagPage() {
             <CollapsibleContent>
               <CardContent>
                 <div className="bg-hysio-mint/10 rounded-lg p-4">
-                  <div className="text-hysio-deep-green-900/80 whitespace-pre-wrap">
-                    {results.subjectief ? (
-                      typeof results.subjectief === 'string' ? results.subjectief : JSON.stringify(results.subjectief, null, 2)
-                    ) : (
-                      'Geen subjectieve bevindingen beschikbaar'
-                    )}
-                  </div>
+                  {editingSections.subjectief ? (
+                    <div className="space-y-3">
+                      <Textarea
+                        value={editedContent.subjectief || ''}
+                        onChange={(e) => setEditedContent(prev => ({ ...prev, subjectief: e.target.value }))}
+                        rows={6}
+                        className="resize-none"
+                        placeholder="Bewerk subjectieve bevindingen..."
+                      />
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => saveEdit('subjectief')}
+                          className="bg-hysio-deep-green hover:bg-hysio-deep-green/90 text-white"
+                        >
+                          <Save size={14} className="mr-1" />
+                          Opslaan
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => cancelEditing('subjectief')}
+                        >
+                          Annuleren
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-hysio-deep-green-900/80 whitespace-pre-wrap prose prose-sm max-w-none prose-ul:list-disc prose-ul:ml-6 prose-ul:pl-0 prose-li:ml-0">
+                      {results.soepStructure?.subjectief || 'Geen subjectieve bevindingen beschikbaar'}
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </CollapsibleContent>
@@ -340,7 +554,7 @@ export default function SOEPVerslagPage() {
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        copyToClipboard(JSON.stringify(results.objectief, null, 2), 'Objectief');
+                        copyToClipboard(results.soepStructure?.objectief || 'Geen data', 'Objectief');
                       }}
                     >
                       <Copy size={14} />
@@ -360,12 +574,8 @@ export default function SOEPVerslagPage() {
             <CollapsibleContent>
               <CardContent>
                 <div className="bg-hysio-mint/10 rounded-lg p-4">
-                  <div className="text-hysio-deep-green-900/80 whitespace-pre-wrap">
-                    {results.objectief ? (
-                      typeof results.objectief === 'string' ? results.objectief : JSON.stringify(results.objectief, null, 2)
-                    ) : (
-                      'Geen objectieve bevindingen beschikbaar'
-                    )}
+                  <div className="text-hysio-deep-green-900/80 whitespace-pre-wrap prose prose-sm max-w-none prose-ul:list-disc prose-ul:ml-6 prose-ul:pl-0 prose-li:ml-0">
+                    {results.soepStructure?.objectief || 'Geen objectieve bevindingen beschikbaar'}
                   </div>
                 </div>
               </CardContent>
@@ -397,7 +607,7 @@ export default function SOEPVerslagPage() {
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        copyToClipboard(JSON.stringify(results.evaluatie, null, 2), 'Evaluatie');
+                        copyToClipboard(results.soepStructure?.evaluatie || 'Geen data', 'Evaluatie');
                       }}
                     >
                       <Copy size={14} />
@@ -417,12 +627,8 @@ export default function SOEPVerslagPage() {
             <CollapsibleContent>
               <CardContent>
                 <div className="bg-hysio-mint/10 rounded-lg p-4">
-                  <div className="text-hysio-deep-green-900/80 whitespace-pre-wrap">
-                    {results.evaluatie ? (
-                      typeof results.evaluatie === 'string' ? results.evaluatie : JSON.stringify(results.evaluatie, null, 2)
-                    ) : (
-                      'Geen evaluatie beschikbaar'
-                    )}
+                  <div className="text-hysio-deep-green-900/80 whitespace-pre-wrap prose prose-sm max-w-none prose-ul:list-disc prose-ul:ml-6 prose-ul:pl-0 prose-li:ml-0">
+                    {results.soepStructure?.evaluatie || 'Geen evaluatie beschikbaar'}
                   </div>
                 </div>
               </CardContent>
@@ -454,7 +660,7 @@ export default function SOEPVerslagPage() {
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        copyToClipboard(JSON.stringify(results.plan, null, 2), 'Plan');
+                        copyToClipboard(results.soepStructure?.plan || 'Geen data', 'Plan');
                       }}
                     >
                       <Copy size={14} />
@@ -474,12 +680,8 @@ export default function SOEPVerslagPage() {
             <CollapsibleContent>
               <CardContent>
                 <div className="bg-hysio-mint/10 rounded-lg p-4">
-                  <div className="text-hysio-deep-green-900/80 whitespace-pre-wrap">
-                    {results.plan ? (
-                      typeof results.plan === 'string' ? results.plan : JSON.stringify(results.plan, null, 2)
-                    ) : (
-                      'Geen behandelplan beschikbaar'
-                    )}
+                  <div className="text-hysio-deep-green-900/80 whitespace-pre-wrap prose prose-sm max-w-none prose-ul:list-disc prose-ul:ml-6 prose-ul:pl-0 prose-li:ml-0">
+                    {results.soepStructure?.plan || 'Geen behandelplan beschikbaar'}
                   </div>
                 </div>
               </CardContent>
@@ -511,7 +713,7 @@ export default function SOEPVerslagPage() {
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        copyToClipboard(results.consultSummary || 'Geen samenvatting beschikbaar', 'Samenvatting van Consult');
+                        copyToClipboard(results.soepStructure?.consultSummary || 'Geen samenvatting beschikbaar', 'Samenvatting van Consult');
                       }}
                     >
                       <Copy size={14} />
@@ -532,7 +734,7 @@ export default function SOEPVerslagPage() {
               <CardContent>
                 <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
                   <div className="text-orange-900/90 whitespace-pre-wrap leading-relaxed">
-                    {results.consultSummary ||
+                    {results.soepStructure?.consultSummary ||
                      'Geen samenvatting van consult beschikbaar. Deze wordt automatisch gegenereerd op basis van de SOEP bevindingen.'}
                   </div>
                 </div>
@@ -540,7 +742,8 @@ export default function SOEPVerslagPage() {
             </CollapsibleContent>
           </Collapsible>
         </Card>
-      </div>
+        </div>
+      )}
 
       {/* Export Options */}
       <Card className="mt-6">

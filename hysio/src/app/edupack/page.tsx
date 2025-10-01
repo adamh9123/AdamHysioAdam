@@ -41,7 +41,6 @@ export default function StandaloneEduPackPage() {
 
   // EduPack generation hook
   const {
-    isGenerating,
     content,
     error,
     validationResult,

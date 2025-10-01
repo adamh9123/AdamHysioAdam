@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
  * GET /api/diagnosecode/find
  * Health check endpoint
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const healthCheck = await AIIntegration.healthCheck();
 
@@ -147,7 +147,7 @@ export async function GET(request: NextRequest) {
  * OPTIONS /api/diagnosecode/find
  * CORS preflight handling
  */
-export async function OPTIONS(request: NextRequest) {
+export async function OPTIONS(_request: NextRequest) {
   return NextResponse.json({}, {
     status: 200,
     headers: {

@@ -146,10 +146,14 @@ export interface TranscriptionRequest {
 }
 
 export interface TranscriptionResponse {
-  transcript: string;
+  success: boolean;
+  transcript?: string;
   confidence?: number;
   duration?: number;
-  processedAt: string;
+  segmented?: boolean;
+  fileSize?: string;
+  error?: string;
+  processedAt?: string;
 }
 
 // Common workflow types

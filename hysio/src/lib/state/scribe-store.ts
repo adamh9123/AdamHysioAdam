@@ -62,6 +62,7 @@ interface ScribeState {
   getCompletedStepsCount: () => number;
   getAllStepData: () => Record<string, WorkflowStepData<any>>;
   clearStepData: (step: string) => void;
+  resetWorkflowState: () => void;
 
   resetScribeState: () => void;
 }
@@ -272,6 +273,29 @@ export const useScribeStore = create<ScribeState>()(
 
         // Remove from completed steps
         state.workflowData.completedSteps = state.workflowData.completedSteps.filter(s => s !== step);
+      }),
+
+      // ✅ CRITICAL ARCHITECTURE: Total Workflow State Reset
+      // This function ensures absolute isolation between workflow sessions by completely
+      // resetting all workflow-specific data while preserving patient info.
+      // Called when user navigates to workflow selection page to guarantee a pristine state.
+      resetWorkflowState: () => set((state) => {
+        // Reset all workflow step data to null
+        state.workflowData.anamneseData = null;
+        state.workflowData.onderzoekData = null;
+        state.workflowData.klinischeConclusieData = null;
+        state.workflowData.zorgplanData = null;
+        state.workflowData.automatedIntakeData = null;
+        state.workflowData.consultData = null;
+        state.workflowData.completedSteps = [];
+
+        // Reset session-specific data
+        state.sessionData = null;
+        state.soepData = null;
+        state.currentWorkflow = null;
+
+        // ⚠️ Patient info is PRESERVED - it was set before workflow selection
+        console.log('✅ Workflow state completely reset - pristine state guaranteed');
       }),
 
     resetScribeState: () => set(initialState),

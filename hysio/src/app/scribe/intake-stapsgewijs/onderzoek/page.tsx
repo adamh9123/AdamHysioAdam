@@ -2,13 +2,13 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { createSafeHTML } from '@/lib/utils/sanitize';
+import { createSafeHTML, cleanMarkdownArtifacts } from '@/lib/utils/sanitize';
 import { useScribeStore } from '@/lib/state/scribe-store';
+import { transcribeAudio } from '@/lib/api/transcription';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { AudioRecorder } from '@/components/ui/audio-recorder';
-import { FileUpload } from '@/components/ui/file-upload';
+import { UnifiedAudioInput } from '@/components/ui/unified-audio-input';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -190,15 +190,15 @@ export default function OnderzoekPage() {
   };
 
   const handleManualNotesChange = (notes: string) => {
-    setState(prev => ({
-      ...prev,
-      inputMethod: notes.trim() ? 'manual' : null,
-      manualNotes: notes,
-    }));
-
-    setOnderzoekData({
-      transcript: notes,
-    });
+    // ✅ V7.0 FIX: Only update local state during typing to prevent glitches
+    // Store sync happens during processing, not during typing
+    if (notes.length <= 4000) {  // 4000 character limit
+      setState(prev => ({
+        ...prev,
+        inputMethod: notes.trim() ? 'manual' : null,
+        manualNotes: notes,
+      }));
+    }
   };
 
   const processOnderzoek = async () => {
@@ -207,35 +207,152 @@ export default function OnderzoekPage() {
     try {
       setState(prev => ({ ...prev, isProcessing: true, error: null }));
 
+      // ✅ V7.0 FIX: Sync manual notes to store before processing
+      if (state.inputMethod === 'manual' && state.manualNotes) {
+        setOnderzoekData({
+          transcript: state.manualNotes,
+          inputMethod: 'manual',
+        });
+      }
+
+      let transcript = '';
       let inputData: any = {};
 
+      // STEP 1: Handle transcription for audio/file inputs (same as anamnese)
       if (state.inputMethod === 'recording' && state.recordingData.blob) {
+        console.log('Transcribing onderzoek audio recording...', {
+          blobSize: state.recordingData.blob.size,
+          duration: state.recordingData.duration
+        });
+        const transcriptionResult = await transcribeAudio(state.recordingData.blob);
+
+        console.log('Onderzoek transcription result received:', {
+          success: transcriptionResult.success,
+          hasTranscript: !!transcriptionResult.transcript,
+          transcriptLength: transcriptionResult.transcript?.length || 0,
+          error: transcriptionResult.error
+        });
+
+        if (!transcriptionResult.success || !transcriptionResult.transcript) {
+          const errorMessage = transcriptionResult.error || 'Transcriptie mislukt';
+          console.error('Onderzoek audio transcription failed:', {
+            success: transcriptionResult.success,
+            transcript: transcriptionResult.transcript,
+            error: errorMessage,
+            fullResult: transcriptionResult
+          });
+
+          if (errorMessage.includes('Groq transcriptie service is momenteel niet beschikbaar')) {
+            throw new Error(
+              'Audio transcriptie is momenteel niet beschikbaar. ' +
+              'U kunt dit oplossen door:\n' +
+              '• Het opnieuw te proberen over enkele minuten\n' +
+              '• De tekst handmatig in te voeren in plaats van audio'
+            );
+          }
+
+          throw new Error(errorMessage);
+        }
+
+        transcript = transcriptionResult.transcript;
+        console.log('Onderzoek audio transcription complete:', {
+          transcriptLength: transcript.length,
+          preview: transcript.substring(0, 100) + '...'
+        });
+
+        // Convert to transcribed audio input
         inputData = {
-          type: 'recording',
-          data: state.recordingData.blob,
+          type: 'transcribed-audio',
+          data: transcript,
+          originalSource: 'recording',
           duration: state.recordingData.duration,
         };
-      } else if (state.inputMethod === 'file' && state.uploadedFile) {
+      }
+      // Handle file upload - transcribe first
+      else if (state.inputMethod === 'file' && state.uploadedFile) {
+        console.log('Transcribing onderzoek uploaded file...', {
+          fileName: state.uploadedFile.name,
+          fileSize: state.uploadedFile.size,
+          fileType: state.uploadedFile.type
+        });
+        const fileBlob = new Blob([await state.uploadedFile.arrayBuffer()], { type: state.uploadedFile.type });
+        const transcriptionResult = await transcribeAudio(fileBlob);
+
+        console.log('Onderzoek file transcription result received:', {
+          success: transcriptionResult.success,
+          hasTranscript: !!transcriptionResult.transcript,
+          transcriptLength: transcriptionResult.transcript?.length || 0,
+          error: transcriptionResult.error
+        });
+
+        if (!transcriptionResult.success || !transcriptionResult.transcript) {
+          const errorMessage = transcriptionResult.error || 'Bestandstranscriptie mislukt';
+          console.error('Onderzoek file transcription failed:', {
+            success: transcriptionResult.success,
+            transcript: transcriptionResult.transcript,
+            error: errorMessage,
+            fullResult: transcriptionResult
+          });
+
+          if (errorMessage.includes('Groq transcriptie service is momenteel niet beschikbaar')) {
+            throw new Error(
+              'Audio transcriptie is momenteel niet beschikbaar. ' +
+              'U kunt dit oplossen door:\n' +
+              '• Het opnieuw te proberen over enkele minuten\n' +
+              '• De tekst handmatig in te voeren in plaats van het bestand'
+            );
+          }
+
+          throw new Error(errorMessage);
+        }
+
+        transcript = transcriptionResult.transcript;
+        console.log('Onderzoek file transcription complete:', {
+          transcriptLength: transcript.length,
+          preview: transcript.substring(0, 100) + '...'
+        });
+
+        // Convert to transcribed audio input
         inputData = {
-          type: 'file',
-          data: state.uploadedFile,
+          type: 'transcribed-audio',
+          data: transcript,
+          originalSource: 'file',
         };
-      } else if (state.inputMethod === 'manual' && state.manualNotes.trim()) {
+      }
+      // Handle manual notes - use directly as text
+      else if (state.inputMethod === 'manual' && state.manualNotes.trim()) {
+        transcript = state.manualNotes.trim();
         inputData = {
           type: 'manual',
-          data: state.manualNotes.trim(),
+          data: transcript,
         };
+        console.log('Using manual onderzoek notes directly:', transcript.substring(0, 100) + '...');
       } else {
         throw new Error('Geen input data beschikbaar');
       }
 
-      // Process the onderzoek
-      const response = await fetch('/api/hhsb/process', {
+      // STEP 2: Process with HHSB endpoint (now only receives text)
+      console.log('Processing onderzoek with transcribed data:', {
+        workflowType: 'intake-stapsgewijs',
+        step: 'onderzoek',
+        patientInfo,
+        preparation: state.preparation ? 'present' : 'missing',
+        transcriptLength: transcript.length,
+        transcriptPreview: transcript.substring(0, 100) + '...',
+        inputDataType: inputData.type,
+        inputDataLength: inputData.data?.length || 0
+      });
+
+      // Enhanced validation to match API requirements (minimum 50 characters)
+      if (!transcript || transcript.trim().length === 0) {
+        throw new Error('Geen transcript beschikbaar. Voer tekst in of neem audio op.');
+      }
+
+      const response = await fetch('/api/onderzoek/process', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           workflowType: 'intake-stapsgewijs',
-          step: 'onderzoek',
           patientInfo,
           preparation: state.preparation,
           inputData,
@@ -246,7 +363,9 @@ export default function OnderzoekPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to process onderzoek');
+        const errorData = await response.text();
+        console.error('Onderzoek processing error:', response.status, errorData);
+        throw new Error(`Failed to process onderzoek: ${response.status} ${errorData}`);
       }
 
       const { data } = await response.json();
@@ -258,20 +377,40 @@ export default function OnderzoekPage() {
         resultExpanded: true,
       }));
 
-      // Save results to workflow state
+      // Save results to workflow state with transcript and input method
+      console.log('Saving onderzoek results to workflow state:', data);
       setOnderzoekData({
         result: data,
+        transcript: transcript, // Save the transcribed text
+        inputMethod: state.inputMethod, // Save how the input was provided
         completed: true,
       });
 
       // Mark step as complete
       markStepComplete('onderzoek');
 
+      // Navigate to onderzoek-resultaat page to show detailed results
+      console.log('Onderzoek processing completed successfully, navigating to onderzoek-resultaat...');
+      setTimeout(() => {
+        router.push('/scribe/intake-stapsgewijs/onderzoek-resultaat');
+      }, 1000); // Small delay to let user see success
+
     } catch (error) {
       console.error('Onderzoek processing error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Onbekende fout';
+
+      let userFriendlyError = 'Kon onderzoek niet verwerken. Probeer het opnieuw.';
+
+      // Handle transcription-specific errors
+      if (errorMessage.includes('Audio transcriptie is momenteel niet beschikbaar')) {
+        userFriendlyError = 'Audio transcriptie service is niet beschikbaar. Schakel over naar handmatige tekstinvoer of probeer het later opnieuw.';
+      } else if (errorMessage.includes('transcriptie') || errorMessage.includes('Groq')) {
+        userFriendlyError = 'Audio transcriptie mislukt. U kunt de tekst handmatig invoeren als alternatief.';
+      }
+
       setState(prev => ({
         ...prev,
-        error: 'Kon onderzoek niet verwerken. Probeer het opnieuw.',
+        error: userFriendlyError,
         isProcessing: false,
       }));
     }
@@ -305,6 +444,35 @@ export default function OnderzoekPage() {
     } catch (error) {
       console.error('Failed to copy to clipboard:', error);
     }
+  };
+
+  const renderStructuredContent = (content: any): string => {
+    if (!content) return 'Geen informatie beschikbaar';
+
+    if (typeof content === 'string') {
+      return content;
+    }
+
+    if (typeof content === 'object') {
+      // Handle arrays
+      if (Array.isArray(content)) {
+        return content.filter(item => item).join('\n\n');
+      }
+
+      // Handle objects by extracting meaningful text
+      if (content.text || content.description || content.value) {
+        return content.text || content.description || content.value;
+      }
+
+      // Last resort: extract all string values from object
+      const textValues = Object.values(content)
+        .filter(value => typeof value === 'string' && value.trim())
+        .join('\n\n');
+
+      return textValues || 'Informatie verwerkt maar geen leesbare inhoud beschikbaar';
+    }
+
+    return String(content);
   };
 
   if (!patientInfo || !workflowData.anamneseData?.completed) {
@@ -412,21 +580,10 @@ export default function OnderzoekPage() {
             ) : state.preparation ? (
               <div className="space-y-4">
                 <div className="bg-hysio-mint/10 rounded-lg p-4">
-                  <div
-                    className="text-sm text-hysio-deep-green-900/80 whitespace-pre-wrap"
-                    dangerouslySetInnerHTML={createSafeHTML(state.preparation)}
-                  />
+                  <div className="text-sm text-hysio-deep-green-900/80 whitespace-pre-wrap">
+                    {cleanMarkdownArtifacts(state.preparation || '')}
+                  </div>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={generatePreparation}
-                  disabled={state.isProcessing}
-                  className="text-hysio-deep-green border-hysio-mint"
-                >
-                  <RotateCcw size={14} className="mr-1" />
-                  Regenereren
-                </Button>
               </div>
             ) : (
               <div className="text-center py-8">
@@ -462,9 +619,17 @@ export default function OnderzoekPage() {
                   <Mic size={18} />
                   <h3 className="text-lg font-medium">Live Opname</h3>
                 </div>
-                <AudioRecorder
-                  onRecordingComplete={handleRecordingComplete}
+                <UnifiedAudioInput
+                  onAudioReady={(blob, duration, source) => {
+                    if (source === 'recording') {
+                      handleRecordingComplete(blob, duration);
+                    } else if (source === 'upload') {
+                      handleFileUpload(blob as File);
+                    }
+                  }}
                   disabled={state.isProcessing}
+                  acceptedTypes={['audio/*']}
+                  allowUpload={true}
                 />
                 {state.recordingData.blob && (
                   <div className="bg-green-50 border border-green-200 rounded-lg p-3">
@@ -475,26 +640,14 @@ export default function OnderzoekPage() {
                   </div>
                 )}
 
-                {/* File Upload directly below recording */}
-                <div className="pt-2 border-t border-hysio-mint/20">
-                  <div className="flex items-center gap-2 text-hysio-deep-green mb-3">
-                    <Upload size={16} />
-                    <span className="text-sm font-medium">Bestand selecteren</span>
-                  </div>
-                  <FileUpload
-                    onFileUpload={handleFileUpload}
-                    acceptedTypes={['audio/*']}
-                    disabled={state.isProcessing}
-                  />
-                  {state.uploadedFile && (
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 mt-3">
-                      <div className="flex items-center gap-2 text-green-800">
-                        <CheckCircle size={16} />
-                        <span>Bestand geüpload: {state.uploadedFile.name}</span>
-                      </div>
+                {state.uploadedFile && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                    <div className="flex items-center gap-2 text-green-800">
+                      <CheckCircle size={16} />
+                      <span>Bestand geüpload: {state.uploadedFile.name}</span>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
 
               {/* Manual Notes Section */}
@@ -511,9 +664,11 @@ export default function OnderzoekPage() {
                   rows={8}
                   className="resize-none"
                 />
-                <p className="text-xs text-hysio-deep-green-900/60">
-                  Tip: Noteer inspectie, palpatie, bewegingsonderzoek, functietesten en specifieke onderzoeken
-                </p>
+                <div className="flex justify-between items-start">
+                  <p className="text-xs text-hysio-deep-green-900/60">
+                    Tip: Noteer inspectie, palpatie, bewegingsonderzoek, functietesten en specifieke onderzoeken of noem de uitslagen hardop tijdens Live Recording
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -572,7 +727,24 @@ export default function OnderzoekPage() {
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        copyToClipboard(JSON.stringify(state.result, null, 2));
+                        const formattedContent = [
+                          'ONDERZOEKSBEVINDINGEN',
+                          '===================',
+                          state.result?.hhsbStructure?.onderzoeksBevindingen ? renderStructuredContent(state.result.hhsbStructure.onderzoeksBevindingen) : 'Geen gegevens',
+                          '',
+                          'FUNCTIONELE METINGEN',
+                          '==================',
+                          state.result?.hhsbStructure?.functioneleMetingen ? renderStructuredContent(state.result.hhsbStructure.functioneleMetingen) : 'Geen gegevens',
+                          '',
+                          'ANALYSE EN INTERPRETATIE',
+                          '======================',
+                          state.result?.hhsbStructure?.analyseInterpretatie ? renderStructuredContent(state.result.hhsbStructure.analyseInterpretatie) : 'Geen gegevens',
+                          '',
+                          'RED FLAGS',
+                          '=========',
+                          state.result?.hhsbStructure?.redFlags?.length > 0 ? state.result.hhsbStructure.redFlags.join('\n• ') : 'Geen red flags gedetecteerd'
+                        ].join('\n');
+                        copyToClipboard(formattedContent);
                       }}
                     >
                       <Copy size={14} />
@@ -589,8 +761,64 @@ export default function OnderzoekPage() {
             <CollapsibleContent>
               <CardContent>
                 <div className="bg-hysio-mint/10 rounded-lg p-4">
-                  <div className="text-sm text-hysio-deep-green-900/80 whitespace-pre-wrap">
-                    {JSON.stringify(state.result, null, 2)}
+                  <div className="text-sm text-hysio-deep-green-900/80 whitespace-pre-wrap space-y-4">
+                    {state.result?.hhsbStructure ? (
+                      <div className="space-y-6">
+                        {/* Onderzoeksbevindingen */}
+                        {state.result.hhsbStructure.onderzoeksBevindingen && (
+                          <div>
+                            <h4 className="font-semibold text-hysio-deep-green mb-3">Onderzoeksbevindingen</h4>
+                            <div className="bg-white/50 rounded-lg p-3">
+                              <div className="whitespace-pre-wrap">
+                                {renderStructuredContent(state.result.hhsbStructure.onderzoeksBevindingen)}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Functionele Metingen */}
+                        {state.result.hhsbStructure.functioneleMetingen && (
+                          <div>
+                            <h4 className="font-semibold text-hysio-deep-green mb-3">Functionele Metingen</h4>
+                            <div className="bg-white/50 rounded-lg p-3">
+                              <div className="whitespace-pre-wrap">
+                                {renderStructuredContent(state.result.hhsbStructure.functioneleMetingen)}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Analyse en Interpretatie */}
+                        {state.result.hhsbStructure.analyseInterpretatie && (
+                          <div>
+                            <h4 className="font-semibold text-hysio-deep-green mb-3">Analyse en Interpretatie</h4>
+                            <div className="bg-white/50 rounded-lg p-3">
+                              <div className="whitespace-pre-wrap">
+                                {renderStructuredContent(state.result.hhsbStructure.analyseInterpretatie)}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Red Flags */}
+                        {state.result.hhsbStructure.redFlags && state.result.hhsbStructure.redFlags.length > 0 && (
+                          <div>
+                            <h4 className="font-semibold text-red-600 mb-3">Red Flags</h4>
+                            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                              <ul className="list-disc list-inside text-red-700 space-y-1">
+                                {state.result.hhsbStructure.redFlags.map((flag: string, index: number) => (
+                                  <li key={index}>{flag}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-center text-gray-500">
+                        <p>Geen onderzoeksresultaten beschikbaar</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </CardContent>

@@ -6,8 +6,7 @@ import { createPerformanceMiddleware } from '@/lib/monitoring/performance-monito
 import type {
   PreparationRequest,
   PreparationResponse,
-  ApiResponse,
-  PatientInfo
+  ApiResponse
 } from '@/types/api';
 
 export async function POST(request: NextRequest): Promise<NextResponse<ApiResponse<PreparationResponse>>> {
@@ -48,13 +47,13 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     );
 
     const completion = await openaiClient().chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: 'gpt-4.1-mini',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
       ],
       temperature: 0.7,
-      max_tokens: 800, // Reduced from 1000 for better efficiency
+      max_tokens: 2000, // Increased to ensure complete preparation data display
     });
 
     const content = completion.choices[0]?.message?.content;
@@ -66,7 +65,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     const responseData: PreparationResponse = {
       content,
       workflowType,
-      step,
+      step: step || 'preparation',
       generatedAt: new Date().toISOString()
     };
 

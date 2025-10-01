@@ -4,7 +4,8 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { useScribeStore } from '@/lib/state/scribe-store';
 import { useSessionState } from '@/hooks/useSessionState';
-import { exportDocument } from '@/lib/utils/export';
+import { useWorkflowNavigation } from '@/hooks/useWorkflowNavigation';
+import { exportManager } from '@/lib/utils/advanced-export';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -39,9 +40,10 @@ interface IntakeResults {
 
 export default function AutomatedIntakeConclusie() {
   const router = useRouter();
-  const patientInfo = useScribeStore(state => state.patientInfo);
+  const patientInfo = useScribeStore((state: any) => state.patientInfo);
+  const { navigateToPatientInfo, navigateToWorkflow } = useWorkflowNavigation();
   const sessionState = useSessionState({ autoSave: true, autoSaveInterval: 30000 });
-  const workflowData = useScribeStore(state => state.workflowData);
+  const workflowData = useScribeStore((state: any) => state.workflowData);
 
   const [results, setResults] = React.useState<IntakeResults | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -57,7 +59,8 @@ export default function AutomatedIntakeConclusie() {
   // Enhanced state loading with comprehensive validation
   React.useEffect(() => {
     if (!patientInfo) {
-      router.push('/scribe');
+      console.log('No patient info, navigating to patient info page');
+      navigateToPatientInfo();
       return;
     }
 
@@ -118,15 +121,18 @@ export default function AutomatedIntakeConclusie() {
     }
 
     try {
-      const exportData = {
+      await exportManager.exportAutomatedIntake(
+        results,
         patientInfo,
-        workflowType: 'Automatische Intake',
-        content: results,
-        timestamp: new Date().toISOString(),
-        title: `Intake Conclusie - ${patientInfo.initials}`
-      };
-
-      await exportDocument(format, exportData);
+        {
+          format,
+          includePatientInfo: true,
+          includeTimestamp: true,
+          includeRedFlags: true,
+          template: 'detailed',
+          customFileName: `Intake_Conclusie_${patientInfo.initials}_${new Date().toISOString().split('T')[0]}`,
+        }
+      );
       console.log(`Successfully exported in ${format} format`);
     } catch (error) {
       console.error(`Export failed for ${format} format:`, error);
@@ -136,15 +142,19 @@ export default function AutomatedIntakeConclusie() {
 
   const handleStartNewSession = () => {
     sessionState.resetSession();
-    router.push('/scribe');
+    console.log('Starting new session, navigating to patient info');
+    navigateToPatientInfo();
   };
 
   const handleBackToDashboard = () => {
+    // Navigation to dashboard still uses router since it's outside the scribe workflow
+    console.log('Navigating to dashboard');
     router.push('/dashboard');
   };
 
   const handleBack = () => {
-    router.push('/scribe/intake-automatisch');
+    console.log('Navigating back to intake-automatisch');
+    navigateToWorkflow('intake-automatisch');
   };
 
   if (!patientInfo) {
@@ -504,7 +514,22 @@ export default function AutomatedIntakeConclusie() {
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        copyToClipboard(results.hhsbAnamneseCard?.anamneseSummary || 'Geen samenvatting beschikbaar', 'Samenvatting van Anamnese');
+                        copyToClipboard(
+                          (() => {
+                            const summary = results.hhsbAnamneseCard?.anamneseSummary;
+                            if (typeof summary === 'object' && summary !== null) {
+                              const { keyFindings, clinicalImpression, priorityAreas, redFlagsNoted } = summary;
+                              return [
+                                clinicalImpression && `Klinische indruk: ${clinicalImpression}`,
+                                keyFindings?.length > 0 && `Kernbevindingen: ${keyFindings.join(', ')}`,
+                                priorityAreas?.length > 0 && `Prioriteiten: ${priorityAreas.join(', ')}`,
+                                redFlagsNoted?.length > 0 && `Bijzonderheden: ${redFlagsNoted.join(', ')}`
+                              ].filter(Boolean).join('\n\n');
+                            }
+                            return summary || 'Geen samenvatting beschikbaar';
+                          })(),
+                          'Samenvatting van Anamnese'
+                        );
                       }}
                     >
                       <Copy size={14} />
@@ -525,9 +550,28 @@ export default function AutomatedIntakeConclusie() {
               <CardContent>
                 <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
                   <div className="text-purple-900/90 whitespace-pre-wrap leading-relaxed">
-                    {results.hhsbAnamneseCard?.anamneseSummary ||
-                     results.hhsbAnamneseCard?.samenvatting ||
-                     'Geen samenvatting van anamnese beschikbaar. Deze wordt automatisch gegenereerd op basis van de HHSB bevindingen.'}
+                    {(() => {
+                      // Handle both string and object formats for backward compatibility
+                      const summary = results.hhsbAnamneseCard?.anamneseSummary || results.hhsbAnamneseCard?.samenvatting;
+
+                      if (!summary) {
+                        return 'Geen samenvatting van anamnese beschikbaar. Deze wordt automatisch gegenereerd op basis van de HHSB bevindingen.';
+                      }
+
+                      // If it's an object (enhanced structure), format it properly
+                      if (typeof summary === 'object' && summary !== null) {
+                        const { keyFindings, clinicalImpression, priorityAreas, redFlagsNoted } = summary;
+                        return [
+                          clinicalImpression && `Klinische indruk: ${clinicalImpression}`,
+                          keyFindings?.length > 0 && `Kernbevindingen: ${keyFindings.join(', ')}`,
+                          priorityAreas?.length > 0 && `Prioriteiten: ${priorityAreas.join(', ')}`,
+                          redFlagsNoted?.length > 0 && `Bijzonderheden: ${redFlagsNoted.join(', ')}`
+                        ].filter(Boolean).join('\n\n');
+                      }
+
+                      // If it's a string (legacy structure), return as-is
+                      return summary;
+                    })()}
                   </div>
                 </div>
               </CardContent>

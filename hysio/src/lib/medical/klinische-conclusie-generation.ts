@@ -482,7 +482,8 @@ function parseZelfmanagementAdvies(zelfmanagementText: string): ZelfmanagementAd
 
 // Helper functions (reuse from previous modules)
 function extractSection(text: string, sectionName: string): string | null {
-  const regex = new RegExp(`\\*\\*${sectionName}\\*\\*([\\s\\S]*?)(?=\\*\\*[A-Z]|$)`, 'i');
+  // Handle both formats: **FYSIOTHERAPEUTISCHE DIAGNOSE** and **FYSIOTHERAPEUTISCHE DIAGNOSE:**
+  const regex = new RegExp(`\\*\\*${sectionName}:?\\*\\*([\\s\\S]*?)(?=\\*\\*[A-Z]|$)`, 'i');
   const match = text.match(regex);
   return match ? match[1].trim() : null;
 }

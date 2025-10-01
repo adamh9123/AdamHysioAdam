@@ -90,7 +90,7 @@ export default function DemoVideo() {
               <div className="text-center">
                 <Button
                   size="lg"
-                  onClick={() => router.push('/scribe')}
+                  onClick={() => router.push('/registreer')}
                   className="bg-hysio-deep-green hover:bg-hysio-deep-green-900 text-white font-semibold text-lg px-8 py-6 h-auto mr-4"
                 >
                   Probeer Hysio Nu

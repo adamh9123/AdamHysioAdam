@@ -2,7 +2,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { AIIntegration } from '@/lib/diagnosecode/ai-integration';
-import { conversationManager } from '@/lib/diagnosecode/conversation-manager';
 import { DCSPHErrorHandler, ErrorType } from '@/lib/diagnosecode/error-handling';
 
 export const runtime = 'nodejs';
@@ -12,7 +11,7 @@ export const runtime = 'nodejs';
  * Get conversation details and analysis
  */
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -81,7 +80,7 @@ export async function GET(
  * Delete/clear conversation
  */
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {

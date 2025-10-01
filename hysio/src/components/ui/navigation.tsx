@@ -1,4 +1,5 @@
 import * as React from 'react';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Button } from './button';
 import { User, Settings, LogOut, Menu, X, Bot, Home } from 'lucide-react';
@@ -32,13 +33,19 @@ const Navigation: React.FC<NavigationProps> = ({
     )}>
       {/* Logo and Title */}
       <div className="flex items-center gap-4">
-        <div className="flex items-center gap-3">
-          {/* Hysio Logo Placeholder */}
-          <div className="flex items-center justify-center w-8 h-8 bg-hysio-mint rounded-md">
-            <span className="text-hysio-deep-green-900 font-bold text-sm">H</span>
+        <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+          <div className="w-8 h-8 relative">
+            <Image
+              src="/hysio-logo.png"
+              alt="Hysio Logo"
+              width={32}
+              height={32}
+              className="object-contain"
+              priority
+            />
           </div>
           <h1 className="text-xl font-semibold text-hysio-deep-green">{title}</h1>
-        </div>
+        </Link>
       </div>
 
       {/* Desktop Navigation */}

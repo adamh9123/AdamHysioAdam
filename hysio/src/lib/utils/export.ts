@@ -1,10 +1,272 @@
-// Export utilities for medical documentation - PDF, DOCX, TXT, HTML formats
+/**
+ * Unified Export Utilities for Hysio Medical Scribe v7.0
+ * Provides simplified interfaces for all export functionality
+ *
+ * This file provides backward compatibility with legacy export functions
+ * while also providing access to the new AdvancedExportManager
+ */
 
-import type { PatientInfo, HHSBProcessResponse, SOEPProcessResponse } from '@/types/api';
+import { AdvancedExportManager, type ExportOptions } from './advanced-export';
+import type { PatientInfo, HHSBProcessResponse, SOEPProcessResponse, ConsultResult, AnamneseResult, OnderzoekResult, KlinischeConclusieResult } from '@/types/api';
 
 // Export format types
 export type ExportFormat = 'html' | 'txt' | 'docx' | 'pdf';
 
+// Singleton export manager instance
+const exportManager = AdvancedExportManager.getInstance();
+
+// Simplified export interfaces
+export interface ExportResult {
+  success: boolean;
+  blob?: Blob;
+  fileName: string;
+  error?: string;
+}
+
+export interface SimpleExportOptions {
+  format?: ExportFormat;
+  includePatientInfo?: boolean;
+  includeRedFlags?: boolean;
+  includeTimestamp?: boolean;
+  customFileName?: string;
+}
+
+/**
+ * Modern Export Functions (Recommended)
+ * ====================================
+ */
+
+/**
+ * Export SOEP consultation results using AdvancedExportManager
+ */
+export async function exportSOEPResults(
+  consultResult: ConsultResult,
+  patientInfo: PatientInfo,
+  options: SimpleExportOptions = {}
+): Promise<ExportResult> {
+  try {
+    const fileName = generateFileName('SOEP-verslag', patientInfo, options);
+    const blob = await exportManager.exportSOEP(consultResult, patientInfo, options);
+
+    return {
+      success: true,
+      blob,
+      fileName
+    };
+  } catch (error) {
+    return {
+      success: false,
+      fileName: '',
+      error: error instanceof Error ? error.message : 'Export failed'
+    };
+  }
+}
+
+/**
+ * Export stepwise intake results using AdvancedExportManager
+ */
+export async function exportStepwiseIntake(
+  anamneseResult: AnamneseResult,
+  onderzoekResult: OnderzoekResult,
+  klinischeConclusieResult: KlinischeConclusieResult,
+  patientInfo: PatientInfo,
+  options: SimpleExportOptions = {}
+): Promise<ExportResult> {
+  try {
+    const fileName = generateFileName('Stapsgewijze-intake', patientInfo, options);
+    const blob = await exportManager.exportStepwiseIntake(
+      anamneseResult,
+      onderzoekResult,
+      klinischeConclusieResult,
+      patientInfo,
+      options
+    );
+
+    return {
+      success: true,
+      blob,
+      fileName
+    };
+  } catch (error) {
+    return {
+      success: false,
+      fileName: '',
+      error: error instanceof Error ? error.message : 'Export failed'
+    };
+  }
+}
+
+/**
+ * Export automated intake results using AdvancedExportManager
+ */
+export async function exportAutomatedIntake(
+  intakeResult: any,
+  patientInfo: PatientInfo,
+  options: SimpleExportOptions = {}
+): Promise<ExportResult> {
+  try {
+    const fileName = generateFileName('Automatische-intake', patientInfo, options);
+    const blob = await exportManager.exportAutomatedIntake(intakeResult, patientInfo, options);
+
+    return {
+      success: true,
+      blob,
+      fileName
+    };
+  } catch (error) {
+    return {
+      success: false,
+      fileName: '',
+      error: error instanceof Error ? error.message : 'Export failed'
+    };
+  }
+}
+
+/**
+ * Download exported file
+ */
+export function downloadExportedFile(result: ExportResult): void {
+  if (!result.success || !result.blob) {
+    throw new Error(result.error || 'Export failed');
+  }
+
+  const url = URL.createObjectURL(result.blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = result.fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+/**
+ * Export and download in one step - SOEP
+ */
+export async function exportAndDownloadSOEP(
+  consultResult: ConsultResult,
+  patientInfo: PatientInfo,
+  options: SimpleExportOptions = {}
+): Promise<boolean> {
+  const result = await exportSOEPResults(consultResult, patientInfo, options);
+  if (result.success) {
+    downloadExportedFile(result);
+    return true;
+  }
+  throw new Error(result.error);
+}
+
+/**
+ * Export and download in one step - Stepwise Intake
+ */
+export async function exportAndDownloadStepwiseIntake(
+  anamneseResult: AnamneseResult,
+  onderzoekResult: OnderzoekResult,
+  klinischeConclusieResult: KlinischeConclusieResult,
+  patientInfo: PatientInfo,
+  options: SimpleExportOptions = {}
+): Promise<boolean> {
+  const result = await exportStepwiseIntake(
+    anamneseResult,
+    onderzoekResult,
+    klinischeConclusieResult,
+    patientInfo,
+    options
+  );
+  if (result.success) {
+    downloadExportedFile(result);
+    return true;
+  }
+  throw new Error(result.error);
+}
+
+/**
+ * Export and download in one step - Automated Intake
+ */
+export async function exportAndDownloadAutomatedIntake(
+  intakeResult: any,
+  patientInfo: PatientInfo,
+  options: SimpleExportOptions = {}
+): Promise<boolean> {
+  const result = await exportAutomatedIntake(intakeResult, patientInfo, options);
+  if (result.success) {
+    downloadExportedFile(result);
+    return true;
+  }
+  throw new Error(result.error);
+}
+
+/**
+ * Utility Functions
+ * ================
+ */
+
+/**
+ * Generate appropriate filename based on content and options
+ */
+function generateFileName(
+  type: string,
+  patientInfo: PatientInfo,
+  options: SimpleExportOptions
+): string {
+  if (options.customFileName) {
+    return options.customFileName;
+  }
+
+  const format = options.format || 'html';
+  const extension = getFileExtension(format);
+  const timestamp = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const patientId = patientInfo.initials || 'Patient';
+
+  return `${type}_${patientId}_${timestamp}.${extension}`;
+}
+
+/**
+ * Get file extension for format
+ */
+function getFileExtension(format: ExportFormat): string {
+  switch (format) {
+    case 'html': return 'html';
+    case 'txt': return 'txt';
+    case 'docx': return 'docx';
+    case 'pdf': return 'pdf';
+    default: return 'html';
+  }
+}
+
+/**
+ * Validate export format
+ */
+export function isValidExportFormat(format: string): format is ExportFormat {
+  return ['html', 'txt', 'docx', 'pdf'].includes(format);
+}
+
+/**
+ * Get available export formats
+ */
+export function getAvailableFormats(): ExportFormat[] {
+  return ['html', 'txt', 'docx', 'pdf'];
+}
+
+/**
+ * Get format display names
+ */
+export function getFormatDisplayName(format: ExportFormat): string {
+  switch (format) {
+    case 'html': return 'HTML Document';
+    case 'txt': return 'Plain Text';
+    case 'docx': return 'Word Document';
+    case 'pdf': return 'PDF Document';
+    default: return 'Unknown Format';
+  }
+}
+
+/**
+ * Legacy Export Functions (Backward Compatibility)
+ * ===============================================
+ */
+
+// Legacy export types (maintained for backward compatibility)
 // Common export data interface
 export interface ExportData {
   patientInfo: PatientInfo;
@@ -240,32 +502,94 @@ export async function exportAsTXT(data: ExportData, config: ExportConfig = defau
   }
 }
 
-// Export as PDF (using browser print)
+// Export as PDF (using browser print with improved compatibility)
 export async function exportAsPDF(data: ExportData, config: ExportConfig = defaultConfig): Promise<void> {
   try {
     // Create a temporary HTML content for PDF generation
     const htmlContent = await createPDFContent(data, config);
 
-    // Open in new window for printing
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      throw new Error('Popup geblokkeerd. Sta popups toe voor PDF export.');
+    // Enhanced PDF export approach with multiple fallback options
+    if (typeof window !== 'undefined') {
+      // Method 1: Try modern File System Access API
+      if ('showSaveFilePicker' in window) {
+        try {
+          const fileHandle = await (window as any).showSaveFilePicker({
+            suggestedName: `${data.title.replace(/\s+/g, '_')}_PDF.html`,
+            types: [{
+              description: 'HTML files for PDF printing',
+              accept: { 'text/html': ['.html'] }
+            }]
+          });
+          const writable = await fileHandle.createWritable();
+          await writable.write(htmlContent);
+          await writable.close();
+
+          // Show helpful instructions
+          if (confirm('Bestand opgeslagen! Wilt u nu instructies zien over hoe u dit naar PDF kunt exporteren?')) {
+            alert('PDF Export Instructies:\n\n1. Open het opgeslagen HTML bestand\n2. Druk op Ctrl+P (of Cmd+P op Mac)\n3. Selecteer "Opslaan als PDF" als bestemming\n4. Klik op "Opslaan"\n\nTip: Gebruik "Meer instellingen" voor aangepaste marges en opties.');
+          }
+          return;
+        } catch (fsError) {
+          console.log('File System Access API not available or cancelled, trying alternative method');
+        }
+      }
+
+      // Method 2: Try opening in new window with enhanced print support
+      try {
+        const printWindow = window.open('', '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
+        if (printWindow) {
+          printWindow.document.write(htmlContent);
+          printWindow.document.close();
+
+          // Enhanced print trigger with user guidance
+          const triggerPrint = () => {
+            try {
+              // Add a print button and instructions
+              const printInstructions = printWindow.document.createElement('div');
+              printInstructions.innerHTML = `
+                <div style="position: fixed; top: 10px; right: 10px; background: #004B3A; color: white; padding: 15px; border-radius: 8px; z-index: 1000; font-family: Arial; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
+                  <h3 style="margin: 0 0 10px 0; font-size: 16px;">PDF Export</h3>
+                  <p style="margin: 0 0 10px 0; font-size: 14px;">Druk op <strong>Ctrl+P</strong> en selecteer "Opslaan als PDF"</p>
+                  <button onclick="window.print()" style="background: #A5E1C5; color: #004B3A; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold;">🖨️ Afdrukken naar PDF</button>
+                  <button onclick="this.parentElement.style.display='none'" style="background: transparent; color: white; border: 1px solid white; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-left: 10px;">Sluiten</button>
+                </div>
+              `;
+              printInstructions.className = 'no-print';
+              printWindow.document.body.appendChild(printInstructions);
+
+              // Auto-trigger print dialog after a short delay
+              setTimeout(() => {
+                printWindow.print();
+              }, 1000);
+
+            } catch (printError) {
+              console.error('Print error:', printError);
+              alert('Kon het afdrukvenster niet openen. Gebruik Ctrl+P in het nieuwe venster om handmatig af te drukken naar PDF.');
+            }
+          };
+
+          // Wait for content to fully load
+          if (printWindow.document.readyState === 'complete') {
+            setTimeout(triggerPrint, 500);
+          } else {
+            printWindow.onload = () => setTimeout(triggerPrint, 500);
+          }
+          return;
+        }
+      } catch (windowError) {
+        console.log('Could not open print window, falling back to download method');
+      }
+
+      // Method 3: Fallback - download HTML file with clear instructions
+      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+      downloadFile(blob, `${data.title.replace(/\s+/g, '_')}_PrintToPDF.html`);
+
+      alert(`HTML bestand gedownload voor PDF export.\n\nInstructies:\n1. Open het gedownloade bestand\n2. Druk op Ctrl+P (of Cmd+P)\n3. Selecteer "Opslaan als PDF"\n4. Klik op "Opslaan"\n\nTip: Voor beste resultaten, stel marges in op "Minimaal" in de afdrukopties.`);
     }
-
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
-
-    // Wait for content to load, then trigger print
-    printWindow.onload = () => {
-      setTimeout(() => {
-        printWindow.print();
-        printWindow.close();
-      }, 500);
-    };
 
   } catch (error) {
     console.error('PDF export error:', error);
-    throw new Error('Fout bij PDF export');
+    throw new Error('Fout bij PDF export: ' + (error instanceof Error ? error.message : 'Onbekende fout'));
   }
 }
 
@@ -275,8 +599,21 @@ export async function exportAsDOCX(data: ExportData, config: ExportConfig = defa
     // For DOCX, we'll create an RTF file which can be opened by Word
     const rtfContent = await createRTFContent(data, config);
 
-    const blob = new Blob([rtfContent], { type: 'application/rtf' });
-    downloadFile(blob, `${data.title.replace(/\s+/g, '_')}.rtf`);
+    // Create blob with proper RTF content type
+    const blob = new Blob([rtfContent], {
+      type: 'application/rtf'
+    });
+
+    // Download with .rtf extension that Word can open
+    const fileName = `${data.title.replace(/\s+/g, '_')}.rtf`;
+    downloadFile(blob, fileName);
+
+    // Show helpful message about RTF format
+    setTimeout(() => {
+      if (confirm('RTF bestand gedownload! Dit bestand kan worden geopend in Microsoft Word.\n\nWilt u meer informatie over het RTF formaat?')) {
+        alert('RTF (Rich Text Format) informatie:\n\n• Kan worden geopend in Microsoft Word, LibreOffice, en andere tekstverwerkers\n• Behoudt basale opmaak (vetgedrukt, cursief, etc.)\n• Kleinere bestandsgrootte dan echte DOCX bestanden\n• Perfect voor medische rapporten en documentatie\n\nTip: Open het bestand in Word en sla het op als .docx voor volledige compatibiliteit.');
+      }
+    }, 500);
 
   } catch (error) {
     console.error('DOCX export error:', error);
@@ -622,7 +959,23 @@ export function exportSOEPData(
   return exportDocument(format, exportData);
 }
 
+// Default export for backward compatibility with legacy and modern functions
 export default {
+  // Modern export functions (recommended)
+  exportSOEPResults,
+  exportStepwiseIntake,
+  exportAutomatedIntake,
+  downloadExportedFile,
+  exportAndDownloadSOEP,
+  exportAndDownloadStepwiseIntake,
+  exportAndDownloadAutomatedIntake,
+
+  // Utility functions
+  isValidExportFormat,
+  getAvailableFormats,
+  getFormatDisplayName,
+
+  // Legacy functions (backward compatibility)
   exportDocument,
   exportAsHTML,
   exportAsTXT,
@@ -631,3 +984,6 @@ export default {
   exportHHSBData,
   exportSOEPData
 };
+
+// Re-export types for convenience
+export type { ExportOptions } from './advanced-export';

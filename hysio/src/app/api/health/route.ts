@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { performanceMonitor } from '@/lib/monitoring/performance-monitor';
 
-export async function GET(request: NextRequest): Promise<NextResponse> {
+export async function GET(_request: NextRequest): Promise<NextResponse> {
   try {
     const summary = performanceMonitor.getPerformanceSummary();
     const alerts = performanceMonitor.checkPerformanceAlerts();

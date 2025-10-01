@@ -299,3 +299,21 @@ Transcript: {transcript}
 Extra notities: {additionalNotes}
 
 Genereer een gestructureerde SOEP-notitie in het Nederlands.`;
+
+// ==== NEW PROMPT SYSTEM v7.0 ====
+// Consult workflow prompts
+export { CONSULT_VOORBEREIDING_PROMPT } from './consult/stap0-voorbereiding-consult';
+export { CONSULT_VERWERKING_SOEP_PROMPT } from './consult/stap1-verwerking-soep-verslag';
+
+// Intake Automatisch workflow prompts
+export { INTAKE_AUTOMATISCH_VOORBEREIDING_PROMPT } from './intake-automatisch/stap0-voorbereiding-intake';
+export { INTAKE_AUTOMATISCH_VERWERKING_CONCLUSIE_PROMPT } from './intake-automatisch/stap1-verwerking-volledige-conclusie';
+export { INTAKE_AUTOMATISCH_VERWERKING_ZORGPLAN_PROMPT } from './intake-automatisch/stap2-verwerking-zorgplan';
+
+// Intake Stapsgewijs workflow prompts
+export { INTAKE_STAPSGEWIJS_VOORBEREIDING_ANAMNESE_PROMPT } from './intake-stapsgewijs/stap1-voorbereiding-anamnese';
+export { INTAKE_STAPSGEWIJS_VERWERKING_HHSB_PROMPT } from './intake-stapsgewijs/stap2-verwerking-hhsb-anamnesekaart';
+export { INTAKE_STAPSGEWIJS_VOORBEREIDING_ONDERZOEK_PROMPT } from './intake-stapsgewijs/stap3-voorbereiding-onderzoek';
+export { INTAKE_STAPSGEWIJS_VERWERKING_ONDERZOEKSBEVINDINGEN_PROMPT } from './intake-stapsgewijs/stap4-verwerking-onderzoeksbevindingen';
+export { INTAKE_STAPSGEWIJS_VERWERKING_KLINISCHE_CONCLUSIE_PROMPT } from './intake-stapsgewijs/stap5-verwerking-klinische-conclusie';
+export { INTAKE_STAPSGEWIJS_VERWERKING_ZORGPLAN_PROMPT } from './intake-stapsgewijs/stap6-verwerking-zorgplan';
