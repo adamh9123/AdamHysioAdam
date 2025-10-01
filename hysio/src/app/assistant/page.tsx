@@ -35,7 +35,7 @@ export default function AssistantPage() {
     <div className="flex flex-col h-screen bg-gradient-to-br from-hysio-mint/15 via-hysio-mint/8 to-hysio-mint/5">
       {/* Navigation */}
       <Navigation
-        title="Hysio Assistant"
+        title="Hysio Assistant v7.0"
         user={{
           name: "Dr. Test User",
           email: "test@hysio.nl"
@@ -98,26 +98,19 @@ export default function AssistantPage() {
       </div>
 
       {/* Footer */}
-      <div className="border-t border-hysio-mint/30 bg-white/95 backdrop-blur-sm px-6 py-4 shadow-lg">
+      <div className="border-t border-hysio-mint/30 bg-white/95 backdrop-blur-sm px-6 py-3 shadow-lg">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <p className="text-sm text-hysio-deep-green-900/70 font-medium">
-              ✨ Hysio Assistant - AI co-piloot voor fysiotherapie
+            <p className="text-sm text-hysio-deep-green-900/70 font-semibold">
+              ✨ Hysio Assistant v7.0 - AI Copiloot & Klinisch Sparringpartner
             </p>
           </div>
 
           <div className="flex items-center gap-4">
-            <p className="text-xs text-hysio-deep-green-900/60 bg-hysio-mint/10 px-3 py-1 rounded-full">
-              🤖 Model: GPT-5-mini | Provider: OpenAI
+            <p className="text-xs text-hysio-deep-green-900/60 bg-hysio-mint/10 px-3 py-1 rounded-full font-medium">
+              🤖 GPT-4o-mini | OpenAI
             </p>
           </div>
-        </div>
-        
-        <div className="text-center mt-3">
-          <p className="text-sm text-hysio-deep-green-900/70 bg-gradient-to-r from-hysio-mint/10 to-hysio-mint/5 px-4 py-2 rounded-xl border border-hysio-mint/20">
-            <strong>⚠️ Belangrijk:</strong> Alle AI-gegenereerde content moet worden geverifieerd door een bevoegd fysiotherapeut.
-            Deze tool is bedoeld ter ondersteuning en vervangt geen professioneel medisch oordeel.
-          </p>
         </div>
       </div>
     </div>
