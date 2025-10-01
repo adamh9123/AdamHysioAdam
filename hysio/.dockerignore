@@ -66,6 +66,19 @@ Thumbs.db
 .gitignore
 .gitattributes
 
+node_modules/
+.next/
+.env
+.DS_Store
+*.log
+
+node_modules/
+.next/
+dist/
+.env
+*.log
+
+
 # CI/CD
 .github/
 .gitlab-ci.yml
@@ -78,10 +91,6 @@ Dockerfile
 docker-compose*.yml
 .docker/
 
-# Documentation (keep essential docs only)
-docs/
-*.md
-!README.md
 
 # Temporary files
 tmp/

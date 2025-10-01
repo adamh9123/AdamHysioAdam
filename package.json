@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@radix-ui/react-alert-dialog": "^1.1.15",
     "tiktoken": "^1.0.22",
     "zod": "^4.1.9"
   }

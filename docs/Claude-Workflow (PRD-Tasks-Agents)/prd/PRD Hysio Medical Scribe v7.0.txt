@@ -1,0 +1,236 @@
+Product Requirements Document (PRD): Hysio Consult Workflow v7.0
+Versie: 7.0
+
+Datum: 25 september 2025
+
+Status: Definitief Voorstel
+
+1. Executive Summary & Visie
+Hysio Consult is de kernmodule van de Hysio Medical Scribe die is ontworpen om fysiotherapeuten te ondersteunen bij het documenteren van vervolgconsulten. De visie is een "opnemen, stoppen, klaar" filosofie, waarbij een fysiotherapeut met minimale inspanning een volledig, gestructureerd en EPD-klaar SOEP-verslag (Subjectief, Objectief, Evaluatie, Plan) genereert.
+
+Momenteel wordt deze visie ondermijnd door kritieke bugs in de navigatie en een onlogische gebruikersinterface, waardoor de module onbruikbaar is. Dit document beschrijft de analyse van de problemen en definieert de functionele en technische vereisten om de Hysio Consult-workflow te herstellen en te optimaliseren naar een product van enterprise-kwaliteit dat de administratieve last met minimaal 70% vermindert.
+
+2. Analyse van de Huidige Situatie (Video-analyse)
+De video toont een gebruiker die de "Hysio Consult"-workflow probeert te gebruiken. De observaties zijn als volgt:
+
+Startpunt: De gebruiker bevindt zich op het dashboard en selecteert de "Hysio Consult" optie. Dit is de correcte start van de workflow.
+
+Voorbereidingsfase: De gebruiker navigeert naar de /scribe/consult pagina.
+
+Interface: De pagina heeft een twee-paneel layout. Het linkerpaneel is voor "Consult Voorbereiding", het rechterpaneel voor "Consult Opname".
+
+Actie: De gebruiker klikt op "Genereer Voorbereiding". De AI genereert succesvol een SOEP-gestructureerde voorbereidingstekst in het linkerpaneel, gebaseerd op historische data. Dit deel van de workflow functioneert zoals bedoeld.
+
+Inputfase: De gebruiker activeert de "Live Recorder" in het rechterpaneel en start een opname.
+
+Dit is waar de geobserveerde workflow stopt, maar uit de probleemdocumentatie blijkt wat er daarna fout gaat.
+
+3. Grondige Analyse van de Problemen
+3.1 Kernprobleem: De "Fantoom-Redirect" (Kritieke Bug)
+Beschrijving: Na het voltooien van de input (via opname, notities of bestandsupload) en het klikken op "Verwerk Consult", wordt de data correct verwerkt door de backend. Een succesmelding verschijnt kort, maar direct daarna wordt de gebruiker onterecht teruggestuurd naar de workflow-keuzepagina (/scribe/workflow) in plaats van naar de resultatenpagina (/scribe/consult/soep-verslag).
+
+Impact: Dit is een catastrofale fout die de gehele workflow breekt. De gebruiker ziet nooit het resultaat van zijn werk (het SOEP-verslag), waardoor de module zijn kerntaak niet vervult. Alle context en data gaan verloren, wat leidt tot extreme frustratie en het volledig onbruikbaar maken van de functionaliteit.
+
+3.2 UI/UX Problemen: Redundantie en Verwarring
+Beschrijving: Het rechter input-paneel is onlogisch en redundant. Het biedt drie aparte tabs: "Live Recorder", "Handmatige Notitie", en "Bestand Selecteren". De functionaliteit voor het selecteren van een bestand is dubbelop, aangezien de "Live Recorder" component al een upload-functie bevat.
+
+Impact: Dit leidt tot een onoverzichtelijke en verwarrende gebruikerservaring. De therapeut, die snel en efficiënt wil werken, wordt geconfronteerd met onnodige keuzes en een rommelige interface.
+
+3.3 Architecturale Zwakte: Gebrek aan State Persistence
+Beschrijving: Door de foute redirect gaat alle actieve sessie-informatie (patiëntgegevens, gegenereerde voorbereiding, opname) verloren. De applicatie heeft geen robuust mechanisme om de staat van een lopende workflow te bewaren bij onverwachte navigatie.
+
+Impact: Dit maakt de applicatie onbetrouwbaar en onprofessioneel. In een medische context is data-integriteit en het behoud van werk essentieel.
+
+4. De Ideale Workflow: Functionele Vereisten voor Hysio Consult v3.0
+Dit gedeelte beschrijft de "golden path" voor de gebruiker en de functionele vereisten voor de te bouwen oplossing.
+
+4.1 Doelgroep & Persona
+Primaire Gebruiker: Martijn, een tech-savvy fysiotherapeut die efficiëntie waardeert en zijn administratieve last wil minimaliseren om meer tijd te besteden aan patiëntenzorg.
+
+4.2 Gebruikersscenario: Het Perfecte Vervolgconsult
+Start: Martijn start Hysio Scribe, vult de patiëntgegevens in en selecteert "Hysio Consult". Hij landt op scribe/consult.
+
+Voorbereiding: Het linkerpaneel toont de knop "Genereer Voorbereiding". Martijn klikt hierop. De AI analyseert de vorige sessie(s) en genereert binnen enkele seconden een beknopte SOEP-voorbereiding met aandachtspunten.
+
+Input: Het rechterpaneel toont één geïntegreerde "Consult Opname" component. Martijn start de "Live Recorder". Tijdens het gesprek typt hij een paar kernwoorden in het "Handmatige Notitie" veld binnen dezelfde component.
+
+Verwerking: Na het consult klikt Martijn op "Stop Opname" en vervolgens op "Verwerk Consult". De applicatie toont een duidelijke laadindicator.
+
+Resultaat: Martijn wordt correct genavigeerd naar scribe/consult/soep-verslag. Hier ziet hij het volledige, door de AI gestructureerde SOEP-verslag. Het transcript is gecombineerd met zijn handmatige notities.
+
+Review & Export: Hij controleert de tekst, past de "P" (Plan) sectie aan en klikt op "Kopieer naar EPD". De volledige tekst wordt naar zijn klembord gekopieerd.
+
+Afsluiting: Martijn plakt het verslag in zijn EPD. De totale administratieve tijd was minder dan 3 minuten.
+
+4.3 Functionele en UI/UX Vereisten
+FR-CON-01: Correcte Navigatie: De applicatie MOET de gebruiker na verwerking van het consult navigeren naar de soep-verslag pagina. De useRouter hook of een vergelijkbare navigatiemethode moet correct worden geïmplementeerd.
+
+FR-CON-02: Geünificeerde Input Component: Het rechterpaneel MOET één enkele ConsultInputPanel component bevatten.
+
+De tabs "Live Recorder", "Handmatige Notitie" en "Bestand Selecteren" MOETEN worden samengevoegd.
+
+De AudioRecorder component BINNEN het ConsultInputPanel moet de functionaliteit voor zowel live opnemen als het uploaden van een bestand bevatten.
+
+Een Textarea voor handmatige notities moet altijd zichtbaar zijn onder of naast de recorder.
+
+FR-CON-03: Robuuste State Management: De applicatie MOET de sessie-staat (patiëntgegevens, workflow-keuze, gegenereerde voorbereiding) persistent bewaren, bijvoorbeeld in Zustand en/of localStorage, zodat de data een onverwachte refresh of foute navigatie overleeft.
+
+FR-CON-04: Resultaatweergave: De soep-verslag pagina MOET de SOEP-data tonen in vier afzonderlijke, bewerkbare en kopieerbare secties (S, O, E, P).
+
+FR-CON-05: Hysio Assistant Integratie: De Hysio Assistant moet beschikbaar zijn via een minimaliseerbare/uitklapbare interface binnen de consult-workflow, zodat deze niet storend is maar wel direct oproepbaar voor contextuele hulp.
+
+5. Conclusie
+De Hysio Consult workflow heeft het potentieel om een zeer waardevolle tool te zijn die fysiotherapeuten uren aan administratie bespaart. De huidige implementatie wordt echter geplaagd door een kritieke navigatiebug en een onintuïtieve UI. Door de hierboven beschreven vereisten te implementeren, wordt de workflow niet alleen functioneel, maar ook een toonbeeld van de efficiëntie en professionaliteit die Hysio nastreeft.
+
+---------------------------------
+
+Product Requirements Document (PRD): Hysio Intake Automatisch v7.0
+Versie: 7.0
+Status: Definitief Voorstel
+
+1. Executive Summary & Visie
+Hysio Intake Automatisch is de snelste workflow binnen de Hysio Medical Scribe, ontworpen voor de ervaren fysiotherapeut die maximale efficiëntie zoekt. De visie is "één gesprek, één klik, één compleet dossier", waarbij een volledig intakegesprek in één keer wordt opgenomen en door de AI wordt omgezet in een gestructureerd, KNGF-conform intakeverslag. Dit bespaart de therapeut 75-80% aan administratietijd.
+
+Momenteel wordt deze visie volledig tenietgedaan door een showstopper-bug die de gebruiker blokkeert om het eindresultaat te zien, in combinatie met een verwarrende en inefficiënte gebruikersinterface. Dit document biedt een diepgaande analyse van de problemen en stelt de functionele en technische vereisten vast om deze workflow te herstellen en te optimaliseren.
+
+2. Analyse van de Huidige Situatie (Video-analyse)
+De video toont een gebruiker die de "Hysio Intake (Volledig Automatisch)" workflow start. De stappen en observaties zijn als volgt:
+
+Startpunt: De gebruiker vult de basis patiëntinformatie in (voorletters, geboortejaar, geslacht, hoofdklacht) en klikt op "Kies uw workflow".
+
+Workflow Selectie: Op de /scribe/workflow pagina kiest de gebruiker voor "Hysio Intake (Volledig Automatisch)".
+
+Input & Voorbereidingsfase: De gebruiker landt op de /scribe/intake-automatisch pagina, die een interface met twee panelen heeft.
+
+Linkerpaneel (Voorbereiding): Hier kan de gebruiker optioneel een AI-gegenereerde voorbereiding voor de intake genereren, gebaseerd op de eerder ingevulde hoofdklacht.
+
+Rechterpaneel (Input): Dit paneel biedt de mogelijkheid om de intake op te nemen via een "Live Recorder", een bestand te uploaden, of handmatige notities toe te voegen.
+
+Actie: De video stopt voordat de gebruiker input geeft en het proces afrondt. De kritieke problemen manifesteren zich in de stap die hierna volgt.
+
+3. Grondige Analyse van de Problemen
+3.1 De Kern-Bug: De Gebroken Doorsturing (Hoogste Prioriteit) 
+Beschrijving: Het meest kritieke probleem is dat na het vastleggen van het consult (via opname of tekst) en het klikken op "Verwerk Volledige Intake", de applicatie de gebruiker niet doorstuurt naar de resultatenpagina. De data wordt wel correct verwerkt door de backend, maar de gebruiker blijft vastzitten op de inputpagina (/scribe/intake-automatisch) en ziet nooit de gegenereerde klinische conclusie.
+
+Impact: Dit is een catastrofale workflow-breuk. De kernfunctie van de module – het leveren van een automatisch gegenereerd intakeverslag – is hierdoor volledig onbruikbaar. Dit leidt tot dataverlies voor de gebruiker en ondermijnt het vertrouwen in de applicatie volledig.
+
+3.2 UI/UX Probleem: Redundantie en Onlogische Indeling 😕
+Beschrijving: Het rechter "Intake Opname" paneel is onnodig complex en verwarrend. Het bevat een groot, prominent "drag-and-drop" upload-vlak, terwijl de "Live Recorder" component zelf al een upload-functie heeft. Dit is dubbelop en verspilt kostbare schermruimte.
+
+Impact: Dit creëert een onrustige en onprofessionele gebruikerservaring. Een therapeut die onder tijdsdruk werkt, wordt geconfronteerd met onnodige keuzes en een onlogische interface, wat de efficiëntie juist vermindert in plaats van verhoogt.
+
+3.3 Gemiste Functionaliteit: Ontbreken van een Totaaloverzicht
+Beschrijving: De huidige flow voorziet niet in een duidelijke eindpagina waar alle gegenereerde onderdelen van de intake (de HHSB-anamnesekaart, de onderzoeksbevindingen en de klinische conclusie) overzichtelijk worden gepresenteerd.
+
+Impact: Zelfs als de doorsturing zou werken, ontbreekt een cruciale stap: de mogelijkheid voor de therapeut om het volledige, door de AI gegenereerde verslag te kopieeren, bewerken en exporteren. Dit is essentieel voor professionele dossiervoering en EPD-integratie.
+
+4. De Ideale Workflow: Functionele Vereisten voor Hysio Intake Automatisch v7.0
+Dit gedeelte beschrijft het "gouden pad" voor de gebruiker en de functionele vereisten voor de te implementeren, correct werkende oplossing.
+
+4.1 Doelgroep & Persona
+Primaire Gebruiker: Een ervaren fysiotherapeut die een snelle, gestroomlijnde methode zoekt om een volledige intake te documenteren met minimale handelingen.
+
+4.2 Gebruikersscenario: De Efficiënte Intake
+Start & Voorbereiding: De therapeut vult patiëntgegevens in, selecteert "Hysio Intake (Automatisch)" en landt op scribe/intake-automatisch. Optioneel klikt hij op "Genereer Voorbereiding" om een AI-gestuurde leidraad te ontvangen in het linkerpaneel.
+
+Input: In het gestroomlijnde rechterpaneel start de therapeut de "Live Recorder" en neemt het volledige intakegesprek op. Eventuele handmatige notities kunnen in een daarvoor bestemd veld binnen dezelfde component worden toegevoegd.
+
+Verwerking: Na het gesprek klikt de therapeut op "Verwerk Volledige Intake". Een duidelijke, informatieve laadindicator verschijnt, die de verschillende verwerkingsstappen toont (bijv. "Transcriptie...", "Analyse...", "Conclusie genereren...").
+
+Resultaat & Review: De therapeut wordt correct doorverwezen naar de nieuwe resultatenpagina: scribe/intake-automatisch/conclusie. Op deze pagina worden alle drie de hoofdcomponenten van het intakeverslag overzichtelijk, inklapbaar en bewerkbaar gepresenteerd: de HHSB-anamnesekaart, de onderzoeksbevindingen en de klinische conclusie.
+
+Export & Afronding: De therapeut kan elke sectie afzonderlijk of het gehele verslag in één keer kopiëren of exporteren naar DOCX of PDF voor zijn EPD. De totale administratieve tijd is teruggebracht tot 2-3 minuten.
+
+4.3 Functionele en UI/UX Vereisten
+FR-AUT-01: Correcte Navigatie (Kritiek): De applicatie MOET de gebruiker na het verwerken van de intake feilloos doorsturen naar een nieuwe resultatenpagina (/scribe/intake-automatisch/conclusie).
+
+FR-AUT-02: Geünificeerde Input Component: Het rechterpaneel MOET worden gerefactord naar één enkele, logische IntakeInputPanel component. Het redundante "drag-and-drop" vlak MOET worden verwijderd. De functionaliteit voor het uploaden van bestanden wordt geïntegreerd in de AudioRecorder component.
+
+FR-AUT-03: Resultaten Pagina: Er MOET een nieuwe pagina .../conclusie worden gecreëerd die de volledige output van de intake toont.
+
+Deze pagina MOET de drie kernonderdelen (HHSB-kaart, Onderzoeksbevindingen, Klinische Conclusie) als afzonderlijke, inklapbare en bewerkbare secties presenteren.
+
+Elke sectie en het volledige verslag MOETEN kopieer- en exporteerbaar zijn naar TXT, DOCX en PDF.
+
+FR-AUT-04: State Management: De applicatiestaat (patiëntinfo, input, resultaten) MOET robuust worden beheerd (bijv. via Zustand/local storage) om dataverlies bij navigatie of refreshen te voorkomen.
+
+FR-AUT-05: Hysio Assistant Integratie: De Hysio Assistant MOET op een logische, niet-storende manier toegankelijk zijn vanuit deze workflow, bijvoorbeeld als een uitklapbaar paneel of een discrete knop.
+
+5. Conclusie
+De "Hysio Intake Automatisch" workflow belooft een enorme tijdsbesparing voor ervaren therapeuten. De huidige implementatie maakt deze belofte niet waar door kritieke bugs en een suboptimale UI. Door de hierboven beschreven vereisten te implementeren – met absolute prioriteit voor het herstellen van de navigatieflow en het creëren van een duidelijke resultatenpagina – kan deze module worden omgevormd tot een betrouwbare, efficiënte en uiterst waardevolle tool die de kernvisie van Hysio ondersteunt.
+---------------------------------
+Product Requirements Document (PRD): Hysio Intake Stapsgewijs v7.0
+Versie: 7.0
+Datum: 25 september 2025
+Status: Definitief Voorstel
+
+1. Executive Summary & Visie
+De "Hysio Intake Stapsgewijs" workflow is de meest diepgaande en gecontroleerde methode binnen de Hysio Medical Scribe, specifiek ontworpen voor fysiotherapeuten die complexe casussen behandelen of in opleiding zijn. De visie is die van een "Intelligente Gids": een systeem dat de therapeut stap-voor-stap door de KNGF-richtlijnen voor een intake leidt, van anamnese tot klinische conclusie, waarbij elke fase wordt verrijkt met AI-ondersteuning en validatie.
+
+Momenteel wordt deze visie onmogelijk gemaakt door een workflow-brekende navigatiebug, een verwarrende interface en het ontbreken van een logische progressie door de stappen. Dit document biedt een diepgaande analyse en definieert de vereisten om deze workflow te herstellen tot een betrouwbare, professionele en uitzonderlijk waardevolle tool.
+
+2. Analyse van de Huidige Situatie (Video-analyse)
+De video toont een gebruiker die de "Hysio Intake (Stapsgewijs)" workflow initieert:
+
+Startpunt & Workflow Selectie: De gebruiker vult de basis patiëntinformatie in en selecteert op het workflow-scherm de optie "Hysio Intake (Stapsgewijs)". Dit is de correcte start van het proces.
+
+Fase 1: Anamnese: De gebruiker landt op de eerste stap van de workflow, /scribe/intake-stapsgewijs/anamnese.
+
+Interface: De pagina presenteert een twee-paneel layout. Het linkerpaneel is voor "Anamnese Voorbereiding" en het rechterpaneel voor "Anamnese Opname".
+
+Actie: De gebruiker klikt op "Genereer Voorbereiding". De AI genereert succesvol een gestructureerde voorbereidingstekst, die als leidraad dient voor het vraaggesprek. Dit deel functioneert correct.
+
+Input: De gebruiker kan vervolgens de anamnese opnemen met de "Live Recorder" of handmatige notities toevoegen. De video eindigt voordat dit proces wordt voltooid.
+
+De kern van de problematiek openbaart zich in de stappen die hierop volgen.
+
+3. Grondige Analyse van de Problemen
+3.1 De "Gebroken Brug" Navigatie (Kritieke Blocker) 🚧
+Beschrijving: Na het verwerken klikken van de input rechts in de stap (anamnese), wordt de input incorrect verwerkt in plaats van naar de resultatenpagina van die stap (bv. /anamnese-resultaat). Dit gedrag herhaalt zich bij elke stap, waardoor het onmogelijk is om de volledige intake te doorlopen.
+
+Impact: Dit is een fatale fout die de gehele stapsgewijze workflow onbruikbaar maakt. De therapeut kan de resultaten van zijn werk niet zien, de voortgang niet valideren en niet doorgaan naar de volgende fase. Dit leidt tot een doodlopende gebruikerservaring en ondermijnt het vertrouwen in de applicatie volledig.
+
+3.2 UI/UX Problemen: Redundantie en Onlogische Flow 😵‍💫
+Beschrijving: De rechter input-panelen in zowel de anamnese- als de onderzoeksfase zijn onoverzichtelijk en bevatten dubbele functionaliteit. Een groot "drag-and-drop" upload-vlak is prominent aanwezig, terwijl de "Live Recorder" component al een geïntegreerde upload-functie heeft. Live Recorder is genoeg met het bestand upload component die er al in zit.
+
+Impact: Dit leidt tot een rommelige interface en cognitieve overbelasting. De therapeut wordt geconfronteerd met onnodige keuzes, wat de efficiëntie, het hoofddoel van Hysio, direct tegenwerkt.
+
+3.3 Architecturale Zwakte: Geen Totaaloverzicht na Afronding
+Beschrijving: Zelfs als de navigatie zou werken, ontbreekt er een cruciale eindpagina. Na het doorlopen van alle stappen (Anamnese, Onderzoek, Klinische Conclusie), is er geen overzichtspagina waar alle gegenereerde onderdelen samenkomen in één compleet, bewerkbaar en exporteerbaar intakeverslag.
+
+Impact: Dit is een gemiste kans en een functioneel gat. Zonder een eindoverzicht kan de therapeut het volledige dossier niet als één geheel beoordelen, aanpassen en exporteren naar zijn EPD, wat een essentiële stap is in de professionele dossiervoering.
+
+4. De Ideale Workflow: Functionele Vereisten voor Hysio Intake Stapsgewijs v7.0
+Dit gedeelte beschrijft de "golden path" en de vereisten voor de te implementeren, correct werkende oplossing.
+
+4.1 Doelgroep & Persona
+Primaire Gebruiker: Een grondige, detailgerichte fysiotherapeut die waarde hecht aan een methodische aanpak en volledige controle wil behouden over elke stap van het intake-proces, met AI als ondersteunende co-piloot.
+
+4.2 Gebruikersscenario: De Perfecte Gidsgestuurde Intake
+Start & Voorbereiding: De therapeut kiest "Hysio Intake Stapsgewijs". Op de .../anamnese pagina genereert hij een AI-voorbereiding.
+
+Stap 1: Anamnese: Hij neemt het gesprek op en klikt op "Verwerk Anamnese".
+
+Resultaat & Validatie 1: Hij wordt correct genavigeerd naar .../anamnese-resultaat. Hij ziet de gestructureerde HHSB-kaart, past deze aan en klikt op "Volgende: Onderzoek".
+
+Stap 2: Onderzoek: Op de .../onderzoek pagina genereert de AI, op basis van de anamnese, een onderzoeksvoorstel. De therapeut voert het onderzoek uit, neemt de bevindingen op en klikt op "Verwerk Onderzoek".
+
+Resultaat & Validatie 2: Hij wordt correct genavigeerd naar .../onderzoek-resultaat, valideert de bevindingen en klikt op "Volgende: Klinische Conclusie".
+
+Stap 3: Klinische Conclusie: Op de .../klinische-conclusie pagina analyseert de AI alle voorgaande data en genereert een concept-conclusie na het klikken op "Genereer Klinische Conclusie".
+
+Totaaloverzicht & Export: Na verwerking van de laatste stap, wordt de therapeut naar de nieuwe overzichtspagina .../conclusie geleid. Hier ziet hij alle onderdelen (HHSB, Onderzoek, Conclusie) in één overzicht, kan hij de laatste aanpassingen doen en het volledige verslag exporteren, in Word/PDF/HTML/TXT <- dit moet trouwens ook bij de conclusie pagina's van Hysio Intake Automatisch en Hysio Consult kunnen! Erg belangrijk.
+
+4.3 Functionele en UI/UX Vereisten
+FR-STAP-01: Herstel van Navigatie (Hoogste Prioriteit): De navigatielogica MOET worden gerepareerd zodat de gebruiker na elke verwerkingsstap correct wordt doorgestuurd naar de bijbehorende resultatenpagina.
+
+FR-STAP-02: Geünificeerde Input Component: Het rechterpaneel op elke input-pagina MOET worden gerefactord naar één enkele, logische InputPanel component, waarbij de redundante "drag-and-drop" functionaliteit wordt verwijderd.
+
+FR-STAP-03: Implementatie Totaaloverzicht Pagina: Er MOET een nieuwe pagina .../conclusie worden ontwikkeld die fungeert als het eindpunt van de workflow. Deze pagina toont alle gegenereerde intake-onderdelen in een overzichtelijke, bewerkbare en exporteerbare layout.
+
+FR-STAP-04: Robuust State Management: De applicatie MOET de staat van de gehele stapsgewijze intake (alle data van alle voltooide stappen) persistent bewaren (bijv. in Zustand en/of localStorage) om dataverlies te voorkomen en een naadloze ervaring tussen de stappen te garanderen.
+
+FR-STAP-05: Visuele Progressie Indicator: Er MOET een duidelijke, visuele stepper of progressiebalk aanwezig zijn op alle pagina's van deze workflow, die aangeeft in welke fase de gebruiker zich bevindt (Anamnese → Onderzoek → Conclusie) en welke stappen al zijn voltooid.
+
+5. Conclusie
+De "Hysio Intake Stapsgewijs" workflow is een kernfunctie met een enorme potentie voor therapeuten die diepgang en controle zoeken. De huidige implementatie is onbruikbaar door fundamentele fouten. Door de navigatie te herstellen, de UI te stroomlijnen en een logisch eindpunt te creëren, kan deze module worden omgevormd tot een premium feature die de professionele standaard voor fysiotherapeutische dossiervoering herdefinieert.
