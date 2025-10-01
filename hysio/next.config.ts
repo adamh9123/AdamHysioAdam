@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Fix workspace root detection warning
+  output: 'standalone',
+  outputFileTracingRoot: process.cwd(),
+
   // Enable external packages for server components
   serverExternalPackages: ['groq-sdk', 'openai', 'pdf-parse', 'mammoth'],
 

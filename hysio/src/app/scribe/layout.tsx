@@ -6,6 +6,10 @@ import { useSessionState } from '@/hooks/useSessionState';
 import { useScribeStore } from '@/lib/state/scribe-store';
 import { WorkflowErrorBoundary } from '@/components/workflow-error-boundary';
 import { HysioAssistant } from '@/components/scribe/hysio-assistant';
+import { WorkflowResumptionDialog, useAutomaticWorkflowResumption } from '@/components/scribe/workflow-resumption-dialog';
+// Persistence disabled per user request
+// import { useAutoPersistence } from '@/lib/utils/auto-persistence';
+// import { PersistenceStatusCompact } from '@/components/ui/persistence-status';
 import {
   FileText,
   Clock,
@@ -32,9 +36,19 @@ export default function ScribeLayout({
   const currentWorkflow = useScribeStore(state => state.currentWorkflow);
 
   const sessionState = useSessionState({
-    autoSave: true,
+    autoSave: false, // DISABLED per user request
     autoSaveInterval: 30000, // 30 seconds
   });
+
+  // Workflow resumption capability
+  const { checkForInterruption, markInterruption } = useAutomaticWorkflowResumption();
+
+  // Auto-persistence system DISABLED per user request
+  // const { isInitialized: isPersistenceInitialized, status: persistenceStatus } = useAutoPersistence({
+  //   autoSaveInterval: 10000, // Save every 10 seconds
+  //   immediateFields: ['result', 'completed', 'transcript'],
+  //   crossTabSync: true
+  // });
 
   // Hysio Assistant state
   const [assistantVisible, setAssistantVisible] = React.useState(false);
@@ -114,6 +128,12 @@ export default function ScribeLayout({
                   <span className="text-amber-700 text-xs">Niet opgeslagen</span>
                 </div>
               )}
+
+              {/* Auto-persistence status DISABLED */}
+              {/* <PersistenceStatusCompact
+                isInitialized={isPersistenceInitialized}
+                status={persistenceStatus}
+              /> */}
             </div>
           )}
 
@@ -183,6 +203,13 @@ export default function ScribeLayout({
       <WorkflowErrorBoundary workflowName="Hysio Medical Scribe">
         <div className="min-h-screen bg-hysio-cream/30">
           {renderHeader()}
+
+          {/* Workflow Resumption Dialog */}
+          <WorkflowResumptionDialog
+            onResume={() => console.log('Workflow resumed successfully')}
+            onRestart={() => console.log('Workflow restarted successfully')}
+            onDismiss={() => console.log('Workflow resumption dismissed')}
+          />
 
           <main className="pb-8">
             {children}

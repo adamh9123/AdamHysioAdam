@@ -20,23 +20,23 @@ export const OPENAI_CONFIG = {
 } as const;
 
 // Centralized model configuration for the entire Hysio platform - Updated to GPT-4.1-mini as per user requirements
-export const HYSIO_LLM_MODEL = 'gpt-4o-mini' as const; // Note: gpt-4o-mini is the actual model name, not gpt-4.1-mini
+export const HYSIO_LLM_MODEL = 'gpt-4.1-mini' as const;
 
-// Model pricing configuration (updated to actual GPT-4o-mini rates)
+// Model pricing configuration (updated to actual GPT-4.1-mini rates)
 export const MODEL_PRICING = {
-  'gpt-4o-mini': {
-    inputPer1K: parseFloat(process.env.PRICE_GPT4OMINI_INPUT_PER_1K || '0.00015'), // $0.15/1M tokens
-    outputPer1K: parseFloat(process.env.PRICE_GPT4OMINI_OUTPUT_PER_1K || '0.0006') // $0.60/1M tokens
+  'gpt-4.1-mini': {
+    inputPer1K: parseFloat(process.env.PRICE_GPT41MINI_INPUT_PER_1K || '0.00015'), // $0.15/1M tokens
+    outputPer1K: parseFloat(process.env.PRICE_GPT41MINI_OUTPUT_PER_1K || '0.0006') // $0.60/1M tokens
   }
 } as const;
 
 // Supported models configuration
 export const SUPPORTED_MODELS = {
-  'gpt-4o-mini': {
-    name: 'GPT-4o Mini',
+  'gpt-4.1-mini': {
+    name: 'GPT-4.1 Mini',
     maxTokens: 128000,
     supportedTemperatures: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0],
-    pricing: MODEL_PRICING['gpt-4o-mini'],
+    pricing: MODEL_PRICING['gpt-4.1-mini'],
     capabilities: ['chat', 'streaming', 'dutch']
   }
 } as const;

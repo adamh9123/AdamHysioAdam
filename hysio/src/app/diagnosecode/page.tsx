@@ -3,7 +3,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { DiagnosisCodeFinder } from '@/components/diagnosecode/diagnosis-code-finder';
 import { PatternList } from '@/components/diagnosecode/pattern-list';
@@ -16,16 +16,7 @@ import {
   FileText,
   Target,
   TrendingUp,
-  MessageCircle,
-  List,
-  BookOpen,
-  Cog,
-  Award,
-  User,
-  Filter,
-  Code,
-  Stethoscope,
-  Activity
+  MessageCircle
 } from 'lucide-react';
 
 export default function DiagnosisCodePage() {

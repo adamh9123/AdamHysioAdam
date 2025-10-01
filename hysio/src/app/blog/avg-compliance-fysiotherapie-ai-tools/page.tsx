@@ -1,7 +1,7 @@
 import { MarketingNavigation } from '@/components/ui/marketing-navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Calendar, Clock, User, ArrowLeft, Share2, Bookmark, Shield, Lock, Eye, FileText, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Calendar, Clock, User, ArrowLeft, Share2, Bookmark, Eye, FileText, AlertTriangle, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 
 export const metadata = {

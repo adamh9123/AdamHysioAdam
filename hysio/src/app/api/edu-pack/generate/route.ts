@@ -135,8 +135,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       eduPackId: finalContent.id,
       content: finalContent,
       processingTime: Date.now() - startTime,
-      tokensUsed: generationResult.tokensUsed,
-      validation: contentValidation
+      ...(generationResult.tokensUsed !== undefined && { tokensUsed: generationResult.tokensUsed })
     };
 
     return NextResponse.json(response);

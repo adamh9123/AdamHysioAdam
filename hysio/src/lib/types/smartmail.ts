@@ -2,10 +2,11 @@
 // Follows Hysio design patterns for healthcare communication
 
 // Core recipient categories for healthcare communication
-export type RecipientCategory = 
-  | 'colleague' 
-  | 'specialist' 
-  | 'patient' 
+export type RecipientCategory =
+  | 'colleague'
+  | 'specialist'
+  | 'huisarts'
+  | 'patient'
   | 'family'
   | 'referring_physician'
   | 'support_staff';
@@ -122,7 +123,7 @@ export interface EmailGenerationResponse {
 
 // Contextual suggestions for improving email content
 export interface EmailSuggestion {
-  type: 'privacy_warning' | 'missing_context' | 'formality_adjustment' | 'medical_accuracy' | 'follow_up_action';
+  type: 'privacy_warning' | 'missing_context' | 'formality_adjustment' | 'medical_accuracy' | 'follow_up_action' | 'document_processing' | 'error_recovery';
   message: string;
   severity: 'info' | 'warning' | 'error';
   actionable: boolean;

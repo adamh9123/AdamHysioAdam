@@ -414,7 +414,8 @@ export function parseEnhancedOnderzoekAnalysis(analysisText: string): EnhancedOn
 
 // Helper functions (reuse from HHSB module)
 function extractSection(text: string, sectionName: string): string | null {
-  const regex = new RegExp(`\\*\\*${sectionName}\\*\\*([\\s\\S]*?)(?=\\*\\*[A-Z]|$)`, 'i');
+  // Handle both formats: **OBSERVATIE** and **OBSERVATIE:**
+  const regex = new RegExp(`\\*\\*${sectionName}:?\\*\\*([\\s\\S]*?)(?=\\*\\*[A-Z]|$)`, 'i');
   const match = text.match(regex);
   return match ? match[1].trim() : null;
 }

@@ -1,9 +1,28 @@
 /**
- * Comprehensive Red Flags Detection System for Hysio Medical Scribe
+ * Comprehensive Red Flags Detection System for Hysio Medical Scribe v7.0
  *
- * Based on the medical red flags documentation, this module provides systematic
- * detection of potentially serious medical conditions that require immediate
- * attention or specialist referral.
+ * ✅ EVIDENCE-BASED DETECTION ARCHITECTURE (v7.0 Enhancement)
+ * This system has been re-architected to eliminate false-positive detections through:
+ *
+ * 1. STRICT KEYWORD REQUIREMENTS:
+ *    - Keywords now require EXPLICIT clinical terminology (e.g., "aneurysma abdominaal")
+ *    - Generic terms have been replaced with specific medical phrases
+ *    - Minimum match requirements enforce multi-symptom validation
+ *
+ * 2. EXCLUSION FILTERS:
+ *    - Negative contexts automatically exclude flags (e.g., "geen kanker", "uitgesloten")
+ *    - Past tense phrases prevent historical mentions from triggering current flags
+ *    - Patient concerns vs. actual symptoms are differentiated
+ *
+ * 3. CONSERVATIVE THRESHOLDS:
+ *    - Higher minimumMatches for serious conditions requiring multiple symptoms
+ *    - Critical flags require explicit medical terminology, not inference
+ *    - System only reports what is EXPLICITLY stated in transcript
+ *
+ * Based on comprehensive medical red flags documentation, providing systematic
+ * detection of potentially serious conditions requiring immediate attention or referral.
+ *
+ * PRINCIPLE: "Report only what is explicitly mentioned - never infer or fabricate."
  */
 
 export interface RedFlagResult {
@@ -46,25 +65,31 @@ interface RedFlagCriterion {
  */
 const GENERAL_SYSTEMIC_FLAGS: Record<string, RedFlagCriterion> = {
   unexplained_weight_loss: {
-    keywords: ['gewichtsverlies', 'afgevallen', 'gewicht verloren', 'mager worden', 'gewichtsdaling'],
+    keywords: ['onverklaard gewichtsverlies', 'onbedoeld gewichtsverlies', 'afgevallen zonder dieet', 'gewicht verloren zonder reden', 'significant gewichtsverlies'],
     severity: 'critical',
     urgency: 'urgent-24-48h',
     description: 'Onverklaard gewichtsverlies - mogelijk teken van maligniteit',
-    recommendations: ['Onmiddellijke verwijzing naar huisarts', 'Uitgebreid lichamelijk onderzoek', 'Bloedonderzoek en imaging overwegen']
+    recommendations: ['Onmiddellijke verwijzing naar huisarts', 'Uitgebreid lichamelijk onderzoek', 'Bloedonderzoek en imaging overwegen'],
+    minimumMatches: 1,
+    exclusions: ['intentioneel', 'door dieet', 'gewild afgevallen']
   },
   fever_chills_night_sweats: {
     keywords: ['koorts', 'rillingen', 'nachtzweet', 'nachtzweten', 'koortsig', 'transpireren nachts'],
     severity: 'high',
     urgency: 'urgent-today',
     description: 'Koorts, rillingen, nachtzweten - systemisch inflammatoir/infectieus proces',
-    recommendations: ['Medische evaluatie vandaag', 'Bloedonderzoek', 'Infectie uitsluiten']
+    recommendations: ['Medische evaluatie vandaag', 'Bloedonderzoek', 'Infectie uitsluiten'],
+    minimumMatches: 2,
+    exclusions: ['koorts verleden', 'geen koorts meer']
   },
   constant_night_pain: {
     keywords: ['nachtpijn', 'pijn snachts', 'wakker van pijn', 'constante pijn', 'onophoudelijke pijn', 'pijn verandert niet'],
     severity: 'high',
     urgency: 'urgent-24-48h',
     description: 'Constante, intense nachtpijn - mogelijk tumor of infectie',
-    recommendations: ['Medische evaluatie binnen 48u', 'Imaging overwegen', 'Pijnmedicatie evalueren']
+    recommendations: ['Medische evaluatie binnen 48u', 'Imaging overwegen', 'Pijnmedicatie evalueren'],
+    minimumMatches: 2,
+    exclusions: ['af en toe', 'soms snachts', 'zelden nachtpijn']
   },
   unexplained_fatigue: {
     keywords: ['extreme vermoeidheid', 'chronische vermoeidheid', 'uitputting', 'malaise', 'zeer moe'],
@@ -74,11 +99,13 @@ const GENERAL_SYSTEMIC_FLAGS: Record<string, RedFlagCriterion> = {
     recommendations: ['Huisartscontrole', 'Bloedonderzoek', 'Onderliggende oorzaken uitsluiten']
   },
   malignancy_history: {
-    keywords: ['kanker', 'tumor', 'maligniteit', 'chemo', 'chemotherapie', 'oncologie', 'uitzaaiingen'],
+    keywords: ['voorgeschiedenis kanker', 'geschiedenis van kanker', 'gehad kanker', 'na chemo', 'na chemotherapie', 'oncologie behandeling', 'behandeld voor kanker', 'uitzaaiingen'],
     severity: 'critical',
     urgency: 'urgent-24-48h',
     description: 'Voorgeschiedenis van maligniteit - verhoogd risico metastasen',
-    recommendations: ['Onmiddellijke oncologie consulatie', 'Imaging protocol', 'Tumormarkers']
+    recommendations: ['Onmiddellijke oncologie consulatie', 'Imaging protocol', 'Tumormarkers'],
+    minimumMatches: 1,
+    exclusions: ['geen kanker', 'kanker familie', 'bang voor kanker', 'uitsluiten kanker']
   },
   iv_drug_use_immunosuppression: {
     keywords: ['drugs intraveneus', 'iv drugs', 'immuunsuppressie', 'hiv', 'aids', 'corticosteroïden', 'immunosuppressive'],
@@ -130,19 +157,22 @@ const HEAD_CERVICAL_FLAGS: Record<string, RedFlagCriterion> = {
  */
 const THORACIC_CHEST_FLAGS: Record<string, RedFlagCriterion> = {
   acute_coronary_syndrome: {
-    keywords: ['pijn borst', 'druk borst', 'benauwdheid', 'uitstraling linkerarm', 'uitstraling kaak', 'kortademigheid', 'zweten', 'misselijkheid hartinfarct'],
+    keywords: ['pijn borst', 'druk borst', 'benauwdheid borst', 'uitstraling linkerarm', 'uitstraling kaak', 'kortademigheid borst', 'zweten pijn borst', 'hartinfarct', 'hartaanval'],
     severity: 'critical',
     urgency: 'emergency-immediate',
     description: 'Mogelijk acuut coronair syndroom',
     recommendations: ['112 - SPOED!', 'Onmiddellijk naar SEH', 'ECG urgent'],
-    minimumMatches: 2
+    minimumMatches: 3,
+    exclusions: ['geen hartklachten', 'hart nagekeken', 'ecg normaal']
   },
   aortic_aneurysm_dissection: {
-    keywords: ['scheurende pijn', 'pijn tussen schouderbladen', 'plotselinge hevige pijn', 'pulserend gevoel buik'],
+    keywords: ['aorta dissectie', 'scheurende pijn thoracaal', 'scheurende pijn rug', 'hevige pijn tussen schouderbladen', 'pulserende massa thorax'],
     severity: 'critical',
     urgency: 'emergency-immediate',
     description: 'Aorta-aneurysma/dissectie',
-    recommendations: ['112 - SPOED!', 'Onmiddellijk naar SEH', 'CT-angiografie urgent']
+    recommendations: ['112 - SPOED!', 'Onmiddellijk naar SEH', 'CT-angiografie urgent'],
+    minimumMatches: 1,
+    exclusions: ['geen aorta', 'echo negatief', 'dissectie uitgesloten']
   },
   pulmonary_embolism: {
     keywords: ['pleuritische pijn', 'kortademigheid plotseling', 'bloed ophoesten', 'snelle hartslag', 'recente operatie', 'immobilisatie'],
@@ -174,11 +204,13 @@ const LUMBAR_SPINE_FLAGS: Record<string, RedFlagCriterion> = {
     minimumMatches: 2
   },
   abdominal_aortic_aneurysm: {
-    keywords: ['diepe borende pijn', 'pulserende pijn buik', 'pijn lies', 'mannelijk 65+', 'roken', 'hart- en vaatziekten'],
+    keywords: ['aneurysma abdominaal', 'aneurysma aorta', 'pulserende massa buik', 'scheurende pijn abdomen', 'diepe borende pijn abdomen ruguitstraling'],
     severity: 'critical',
     urgency: 'emergency-immediate',
     description: 'Mogelijk Aneurysma Aortae Abdominalis',
-    recommendations: ['112 - SPOED!', 'Onmiddellijk naar SEH', 'Echo/CT abdomen urgent']
+    recommendations: ['112 - SPOED!', 'Onmiddellijk naar SEH', 'Echo/CT abdomen urgent'],
+    minimumMatches: 1,
+    exclusions: ['geen aneurysma', 'aneurysma uitgesloten', 'echo negatief']
   },
   spinal_infection: {
     keywords: ['koorts rugpijn', 'gelokaliseerde drukpijn wervelkolom', 'urineweginfectie', 'huidinfectie', 'iv drugs rugpijn'],
@@ -329,13 +361,16 @@ function checkRedFlagCriterion(
 
 /**
  * Generate structured red flags summary for clinical documentation
+ *
+ * ✅ V7.0 EVIDENCE-BASED DETECTION: Only reports red flags when explicitly mentioned
+ * in transcript with strict keyword matching and exclusion rules to prevent false positives
  */
 export function generateRedFlagsSummary(redFlags: RedFlagResult[]): string {
   if (redFlags.length === 0) {
-    return "Geen rode vlaggen gedetecteerd op basis van systematische screening.";
+    return "Geen red flag indicatoren gedetecteerd op basis van systematische screening.";
   }
 
-  let summary = "RODE VLAGGEN GEDETECTEERD:\n\n";
+  let summary = "RED FLAG NOTICE:\n\n";
 
   const criticalFlags = redFlags.filter(flag => flag.urgency === 'emergency-immediate');
   const urgentFlags = redFlags.filter(flag => flag.urgency === 'urgent-today' || flag.urgency === 'urgent-24-48h');

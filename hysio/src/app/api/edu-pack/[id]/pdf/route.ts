@@ -10,7 +10,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: eduPackId } = await params;
+    const { id: _eduPackId } = await params;
 
     // In a real implementation, you would fetch the EduPack content from database
     // For now, we'll get it from request headers or session storage
@@ -37,7 +37,7 @@ export async function GET(
     const pdfBytes = await generatePDF(content);
 
     // Return PDF response
-    return new NextResponse(pdfBytes, {
+    return new NextResponse(Buffer.from(pdfBytes), {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="edupack-${content.patientName || 'patient'}-${new Date().toISOString().split('T')[0]}.pdf"`,

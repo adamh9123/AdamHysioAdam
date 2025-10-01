@@ -283,7 +283,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<SmartMail
       }
     };
 
-    const lengthInstruction = lengthInstructions[selectedLanguage]?.[contentLength] || lengthInstructions.nl[contentLength];
+    const lengthInstruction = (lengthInstructions as any)[selectedLanguage]?.[contentLength] || lengthInstructions.nl[contentLength];
 
     // Build the complete prompt
     const systemPrompt = `${baseSystemPrompt}
@@ -309,10 +309,10 @@ ${instructions.generate}`;
 
     // Determine reasoning effort based on email complexity
     // Context analysis for optimization (informational only for GPT-4.1-mini)
-    const hasDocuments = data.documents && data.documents.length > 0;
-    const hasMultipleDocuments = data.documents && data.documents.length > 1;
-    const isComplexRecipient = data.recipientType === 'huisarts'; // Medical professional requires more precision
-    const hasLongContext = systemPrompt.length > 3000;
+    // Variables available for future complexity-based optimizations:
+    // const hasMultipleDocuments = data.documents && data.documents.length > 1;
+    // const isComplexRecipient = data.recipientType === 'huisarts'; // Medical professional requires more precision
+    // const hasLongContext = systemPrompt.length > 3000;
 
     // Generate the email using OpenAI
     const aiResponse = await generateContentWithOpenAI(

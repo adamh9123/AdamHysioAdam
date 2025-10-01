@@ -1,15 +1,14 @@
 // API route for audio transcription using Groq Whisper Large v3 Turbo
-// Supports automatic splitting for files >25MB
+// Supports automatic splitting for files >25MB (Groq API limit)
 
 import { NextRequest, NextResponse } from 'next/server';
 import { transcribeAudioWithGroq, isSupportedAudioFormat, type GroqTranscriptionOptions } from '@/lib/api/groq';
-import { 
-  isFileSizeExceeded, 
-  splitAudioFile, 
-  processAudioSegments, 
+import {
+  isFileSizeExceeded,
+  splitAudioFile,
+  processAudioSegments,
   formatFileSize
 } from '@/lib/utils/audio-splitter';
-
 export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
@@ -51,7 +50,7 @@ export async function POST(request: NextRequest) {
     // Convert File to Blob first for processing
     const audioBlob = new Blob([await audioFile.arrayBuffer()], { type: audioFile.type });
     
-    // Check if file needs splitting (>25MB)
+    // Check if file needs splitting (>25MB due to Groq API limit)
     const needsSplitting = isFileSizeExceeded(audioBlob);
 
     console.log(`Audio file: ${formatFileSize(audioBlob.size)} - ${needsSplitting ? 'needs splitting' : 'processing directly'}`);
@@ -87,54 +86,58 @@ export async function POST(request: NextRequest) {
     let isSegmented = false;
 
     if (needsSplitting) {
-      // Handle large file with automatic splitting
-      try {
-        console.log('Splitting large audio file...');
+      // For large files, split them into chunks and process sequentially
+      console.log('File exceeds 25MB limit, starting automatic splitting and processing...');
 
+      try {
+        // Split the audio file into segments
         const splitResult = await splitAudioFile(audioBlob);
-        
+
         if (splitResult.error) {
-          return NextResponse.json({
-            success: false,
-            error: `Audio splitting failed: ${splitResult.error}`
-          }, { status: 400 });
+          throw new Error(splitResult.error);
         }
 
-        console.log(`Split into ${splitResult.segments.length} segments, total duration: ${splitResult.totalDuration.toFixed(1)}s`);
+        console.log(`Successfully split audio into ${splitResult.segments.length} segments`);
 
-        // Process each segment
+        // Process each segment through Groq
         const processSegment = async (segmentBlob: Blob, index: number): Promise<string> => {
           console.log(`Processing segment ${index + 1}/${splitResult.segments.length}`);
 
-          const segmentResult = await transcribeAudioWithGroq(segmentBlob, options);
-          
-          if (!segmentResult.success) {
-            throw new Error(segmentResult.error || 'Segment transcription failed');
+          const result = await transcribeAudioWithGroq(segmentBlob, options);
+
+          if (!result.success) {
+            throw new Error(result.error || `Failed to transcribe segment ${index + 1}`);
           }
-          
-          return segmentResult.data?.text || '';
+
+          return result.data?.text || '';
         };
 
-        const processingResult = await processAudioSegments(splitResult.segments, processSegment);
-        
-        if (processingResult.errors.length > 0) {
-          console.warn('Some segments failed to process:', processingResult.errors);
+        // Process all segments sequentially
+        const segmentResults = await processAudioSegments(splitResult.segments, processSegment);
+
+        if (segmentResults.errors.length > 0) {
+          console.warn('Some segments had errors:', segmentResults.errors);
         }
-        
-        finalTranscript = processingResult.combinedTranscript;
-        totalDuration = processingResult.totalDuration;
+
+        finalTranscript = segmentResults.combinedTranscript;
+        totalDuration = segmentResults.totalDuration;
+        confidence = segmentResults.segments.reduce((sum, _seg) => sum + 1, 0) / segmentResults.segments.length; // Average confidence
         isSegmented = true;
 
-        console.log(`Successfully processed ${processingResult.segments.length} segments`);
+        console.log(`Completed processing ${splitResult.segments.length} segments. Total transcript length: ${finalTranscript.length}`);
+
       } catch (error) {
-        console.error('Error during audio splitting/processing:', error);
-        
+        console.error('Audio splitting/processing failed:', error);
         return NextResponse.json({
           success: false,
-          error: `Failed to process large audio file: ${error instanceof Error ? error.message : 'Unknown error'}`
+          error: 'Failed to process large audio file: ' + (error instanceof Error ? error.message : 'Unknown error'),
+          details: {
+            fileSize: formatFileSize(audioBlob.size),
+            suggestion: 'Try uploading a smaller file or check audio format compatibility.'
+          }
         }, { status: 500 });
       }
-      
+
     } else {
       // Handle normal file (≤25MB) - direct processing
       console.log('Starting direct transcription with Groq...', {
@@ -146,7 +149,7 @@ export async function POST(request: NextRequest) {
 
       const result = await transcribeAudioWithGroq(audioBlob, options);
 
-      console.log('Transcription result:', {
+      console.log('Groq transcription result:', {
         success: result.success,
         error: result.success ? undefined : result.error,
         textLength: result.success && result.data?.text ? result.data.text.length : 0
@@ -155,7 +158,7 @@ export async function POST(request: NextRequest) {
       if (!result.success) {
         return NextResponse.json({
           success: false,
-          error: result.error || 'Transcription failed'
+          error: result.error || 'Groq transcription failed'
         }, { status: 400 });
       }
       
@@ -201,9 +204,9 @@ export async function GET() {
       model: 'whisper-large-v3-turbo',
       provider: 'Groq',
       supportedFormats: ['audio/m4a', 'audio/mp4', 'audio/wav', 'audio/mpeg', 'audio/webm', 'audio/ogg', 'audio/flac'],
-      maxFileSize: '25MB per segment (automatic splitting for larger files)',
+      maxFileSize: '70MB (automatic splitting for files >25MB)',
       splittingEnabled: true,
-      maxRecordingTime: '30 minutes',
+      maxRecordingTime: '60 minutes',
       hasGroqKey,
       groqKeyLength: groqApiKey ? groqApiKey.length : 0
     });
