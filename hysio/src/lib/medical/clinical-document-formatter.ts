@@ -87,7 +87,7 @@ ${samenvatting.priorityActions.map((action, i) => `${i + 1}. ${action}`).join('\
   }
 
   private static formatRedFlags(flags: Array<{ category: string; description: string; severity: string; actionRequired: string }>): string {
-    const flagsByS severity = {
+    const flagsBySeverity = {
       high: flags.filter(f => f.severity === 'high'),
       medium: flags.filter(f => f.severity === 'medium'),
       low: flags.filter(f => f.severity === 'low'),
