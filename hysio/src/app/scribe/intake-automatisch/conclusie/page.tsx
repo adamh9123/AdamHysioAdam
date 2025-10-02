@@ -9,33 +9,49 @@ import { exportManager } from '@/lib/utils/advanced-export';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { MarkdownRenderer, ClinicalSection } from '@/components/ui/markdown-renderer';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   ArrowLeft,
   CheckCircle,
   FileText,
   Download,
   Copy,
-  Edit,
-  ChevronDown,
-  ChevronRight,
   AlertTriangle,
   Heart,
   Users,
   Calendar,
   Home,
-  RotateCcw
+  RotateCcw,
+  FileCheck,
+  TrendingUp
 } from 'lucide-react';
 
 interface IntakeResults {
   hhsbAnamneseCard: any;
   onderzoeksBevindingen: any;
   klinischeConclusie: any;
+  samenvatting?: any;
   redFlags: string[];
+  redFlagsDetailed?: any[];
   processingDuration: number;
   generatedAt: string;
+  formattedMarkdown?: string; // NEW: Professional markdown from semantic intelligence
+  confidence?: {
+    overall: number;
+    hhsb: number;
+    onderzoek: number;
+    conclusie: number;
+  };
+  validationReport?: {
+    transcriptCoverage: number;
+    dataCompleteness: number;
+    missingData: string[];
+    warnings: string[];
+  };
+  semanticIntelligenceVersion?: string;
 }
 
 export default function AutomatedIntakeConclusie() {
@@ -48,12 +64,12 @@ export default function AutomatedIntakeConclusie() {
   const [results, setResults] = React.useState<IntakeResults | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [viewMode, setViewMode] = React.useState<'formatted' | 'structured'>('formatted'); // NEW: View toggle
   const [expandedSections, setExpandedSections] = React.useState<Record<string, boolean>>({
     anamnese: true,
     onderzoek: true,
     conclusie: true,
     samenvatting: true,
-    redflags: true,
   });
 
   // Enhanced state loading with comprehensive validation
@@ -244,6 +260,34 @@ export default function AutomatedIntakeConclusie() {
         </div>
       </div>
 
+      {/* Quality & Confidence Indicators */}
+      {results.semanticIntelligenceVersion && results.confidence && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <TrendingUp size={20} className="text-blue-600" />
+              <div>
+                <div className="font-semibold text-blue-900">Semantic Intelligence v{results.semanticIntelligenceVersion}</div>
+                <div className="text-sm text-blue-700">
+                  Confidence: {results.confidence.overall}% |
+                  Transcript Coverage: {results.validationReport?.transcriptCoverage}% |
+                  Data Completeness: {results.validationReport?.dataCompleteness}%
+                </div>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setViewMode(viewMode === 'formatted' ? 'structured' : 'formatted')}
+              className="text-blue-700 border-blue-300"
+            >
+              <FileCheck size={14} className="mr-2" />
+              {viewMode === 'formatted' ? 'Structured View' : 'Formatted View'}
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Red Flags Alert */}
       {results.redFlags && results.redFlags.length > 0 && (
         <Alert className="mb-6 border-red-200 bg-red-50">
@@ -259,8 +303,43 @@ export default function AutomatedIntakeConclusie() {
         </Alert>
       )}
 
-      {/* Results Sections */}
-      <div className="space-y-6">
+      {/* NEW: Formatted Clinical Document View (Semantic Intelligence v8.0) */}
+      {viewMode === 'formatted' && results.formattedMarkdown ? (
+        <div className="space-y-6">
+          <Card className="overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-hysio-mint/20 to-hysio-mint/10 border-b border-hysio-mint/30">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <FileText size={24} className="text-hysio-deep-green" />
+                  <div>
+                    <CardTitle className="text-hysio-deep-green">Professioneel Klinisch Verslag</CardTitle>
+                    <CardDescription>
+                      Automatisch gegenereerd met Semantic Intelligence - Scanbaar en gestructureerd
+                    </CardDescription>
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={async () => {
+                    await navigator.clipboard.writeText(results.formattedMarkdown || '');
+                    // Could add toast notification
+                  }}
+                  className="text-hysio-deep-green"
+                >
+                  <Copy size={16} className="mr-2" />
+                  Copy Markdown
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-8">
+              <MarkdownRenderer content={results.formattedMarkdown} />
+            </CardContent>
+          </Card>
+        </div>
+      ) : (
+        /* LEGACY: Structured Data View */
+        <div className="space-y-6">
         {/* HHSB Anamnesekaart */}
         <Card>
           <Collapsible
@@ -579,6 +658,7 @@ export default function AutomatedIntakeConclusie() {
           </Collapsible>
         </Card>
       </div>
+      )}
 
       {/* Export Options */}
       <Card className="mt-6">
