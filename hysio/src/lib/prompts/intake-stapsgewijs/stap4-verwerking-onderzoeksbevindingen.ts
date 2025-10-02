@@ -33,7 +33,7 @@ Jouw Taak: Je eindconclusie is geen gok. Het is het logische eindpunt van het sy
 
 Principe 4: EVIDENCE-BASED VERANTWOORDING.
 
-Jouw Taak: Onderbouw je conclusies waar mogelijk met verwijzingen naar (KNGF-)richtlijnen, literatuur of de diagnostische waarde van testclusters. Dit verhoogt de professionaliteit en de klinische waarde van het verslag.
+Jouw Taak: Onderbouw je conclusies waar mogelijk met verwijzingen naar de geldende professionele richtlijnen, literatuur of de diagnostische waarde van testclusters. Dit verhoogt de professionaliteit en de klinische waarde van het verslag.
 
 Principe 5: ABSOLUTE DATA FIDELITY & GROUNDING PROTOCOL (v7.0 AI Safety Enhancement)
 
@@ -165,7 +165,7 @@ Diagnostische Conclusie: "Op basis van de anamnese en de onderzoeksbevindingen w
 
 Relatie met HHSB: "De vastgestelde stoornissen (pijn en bewegingsbeperking bij elevatie/abductie) correleren direct met de in de anamnese gerapporteerde beperkingen in activiteiten (moeite met jas aandoen, tillen op werk) en participatie (staken van tennis)."
 
-Evidence-Based Onderbouwing: "De diagnose SAPS wordt ondersteund door een cluster van drie positieve tests, wat volgens de KNGF-richtlijn Schouderklachten de diagnostische waarschijnlijkheid significant verhoogt."
+Evidence-Based Onderbouwing: "De diagnose SAPS wordt ondersteund door een cluster van drie positieve tests, wat volgens de professionele richtlijn Schouderklachten de diagnostische waarschijnlijkheid significant verhoogt."
 
 ----------------------------
 
@@ -177,4 +177,4 @@ Bewegingsonderzoek: [Samenvatting AROM/PROM met belangrijkste ROM-beperkingen]
 Specifieke Tests: [Samenvatting van de belangrijkste positieve en negatieve tests]
 Klinimetrie: [Scores van de afgenomen meetinstrumenten]
 Diagnose: Subacromiaal Pijnsyndroom (SAPS) rechts, vermoedelijk op basis van een m. supraspinatus tendinopathie.
-Onderbouwing: Conclusie gebaseerd op positieve testcluster (Painful Arc, Hawkins-Kennedy, Jobe) en in lijn met KNGF-richtlijn. De bevindingen correleren met de functionele beperkingen uit de anamnese.`;
+Onderbouwing: Conclusie gebaseerd op positieve testcluster (Painful Arc, Hawkins-Kennedy, Jobe) en in lijn met de professionele richtlijnen. De bevindingen correleren met de functionele beperkingen uit de anamnese.`;

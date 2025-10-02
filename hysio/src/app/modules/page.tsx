@@ -24,8 +24,8 @@ export default function HysioModules() {
     {
       id: 'scribe',
       name: 'Hysio Scribe',
-      tagline: 'AI-Ondersteunde Documentatie',
-      description: 'Transformeer uw behandelingsdocumentatie met intelligente AI-assistentie die uw workflow revolutioneert.',
+      tagline: 'Intelligente Documentatie',
+      description: 'Transformeer uw behandelingsdocumentatie met intelligente Hysio-assistentie die uw workflow revolutioneert.',
       icon: FileText,
       color: 'hysio-mint',
       href: '/scribe',
@@ -49,7 +49,7 @@ export default function HysioModules() {
         },
         {
           title: 'Intelligente Templates',
-          description: 'AI-gedreven templates voor verschillende behandeltypes',
+          description: 'Hysio templates voor verschillende behandeltypes',
           icon: Brain
         },
         {
@@ -130,7 +130,7 @@ export default function HysioModules() {
       features: [
         {
           title: 'Slimme Templates',
-          description: 'AI-gegenereerde e-mailtemplates voor elke situatie',
+          description: 'Automatisch gegenereerde e-mailtemplates voor elke situatie',
           icon: Sparkles
         },
         {
@@ -173,7 +173,7 @@ export default function HysioModules() {
       features: [
         {
           title: 'Automatische Suggesties',
-          description: 'AI suggereert relevante codes tijdens het documenteren',
+          description: 'Hysio suggereert relevante codes tijdens het documenteren',
           icon: Brain
         },
         {
@@ -261,7 +261,7 @@ export default function HysioModules() {
                 Volledig Geïntegreerd
               </span>
               <span className="px-4 py-2 bg-hysio-deep-green/10 rounded-full text-hysio-deep-green text-sm font-medium">
-                AI-Gedreven
+                Hysio-Gedreven
               </span>
             </div>
           </div>

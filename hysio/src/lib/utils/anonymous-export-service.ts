@@ -158,7 +158,7 @@ BELANGRIJK: Dit document is gegenereerd met AI-ondersteuning en moet
 worden geverifieerd door een bevoegd fysiotherapeut voordat het wordt 
 gebruikt voor medische besluitvorming.
 
-Voldoet aan Nederlandse fysiotherapie richtlijnen (KNGF, DTF)
+Voldoet aan de erkende fysiotherapie-kwaliteitsstandaarden
 Alle patiëntgegevens zijn geanonimiseerd voor privacy bescherming.`);
     
     return sections.join('\n');

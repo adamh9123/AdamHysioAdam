@@ -4,17 +4,17 @@ on:
   push:
     branches: [ main, develop ]
     paths:
-      - 'hysio-medical-scribe/**'
+      - 'hysio/**'
       - '.github/workflows/ci.yml'
   pull_request:
     branches: [ main, develop ]
     paths:
-      - 'hysio-medical-scribe/**'
+      - 'hysio/**'
       - '.github/workflows/ci.yml'
 
 env:
   NODE_VERSION: '18.x'
-  WORKING_DIRECTORY: './hysio-medical-scribe'
+  WORKING_DIRECTORY: './hysio'
 
 jobs:
   # Code Quality and Security Checks
@@ -204,14 +204,14 @@ jobs:
           # Check for hardcoded patient data patterns
           if grep -r -E "(ssn|social|patient.*id|medical.*record|birth.*date)" \
              --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" \
-             ${{ env.WORKING_DIRECTORY }}/src/ || true; then
+             ./hysio/src/ || true; then
             echo "⚠️  Potential PHI patterns found. Please review."
           fi
 
           # Check for hardcoded credentials
           if grep -r -E "(password|secret|key|token).*=.*['\"][^'\"]{8,}" \
              --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" \
-             ${{ env.WORKING_DIRECTORY }}/ || true; then
+             ./hysio/ || true; then
             echo "❌ Hardcoded credentials found!"
             exit 1
           fi

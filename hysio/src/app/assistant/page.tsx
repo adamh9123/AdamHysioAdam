@@ -102,7 +102,7 @@ export default function AssistantPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <p className="text-sm text-hysio-deep-green-900/70 font-semibold">
-              ✨ Hysio Assistant v7.0 - AI Copiloot & Klinisch Sparringpartner
+              ✨ Hysio Assistant v7.0 - Hysio Copiloot & Klinisch Sparringpartner
             </p>
           </div>
 

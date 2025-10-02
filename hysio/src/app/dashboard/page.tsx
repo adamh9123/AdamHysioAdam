@@ -268,13 +268,13 @@ export default function DashboardPage() {
           </Card>
         </div>
 
-        {/* AI Toolkit Hub */}
+        {/* Hysio Toolkit Hub */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <Card className="lg:col-span-2 bg-gradient-to-br from-white/90 to-hysio-mint/10 backdrop-blur-sm border-hysio-mint/20">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-hysio-deep-green">
                 <Bot size={20} />
-                AI Toolkit
+                Hysio Toolkit
               </CardTitle>
               <CardDescription>
                 Toegang tot alle Hysio intelligente functies
@@ -292,7 +292,7 @@ export default function DashboardPage() {
                 <Link href="/assistant">
                   <Button variant="outline" className="w-full h-20 flex-col gap-2 hover:bg-sky-50 border-sky-200">
                     <MessageSquare size={20} className="text-sky-600" />
-                    <span className="text-sm font-medium">AI Assistant</span>
+                    <span className="text-sm font-medium">Hysio Assistant</span>
                   </Button>
                 </Link>
 
@@ -468,7 +468,7 @@ export default function DashboardPage() {
               <div>
                 <p className="font-medium">Hysio Intelligent Command Center</p>
                 <p className="text-sm text-white/70">
-                  Verhoog uw productiviteit met AI-gestuurde fysiotherapie tools
+                  Verhoog uw productiviteit met Hysio intelligente fysiotherapie tools
                 </p>
               </div>
             </div>

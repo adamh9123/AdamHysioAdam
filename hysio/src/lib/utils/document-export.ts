@@ -178,7 +178,7 @@ export class DocumentExporter {
     </div>
     <div class="footer">
         <p>Gegenereerd door Hysio Medical Scribe</p>
-        ${metadata?.footer || '<p>Voldoet aan Nederlandse fysiotherapie richtlijnen (KNGF, DTF)</p>'}
+        ${metadata?.footer || '<p>Voldoet aan de erkende fysiotherapie-kwaliteitsstandaarden</p>'}
     </div>
 </body>
 </html>`;

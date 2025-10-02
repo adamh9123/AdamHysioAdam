@@ -30,7 +30,7 @@ export default function OverHysio() {
               Wij zijn Hysio
             </h1>
             <p className="text-xl lg:text-2xl text-white/90 mb-8 leading-relaxed max-w-3xl mx-auto">
-              Het Nederlandse AI-platform dat <span className="text-hysio-mint font-semibold">500+ fysiotherapeuten</span> helpt
+              Het Nederlandse intelligente platform dat <span className="text-hysio-mint font-semibold">500+ fysiotherapeuten</span> helpt
               om zich te focussen op wat écht belangrijk is: <span className="text-hysio-mint font-semibold">patiëntenzorg</span>.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -94,7 +94,7 @@ export default function OverHysio() {
                 Onze Missie & Visie
               </h2>
               <p className="text-xl text-hysio-deep-green-900/80 max-w-3xl mx-auto">
-                Wij geloven dat AI en fysiotherapie een krachtige combinatie vormen
+                Wij geloven dat Hysio technologie en fysiotherapie een krachtige combinatie vormen
               </p>
             </div>
 
@@ -119,13 +119,13 @@ export default function OverHysio() {
                     <div className="flex items-start gap-3">
                       <CheckCircle className="h-5 w-5 text-hysio-emerald flex-shrink-0 mt-1" />
                       <span className="text-hysio-deep-green-900/80">
-                        <strong>70% minder administratietijd</strong> door AI-ondersteunde verslaglegging
+                        <strong>70% minder administratietijd</strong> door Hysio-ondersteunde verslaglegging
                       </span>
                     </div>
                     <div className="flex items-start gap-3">
                       <CheckCircle className="h-5 w-5 text-hysio-emerald flex-shrink-0 mt-1" />
                       <span className="text-hysio-deep-green-900/80">
-                        <strong>Evidence-based behandeling</strong> met realtime KNGF-richtlijn ondersteuning
+                        <strong>Evidence-based behandeling</strong> met realtime ondersteuning volgens de geldende professionele richtlijnen
                       </span>
                     </div>
                     <div className="flex items-start gap-3">
@@ -159,7 +159,7 @@ export default function OverHysio() {
                     <div className="flex items-start gap-3">
                       <Sparkles className="h-5 w-5 text-blue-600 flex-shrink-0 mt-1" />
                       <span className="text-hysio-deep-green-900/80">
-                        <strong>AI-first fysiotherapie</strong> waarbij administratie volledig geautomatiseerd is
+                        <strong>Hysio-first fysiotherapie</strong> waarbij administratie volledig geautomatiseerd is
                       </span>
                     </div>
                     <div className="flex items-start gap-3">
@@ -171,7 +171,7 @@ export default function OverHysio() {
                     <div className="flex items-start gap-3">
                       <Sparkles className="h-5 w-5 text-blue-600 flex-shrink-0 mt-1" />
                       <span className="text-hysio-deep-green-900/80">
-                        <strong>Internationale standaard</strong> voor AI in fysiotherapie vanuit Nederland
+                        <strong>Internationale standaard</strong> voor intelligente technologie in fysiotherapie vanuit Nederland
                       </span>
                     </div>
                   </div>
@@ -235,7 +235,7 @@ export default function OverHysio() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-center text-hysio-deep-green-900/80 leading-relaxed">
-                    Alle AI-modellen zijn getraind op <strong>KNGF-richtlijnen</strong> en gevalideerd door
+                    Alle Hysio technologie is getraind op <strong>de geldende professionele richtlijnen</strong> en gevalideerd door
                     praktiserende fysiotherapeuten. Geen aannames, alleen bewezen methodieken.
                   </p>
                 </CardContent>
@@ -251,7 +251,7 @@ export default function OverHysio() {
                 <CardContent>
                   <p className="text-center text-hysio-deep-green-900/80 leading-relaxed">
                     We staan nooit stil. <strong>Wekelijkse updates</strong>, nieuwe features en voortdurende
-                    verbetering van AI-nauwkeurigheid houden Hysio voorop in de markt.
+                    verbetering van Hysio nauwkeurigheid houden ons voorop in de markt.
                   </p>
                 </CardContent>
               </Card>
@@ -280,7 +280,7 @@ export default function OverHysio() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-center text-hysio-deep-green-900/80 leading-relaxed">
-                    We streven naar <strong>95%+ nauwkeurigheid</strong> in alle AI-outputs, een
+                    We streven naar <strong>95%+ nauwkeurigheid</strong> in alle Hysio-outputs, een
                     <strong>99.9% uptime</strong> en support die binnen 2 uur reageert.
                   </p>
                 </CardContent>
@@ -312,7 +312,7 @@ export default function OverHysio() {
                   <h3 className="text-2xl font-bold text-hysio-deep-green mb-2">Klinisch Team</h3>
                   <p className="text-hysio-deep-green-900/70 mb-4">Ervaren fysiotherapeuten</p>
                   <p className="text-sm text-hysio-deep-green-900/80">
-                    Zorgen voor klinische validatie, KNGF-compliance en realistische workflows
+                    Zorgen voor klinische validatie, naleving van professionele normen en realistische workflows
                   </p>
                 </CardContent>
               </Card>
@@ -322,10 +322,10 @@ export default function OverHysio() {
                   <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full mx-auto mb-6 flex items-center justify-center">
                     <Brain className="h-12 w-12 text-white" />
                   </div>
-                  <h3 className="text-2xl font-bold text-hysio-deep-green mb-2">AI Research</h3>
+                  <h3 className="text-2xl font-bold text-hysio-deep-green mb-2">Hysio Research</h3>
                   <p className="text-hysio-deep-green-900/70 mb-4">Machine Learning experts</p>
                   <p className="text-sm text-hysio-deep-green-900/80">
-                    Ontwikkelen en trainen AI-modellen specifiek voor fysiotherapie-toepassingen
+                    Ontwikkelen en trainen Hysio technologie specifiek voor fysiotherapie-toepassingen
                   </p>
                 </CardContent>
               </Card>
@@ -351,7 +351,7 @@ export default function OverHysio() {
                   Samen werken we aan de toekomst
                 </h3>
                 <p className="text-lg text-hysio-deep-green-900/80 max-w-3xl mx-auto leading-relaxed">
-                  Ons team combineert <strong>15+ jaar klinische ervaring</strong>, <strong>cutting-edge AI-expertise</strong> en
+                  Ons team combineert <strong>15+ jaar klinische ervaring</strong>, <strong>cutting-edge technologie-expertise</strong> en
                   <strong> enterprise software ontwikkeling</strong> om het beste fysiotherapie-platform van Nederland te bouwen.
                 </p>
               </CardContent>
@@ -432,7 +432,7 @@ export default function OverHysio() {
               <span className="text-2xl font-bold text-hysio-deep-green">Hysio</span>
             </div>
             <p className="text-hysio-deep-green-900/80 mb-6 max-w-2xl mx-auto">
-              AI-gedreven fysiotherapie-administratie. Gebouwd voor Nederlandse fysiotherapeuten,
+              Intelligente fysiotherapie-administratie. Gebouwd voor Nederlandse fysiotherapeuten,
               door experts die begrijpen wat jij nodig hebt.
             </p>
             <div className="text-hysio-deep-green-900/60 text-sm">

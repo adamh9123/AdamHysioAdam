@@ -310,7 +310,7 @@ BELANGRIJK: Dit document is gegenereerd met AI-ondersteuning en moet
 worden geverifieerd door een bevoegd fysiotherapeut voordat het wordt 
 gebruikt voor medische besluitvorming.
 
-Voldoet aan Nederlandse fysiotherapie richtlijnen (KNGF, DTF)`;
+Voldoet aan de erkende fysiotherapie-kwaliteitsstandaarden`;
   }
 
   private static exportAsText(content: string, session: SessionState): ExportResult {
@@ -385,7 +385,7 @@ Voldoet aan Nederlandse fysiotherapie richtlijnen (KNGF, DTF)`;
     </div>
     <div class="footer">
         <p>Gegenereerd door Hysio Medical Scribe</p>
-        <p>Voldoet aan Nederlandse fysiotherapie richtlijnen (KNGF, DTF)</p>
+        <p>Voldoet aan de erkende fysiotherapie-kwaliteitsstandaarden</p>
     </div>
 </body>
 </html>`;
@@ -681,7 +681,7 @@ Voldoet aan Nederlandse fysiotherapie richtlijnen (KNGF, DTF)`;
         new Paragraph({
           children: [
             new TextRun({
-              text: 'Voldoet aan Nederlandse fysiotherapie richtlijnen (KNGF, DTF)',
+              text: 'Voldoet aan de erkende fysiotherapie-kwaliteitsstandaarden',
               italics: true,
               size: 16,
             }),

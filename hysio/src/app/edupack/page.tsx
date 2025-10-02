@@ -252,7 +252,7 @@ function InputStep({ onSubmit }: { onSubmit: (request: EduPackGenerationRequest)
           Welkom bij EduPack Generator
         </h2>
         <p className="text-gray-600 max-w-2xl mx-auto">
-          Genereer professionele, patiëntvriendelijke samenvattingen in B1-niveau Nederlands.
+          Genereer professionele, patiëntvriendelijke samenvattingen in B1-niveau Nederlands met Hysio technologie.
           Voer handmatig informatie in of upload bestaande documenten.
         </p>
       </div>
@@ -330,7 +330,7 @@ function GeneratingStep() {
             EduPack wordt gegenereerd...
           </h3>
           <p className="text-gray-600 mb-6">
-            Onze AI analyseert de informatie en genereert een gepersonaliseerde,
+            Hysio analyseert de informatie en genereert een gepersonaliseerde,
             patiëntvriendelijke samenvatting.
           </p>
           <div className="bg-blue-50 p-4 rounded-lg">

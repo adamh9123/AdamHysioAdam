@@ -89,7 +89,7 @@ export default function Home() {
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-hysio-emerald" />
-                        <span>KNGF-conform</span>
+                        <span>Conform professionele normen</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-hysio-emerald" />
@@ -258,7 +258,7 @@ export default function Home() {
                   <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
                   <span className="text-sm text-blue-700">Analyseren...</span>
                 </div>
-                <div className="text-xs text-blue-600/70">Conform richtlijnen • Red flags check • Gestructureerd</div>
+                <div className="text-xs text-blue-600/70">Conform professionele normen • Red flags check • Gestructureerd</div>
               </div>
             </div>
 
@@ -298,7 +298,7 @@ export default function Home() {
                   Complete Hysio-Platform
                 </h2>
                 <p className="text-lg text-hysio-deep-green-900/80">
-                  Zes AI-modules voor je complete workflow
+                  Zes intelligente modules voor je complete workflow
                 </p>
               </div>
 
@@ -355,7 +355,7 @@ export default function Home() {
                   </div>
                 </div>
                 <CardDescription className="text-base">
-                  Je AI-collega voor klinische vragen en evidence-based adviezen.
+                  Je digitale collega voor klinische vragen en evidence-based adviezen.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -366,7 +366,7 @@ export default function Home() {
                   </div>
                   <div className="flex items-center gap-2 text-sm text-hysio-deep-green-900/80">
                     <CheckCircle className="h-4 w-4 text-hysio-emerald" />
-                    <span>Directe KNGF-richtlijn raadpleging</span>
+                    <span>Directe raadpleging van professionele richtlijnen</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-hysio-deep-green-900/80">
                     <CheckCircle className="h-4 w-4 text-hysio-emerald" />
@@ -453,7 +453,7 @@ export default function Home() {
                 </div>
                 <div className="mt-4 pt-4 border-t border-purple-100">
                   <div className="text-sm font-medium text-purple-600">
-                    🧠 Nieuw: AI-powered coding →
+                    🧠 Nieuw: Intelligente code-herkenning →
                   </div>
                 </div>
               </CardContent>
@@ -472,7 +472,7 @@ export default function Home() {
                   </div>
                 </div>
                 <CardDescription className="text-base">
-                  AI-gegenereerde patiëntvriendelijke samenvattingen in B1-niveau Nederlands.
+                  Automatisch gegenereerde patiëntvriendelijke samenvattingen in B1-niveau Nederlands.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -609,8 +609,8 @@ export default function Home() {
             <div className="flex items-center gap-3 bg-white px-6 py-4 rounded-lg shadow-sm border border-hysio-mint/20">
               <Shield className="h-6 w-6 text-hysio-emerald" />
               <div>
-                <div className="font-semibold text-hysio-deep-green">KNGF Conform</div>
-                <div className="text-sm text-hysio-deep-green-900/70">Nederlandse richtlijnen</div>
+                <div className="font-semibold text-hysio-deep-green">Professioneel Conform</div>
+                <div className="text-sm text-hysio-deep-green-900/70">Erkende kwaliteitsstandaarden</div>
               </div>
             </div>
 
@@ -778,7 +778,7 @@ export default function Home() {
                 <span className="text-2xl font-bold text-hysio-deep-green">Hysio</span>
               </div>
               <p className="text-hysio-deep-green-900/80 mb-6 max-w-md">
-                Het AI-ecosysteem voor Nederlandse fysiotherapeuten. Meer tijd voor zorg, minder gedoe met administratie.
+                Het intelligente ecosysteem voor Nederlandse fysiotherapeuten. Meer tijd voor zorg, minder gedoe met administratie.
               </p>
               <div className="flex gap-4">
                 <Button
@@ -803,7 +803,7 @@ export default function Home() {
                   onClick={() => router.push('/assistant')}
                   className="block text-hysio-deep-green-900/70 hover:text-hysio-mint-dark transition-colors"
                 >
-                  AI Assistant
+                  Hysio Assistant
                 </button>
                 <button
                   onClick={() => router.push('/smartmail')}
@@ -864,7 +864,7 @@ export default function Home() {
                 © 2025 Hysio.nl - Professional Platform for Physiotherapy Documentation
               </p>
               <div className="flex items-center gap-4 text-sm text-hysio-deep-green-900/60">
-                <span>KNGF-conform</span>
+                <span>Conform professionele normen</span>
                 <span>•</span>
                 <span>AVG-compliant</span>
                 <span>•</span>
@@ -876,7 +876,7 @@ export default function Home() {
                 Alle Hysio-gegenereerde content moet geverifieerd worden door gelicentieerde fysiotherapeuten
               </p>
               <p className="text-xs text-hysio-deep-green-900/40">
-                ¹ Bron: KNGF / Nivel, &quot;Tijdsbesteding in de fysiotherapiepraktijk&quot;
+                ¹ Bron: Nivel, &quot;Tijdsbesteding in de fysiotherapiepraktijk&quot;
               </p>
             </div>
           </div>
