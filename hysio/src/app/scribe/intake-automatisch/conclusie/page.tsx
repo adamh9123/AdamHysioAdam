@@ -13,6 +13,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { MarkdownRenderer, ClinicalSection } from '@/components/ui/markdown-renderer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
   ArrowLeft,
   CheckCircle,
