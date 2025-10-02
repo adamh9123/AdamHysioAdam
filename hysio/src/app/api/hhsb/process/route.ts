@@ -20,6 +20,8 @@ import {
   createZorgplanUserPrompt,
   parseZorgplanAnalysis
 } from '@/lib/medical/zorgplan-generation';
+import { processIntakeWithSemanticIntelligence } from '@/lib/medical/semantic-intake-processor';
+import { formatIntakeToMarkdown } from '@/lib/medical/clinical-document-formatter';
 
 export async function POST(request: NextRequest) {
   let workflowType: string | undefined;
@@ -436,6 +438,100 @@ async function generateCompleteIntakeAnalysis(
   const genderText = gender === 'male' ? 'man' : 'vrouw';
 
   console.log('✅ HHSB: Input validation passed:', {
+    initials,
+    age,
+    genderText,
+    chiefComplaint: chiefComplaint.substring(0, 100) + (chiefComplaint.length > 100 ? '...' : ''),
+    transcriptPreview: transcript.substring(0, 200) + (transcript.length > 200 ? '...' : '')
+  });
+
+  // ============================================================================
+  // NEW: Use Semantic Intelligence Processor v8.0
+  // ============================================================================
+  console.log('🧠 Using Semantic Intelligence Processor v8.0...');
+
+  try {
+    const semanticResult = await processIntakeWithSemanticIntelligence(
+      { ...patientInfo, age, genderText },
+      transcript,
+      preparation
+    );
+
+    console.log('✅ Semantic Intelligence: Processing complete', {
+      confidence: semanticResult.confidence.overall,
+      transcriptCoverage: semanticResult.validationReport.transcriptCoverage,
+      passesCompleted: semanticResult.processingMetadata.passesCompleted,
+    });
+
+    // Generate beautiful formatted markdown
+    const formattedMarkdown = formatIntakeToMarkdown(semanticResult, {
+      initials,
+      age,
+      gender: genderText,
+      chiefComplaint,
+    });
+
+    console.log('✅ Clinical Document Formatter: Generated professional markdown', {
+      markdownLength: formattedMarkdown.length,
+    });
+
+    // Return in format compatible with existing frontend
+    // This ensures backward compatibility while providing enhanced data
+    return {
+      // Main structured data (new enhanced format)
+      hhsbAnamneseCard: semanticResult.hhsbAnamneseCard,
+      onderzoeksBevindingen: semanticResult.onderzoeksBevindingen,
+      klinischeConclusie: semanticResult.klinischeConclusie,
+      samenvatting: semanticResult.samenvatting, // NEW: Comprehensive intake summary
+
+      // Validation and confidence
+      validationReport: semanticResult.validationReport,
+      confidence: semanticResult.confidence,
+      redFlags: semanticResult.redFlags.map(rf => rf.description),
+      redFlagsDetailed: semanticResult.redFlags,
+
+      // Formatted outputs for different use cases
+      formattedMarkdown, // NEW: Professional markdown for display/export
+      fullStructuredText: formattedMarkdown, // For backward compatibility
+
+      // Metadata
+      transcript,
+      workflowType: 'intake-automatisch',
+      processedAt: new Date().toISOString(),
+      patientInfo: {
+        initials,
+        age,
+        gender: genderText,
+        chiefComplaint,
+      },
+      processingMetadata: semanticResult.processingMetadata,
+      semanticIntelligenceVersion: '8.0.0',
+    };
+
+  } catch (error) {
+    console.error('❌ Semantic Intelligence Processing Failed:', error);
+    console.log('⚠️ Falling back to legacy processing method...');
+
+    // FALLBACK: Use legacy method if semantic intelligence fails
+    return await generateCompleteIntakeAnalysisLegacy(patientInfo, preparation, transcript);
+  }
+}
+
+// ============================================================================
+// LEGACY FUNCTION - Preserved as fallback
+// ============================================================================
+async function generateCompleteIntakeAnalysisLegacy(
+  patientInfo: { initials: string; birthYear: string; gender: string; chiefComplaint: string },
+  preparation: string | null,
+  transcript: string
+) {
+  console.log('⚠️ Using Legacy Processing Method');
+
+  const { initials, birthYear, gender, chiefComplaint } = patientInfo;
+  const age = new Date().getFullYear() - parseInt(birthYear);
+  const genderText = gender === 'male' ? 'man' : 'vrouw';
+
+  console.log('✅ HHSB: Input validation passed (legacy):', {
     initials,
     age,
     genderText,
