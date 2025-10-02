@@ -134,6 +134,317 @@ export default function AutomatedIntakeConclusie() {
     }
   };
 
+  // Helper function to format Stoornissen data
+  const formatStoornissen = (stoornissen: any) => {
+    if (!stoornissen) return 'Geen stoornissen geïdentificeerd';
+
+    return (
+      <div className="space-y-4">
+        {stoornissen.pain && (
+          <div>
+            <h5 className="font-semibold text-hysio-deep-green mb-2">Pijn</h5>
+            <ul className="list-disc list-inside space-y-1">
+              {stoornissen.pain.location && stoornissen.pain.location.length > 0 && (
+                <li><strong>Locatie:</strong> {stoornissen.pain.location.join(', ')}</li>
+              )}
+              {stoornissen.pain.character && (
+                <li><strong>Karakter:</strong> {Array.isArray(stoornissen.pain.character) ? stoornissen.pain.character.join(', ') : stoornissen.pain.character}</li>
+              )}
+              {stoornissen.pain.intensity && (
+                <li>
+                  <strong>Intensiteit:</strong> Huidig: {stoornissen.pain.intensity.current || 'N/A'},
+                  Ergste: {stoornissen.pain.intensity.worst || 'N/A'},
+                  Gemiddeld: {stoornissen.pain.intensity.average || 'N/A'}
+                </li>
+              )}
+              {stoornissen.pain.pattern && (
+                <li><strong>Patroon:</strong> {stoornissen.pain.pattern}</li>
+              )}
+              {stoornissen.pain.aggravatingFactors && stoornissen.pain.aggravatingFactors.length > 0 && (
+                <li><strong>Provocerende factoren:</strong> {stoornissen.pain.aggravatingFactors.join(', ')}</li>
+              )}
+              {stoornissen.pain.relievingFactors && stoornissen.pain.relievingFactors.length > 0 && (
+                <li><strong>Verlichtende factoren:</strong> {stoornissen.pain.relievingFactors.join(', ')}</li>
+              )}
+            </ul>
+          </div>
+        )}
+        {stoornissen.movement && (
+          <div>
+            <h5 className="font-semibold text-hysio-deep-green mb-2">Beweging</h5>
+            <ul className="list-disc list-inside space-y-1">
+              {stoornissen.movement.restrictions && stoornissen.movement.restrictions.length > 0 && (
+                <li><strong>Beperkingen:</strong> {stoornissen.movement.restrictions.join(', ')}</li>
+              )}
+              {stoornissen.movement.quality && (
+                <li><strong>Kwaliteit:</strong> {stoornissen.movement.quality}</li>
+              )}
+            </ul>
+          </div>
+        )}
+        {stoornissen.otherSymptoms && stoornissen.otherSymptoms.length > 0 && (
+          <div>
+            <h5 className="font-semibold text-hysio-deep-green mb-2">Overige symptomen</h5>
+            <ul className="list-disc list-inside">
+              {stoornissen.otherSymptoms.map((symptom: string, idx: number) => (
+                <li key={idx}>{symptom}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Helper function to format Beperkingen data
+  const formatBeperkingen = (beperkingen: any) => {
+    if (!beperkingen) return 'Geen beperkingen geïdentificeerd';
+
+    return (
+      <div className="space-y-4">
+        {beperkingen.adl && beperkingen.adl.length > 0 && (
+          <div>
+            <h5 className="font-semibold text-hysio-deep-green mb-2">ADL (Dagelijkse activiteiten)</h5>
+            <ul className="list-disc list-inside space-y-1">
+              {beperkingen.adl.map((item: any, idx: number) => (
+                <li key={idx}>
+                  <strong>{item.activity}:</strong> {item.limitation} {item.impact && `(Impact: ${item.impact})`}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {beperkingen.work && beperkingen.work.length > 0 && (
+          <div>
+            <h5 className="font-semibold text-hysio-deep-green mb-2">Werk</h5>
+            <ul className="list-disc list-inside space-y-1">
+              {beperkingen.work.map((item: any, idx: number) => (
+                <li key={idx}>
+                  <strong>{item.task}:</strong> {item.limitation}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {beperkingen.sport && beperkingen.sport.length > 0 && (
+          <div>
+            <h5 className="font-semibold text-hysio-deep-green mb-2">Sport & Hobby</h5>
+            <ul className="list-disc list-inside space-y-1">
+              {beperkingen.sport.map((item: any, idx: number) => (
+                <li key={idx}>
+                  <strong>{item.activity}:</strong> {item.limitation}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {beperkingen.social && beperkingen.social.length > 0 && (
+          <div>
+            <h5 className="font-semibold text-hysio-deep-green mb-2">Sociaal & Participatie</h5>
+            <ul className="list-disc list-inside">
+              {beperkingen.social.map((item: string, idx: number) => (
+                <li key={idx}>{item}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Helper function to format Onderzoeksbevindingen data
+  const formatOnderzoek = (onderzoek: any) => {
+    if (!onderzoek) return 'Geen onderzoeksbevindingen beschikbaar';
+
+    return (
+      <div className="space-y-4">
+        {onderzoek.inspectie && (
+          <div>
+            <h5 className="font-semibold text-hysio-deep-green mb-2">Inspectie & Observatie</h5>
+            <ul className="list-disc list-inside space-y-1">
+              {onderzoek.inspectie.posture && <li><strong>Houding:</strong> {onderzoek.inspectie.posture}</li>}
+              {onderzoek.inspectie.swelling && <li><strong>Zwelling:</strong> {onderzoek.inspectie.swelling}</li>}
+              {onderzoek.inspectie.atrophy && <li><strong>Atrofie:</strong> {onderzoek.inspectie.atrophy}</li>}
+              {onderzoek.inspectie.other && onderzoek.inspectie.other.map((obs: string, idx: number) => (
+                <li key={idx}>{obs}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {onderzoek.palpatie && (
+          <div>
+            <h5 className="font-semibold text-hysio-deep-green mb-2">Palpatie</h5>
+            <ul className="list-disc list-inside space-y-1">
+              {onderzoek.palpatie.tenderness && onderzoek.palpatie.tenderness.length > 0 && (
+                <li>
+                  <strong>Drukpijn:</strong> {onderzoek.palpatie.tenderness.map((t: any) => `${t.location} (${t.severity})`).join(', ')}
+                </li>
+              )}
+              {onderzoek.palpatie.tone && <li><strong>Tonus:</strong> {onderzoek.palpatie.tone}</li>}
+              {onderzoek.palpatie.temperature && <li><strong>Temperatuur:</strong> {onderzoek.palpatie.temperature}</li>}
+            </ul>
+          </div>
+        )}
+        {onderzoek.bewegingsonderzoek && (
+          <div>
+            <h5 className="font-semibold text-hysio-deep-green mb-2">Bewegingsonderzoek</h5>
+            {onderzoek.bewegingsonderzoek.arom && onderzoek.bewegingsonderzoek.arom.length > 0 && (
+              <div className="mb-3">
+                <p className="font-medium mb-1">Actief ROM (AROM):</p>
+                <ul className="list-disc list-inside pl-4">
+                  {onderzoek.bewegingsonderzoek.arom.map((m: any, idx: number) => (
+                    <li key={idx}>
+                      {m.movement}: {m.range} {m.pain && `- Pijn: ${m.pain}`} {m.limitation && `- ${m.limitation}`}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {onderzoek.bewegingsonderzoek.prom && onderzoek.bewegingsonderzoek.prom.length > 0 && (
+              <div>
+                <p className="font-medium mb-1">Passief ROM (PROM):</p>
+                <ul className="list-disc list-inside pl-4">
+                  {onderzoek.bewegingsonderzoek.prom.map((m: any, idx: number) => (
+                    <li key={idx}>
+                      {m.movement}: {m.range} {m.endFeel && `- Eindgevoel: ${m.endFeel}`}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+        {onderzoek.specifiekeTesten && onderzoek.specifiekeTesten.length > 0 && (
+          <div>
+            <h5 className="font-semibold text-hysio-deep-green mb-2">Specifieke Tests</h5>
+            <ul className="list-disc list-inside space-y-1">
+              {onderzoek.specifiekeTesten.map((test: any, idx: number) => (
+                <li key={idx}>
+                  <strong>{test.testName}:</strong> {test.result === 'positive' ? '✅ Positief' : test.result === 'negative' ? '❌ Negatief' : '❓ Onduidelijk'}
+                  {test.description && ` - ${test.description}`}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {onderzoek.krachtEnStabiliteit && onderzoek.krachtEnStabiliteit.length > 0 && (
+          <div>
+            <h5 className="font-semibold text-hysio-deep-green mb-2">Kracht & Stabiliteit</h5>
+            <ul className="list-disc list-inside space-y-1">
+              {onderzoek.krachtEnStabiliteit.map((k: any, idx: number) => (
+                <li key={idx}>
+                  <strong>{k.muscle}:</strong> {k.strength} {k.comment && `- ${k.comment}`}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {onderzoek.klinimetrie && onderzoek.klinimetrie.length > 0 && (
+          <div>
+            <h5 className="font-semibold text-hysio-deep-green mb-2">Klinimetrie</h5>
+            <ul className="list-disc list-inside space-y-1">
+              {onderzoek.klinimetrie.map((k: any, idx: number) => (
+                <li key={idx}>
+                  <strong>{k.measureName}:</strong> {k.score} - {k.interpretation}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Helper function to format Klinische Conclusie data
+  const formatConclusie = (conclusie: any) => {
+    if (!conclusie) return 'Geen klinische conclusie beschikbaar';
+
+    return (
+      <div className="space-y-4">
+        {conclusie.diagnose && (
+          <div>
+            <h5 className="font-semibold text-hysio-deep-green mb-2">Diagnose</h5>
+            <p className="mb-2"><strong>Primair:</strong> {conclusie.diagnose.primary || conclusie.diagnose.primaireDiagnose || 'Niet gespecificeerd'}</p>
+            {conclusie.diagnose.differential && conclusie.diagnose.differential.length > 0 && (
+              <div>
+                <p className="font-medium">Differentiaal diagnoses:</p>
+                <ul className="list-disc list-inside pl-4">
+                  {conclusie.diagnose.differential.map((d: string, idx: number) => (
+                    <li key={idx}>{d}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+        {conclusie.behandelplan && (
+          <div>
+            <h5 className="font-semibold text-hysio-deep-green mb-2">Behandelplan</h5>
+            {conclusie.behandelplan.mainGoals && conclusie.behandelplan.mainGoals.length > 0 && (
+              <div className="mb-3">
+                <p className="font-medium mb-1">SMART Behandeldoelen:</p>
+                <ul className="list-decimal list-inside pl-4">
+                  {conclusie.behandelplan.mainGoals.map((goal: any, idx: number) => (
+                    <li key={idx}>
+                      {goal.goal} {goal.timeframe && `(${goal.timeframe})`}
+                      {goal.measures && <span className="text-sm text-gray-600"> - Meetbaar: {goal.measures}</span>}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {conclusie.behandelplan.phases && conclusie.behandelplan.phases.length > 0 && (
+              <div className="mb-3">
+                <p className="font-medium mb-1">Behandelfasen:</p>
+                {conclusie.behandelplan.phases.map((phase: any, idx: number) => (
+                  <div key={idx} className="ml-4 mb-2">
+                    <p className="font-medium">Fase {idx + 1}: {phase.phaseName} ({phase.duration})</p>
+                    <p className="text-sm">{phase.focus}</p>
+                    {phase.interventions && phase.interventions.length > 0 && (
+                      <ul className="list-disc list-inside pl-4 text-sm">
+                        {phase.interventions.map((intervention: string, i: number) => (
+                          <li key={i}>{intervention}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            {conclusie.behandelplan.frequency && <p><strong>Frequentie:</strong> {conclusie.behandelplan.frequency}</p>}
+            {conclusie.behandelplan.estimatedDuration && <p><strong>Geschatte duur:</strong> {conclusie.behandelplan.estimatedDuration}</p>}
+          </div>
+        )}
+        {conclusie.prognose && (
+          <div>
+            <h5 className="font-semibold text-hysio-deep-green mb-2">Prognose</h5>
+            <p className="mb-2">{conclusie.prognose.expected}</p>
+            {conclusie.prognose.factorsPositive && conclusie.prognose.factorsPositive.length > 0 && (
+              <div className="mb-2">
+                <p className="font-medium text-green-700">Positieve factoren:</p>
+                <ul className="list-disc list-inside pl-4">
+                  {conclusie.prognose.factorsPositive.map((f: string, idx: number) => (
+                    <li key={idx}>{f}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {conclusie.prognose.factorsNegative && conclusie.prognose.factorsNegative.length > 0 && (
+              <div>
+                <p className="font-medium text-orange-700">Belemmerende factoren:</p>
+                <ul className="list-disc list-inside pl-4">
+                  {conclusie.prognose.factorsNegative.map((f: string, idx: number) => (
+                    <li key={idx}>{f}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const handleExport = async (format: 'html' | 'txt' | 'docx' | 'pdf') => {
     if (!results || !patientInfo) {
       console.error('No results or patient info available for export');
@@ -431,11 +742,7 @@ export default function AutomatedIntakeConclusie() {
                     <h4 className="font-semibold text-hysio-deep-green mb-3">Stoornissen</h4>
                     <div className="bg-hysio-mint/10 rounded-lg p-4">
                       <div className="text-hysio-deep-green-900/80">
-                        {results.hhsbAnamneseCard?.stoornissen ? (
-                          JSON.stringify(results.hhsbAnamneseCard.stoornissen, null, 2)
-                        ) : (
-                          'Geen stoornissen geïdentificeerd'
-                        )}
+                        {formatStoornissen(results.hhsbAnamneseCard?.stoornissen)}
                       </div>
                     </div>
                   </div>
@@ -445,11 +752,7 @@ export default function AutomatedIntakeConclusie() {
                     <h4 className="font-semibold text-hysio-deep-green mb-3">Beperkingen</h4>
                     <div className="bg-hysio-mint/10 rounded-lg p-4">
                       <div className="text-hysio-deep-green-900/80">
-                        {results.hhsbAnamneseCard?.beperkingen ? (
-                          JSON.stringify(results.hhsbAnamneseCard.beperkingen, null, 2)
-                        ) : (
-                          'Geen beperkingen geïdentificeerd'
-                        )}
+                        {formatBeperkingen(results.hhsbAnamneseCard?.beperkingen)}
                       </div>
                     </div>
                   </div>
@@ -503,12 +806,8 @@ export default function AutomatedIntakeConclusie() {
             <CollapsibleContent>
               <CardContent>
                 <div className="bg-hysio-mint/10 rounded-lg p-4">
-                  <div className="text-hysio-deep-green-900/80 whitespace-pre-wrap">
-                    {results.onderzoeksBevindingen ? (
-                      JSON.stringify(results.onderzoeksBevindingen, null, 2)
-                    ) : (
-                      'Geen onderzoeksbevindingen beschikbaar'
-                    )}
+                  <div className="text-hysio-deep-green-900/80">
+                    {formatOnderzoek(results.onderzoeksBevindingen)}
                   </div>
                 </div>
               </CardContent>
@@ -560,12 +859,8 @@ export default function AutomatedIntakeConclusie() {
             <CollapsibleContent>
               <CardContent>
                 <div className="bg-hysio-mint/10 rounded-lg p-4">
-                  <div className="text-hysio-deep-green-900/80 whitespace-pre-wrap">
-                    {results.klinischeConclusie ? (
-                      JSON.stringify(results.klinischeConclusie, null, 2)
-                    ) : (
-                      'Geen klinische conclusie beschikbaar'
-                    )}
+                  <div className="text-hysio-deep-green-900/80">
+                    {formatConclusie(results.klinischeConclusie)}
                   </div>
                 </div>
               </CardContent>
@@ -573,7 +868,7 @@ export default function AutomatedIntakeConclusie() {
           </Collapsible>
         </Card>
 
-        {/* Samenvatting van Anamnese */}
+        {/* Samenvatting van Intake */}
         <Card>
           <Collapsible
             open={expandedSections.samenvatting || true}
@@ -585,9 +880,9 @@ export default function AutomatedIntakeConclusie() {
                   <div className="flex items-center gap-3">
                     <Heart size={20} className="text-purple-600" />
                     <div>
-                      <CardTitle className="text-purple-700">Samenvatting van Anamnese</CardTitle>
+                      <CardTitle className="text-purple-700">Samenvatting van Intake</CardTitle>
                       <CardDescription>
-                        Beknopte samenvatting van de anamnese bevindingen
+                        Complete samenvatting van anamnese, onderzoek en klinische conclusie
                       </CardDescription>
                     </div>
                   </div>
