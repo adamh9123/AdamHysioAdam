@@ -33,7 +33,6 @@ import {
 
 interface AutomatedIntakeState {
   preparation: string | null;
-  contextDocument: File | null;
   inputMethod: 'recording' | 'upload' | 'manual' | null;
   recordingData: {
     blob: Blob | null;
@@ -62,7 +61,6 @@ export default function AutomatedIntakePage() {
 
   const [state, setState] = React.useState<AutomatedIntakeState>({
     preparation: null,
-    contextDocument: null,
     inputMethod: null,
     recordingData: {
       blob: null,
@@ -101,17 +99,6 @@ export default function AutomatedIntakePage() {
 
     try {
       setState(prev => ({ ...prev, isProcessing: true, error: null }));
-
-      // Read context document if provided
-      let contextDocumentContent = null;
-      if (state.contextDocument) {
-        try {
-          contextDocumentContent = await state.contextDocument.text();
-          console.log('Context document loaded:', contextDocumentContent.substring(0, 100) + '...');
-        } catch (err) {
-          console.warn('Could not read context document:', err);
-        }
-      }
 
       // Call preparation generation API
       const response = await fetch('/api/preparation', {
@@ -180,13 +167,6 @@ export default function AutomatedIntakePage() {
     });
   };
 
-  const handleContextDocumentUpload = (file: File) => {
-    setState(prev => ({
-      ...prev,
-      contextDocument: file,
-    }));
-    console.log('Context document uploaded:', file.name);
-  };
 
   const processIntake = async () => {
     if (!patientInfo) return;
@@ -569,28 +549,6 @@ export default function AutomatedIntakePage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {/* Context Document Upload */}
-            <div className="mb-4 pb-4 border-b border-hysio-mint/20">
-              <label className="block text-sm font-medium text-hysio-deep-green-900 mb-2">
-                Context Document (Optioneel)
-              </label>
-              <p className="text-xs text-hysio-deep-green-900/60 mb-3">
-                Upload een document met relevante context (bijv. verwijsbrief, vorig verslag) om de voorbereiding te verbeteren
-              </p>
-              <FileUpload
-                onFileUpload={handleContextDocumentUpload}
-                acceptedTypes={['text/*', '.pdf', '.doc', '.docx', '.txt']}
-                disabled={state.isProcessing}
-                maxSize={10}
-              />
-              {state.contextDocument && (
-                <div className="mt-2 flex items-center gap-2 text-sm text-hysio-deep-green-900">
-                  <FileText size={14} />
-                  <span>{state.contextDocument.name}</span>
-                </div>
-              )}
-            </div>
-
             {state.isProcessing && !state.preparationGenerated ? (
               <div className="flex items-center justify-center py-8">
                 <LoadingSpinner />

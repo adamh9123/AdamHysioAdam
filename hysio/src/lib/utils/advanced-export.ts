@@ -522,11 +522,11 @@ export class AdvancedExportManager {
       if (intakeResult?.hhsbAnamneseCard) {
         exportData.anamneseResult = { hhsbAnamneseCard: intakeResult.hhsbAnamneseCard };
       }
-      if (intakeResult?.examinationFindings) {
-        exportData.onderzoekResult = { examinationFindings: intakeResult.examinationFindings };
+      if (intakeResult?.onderzoeksBevindingen) {
+        exportData.onderzoekResult = { examinationFindings: intakeResult.onderzoeksBevindingen };
       }
-      if (intakeResult?.clinicalConclusion) {
-        exportData.klinischeConclusieResult = { clinicalConclusion: intakeResult.clinicalConclusion };
+      if (intakeResult?.klinischeConclusie) {
+        exportData.klinischeConclusieResult = { clinicalConclusion: intakeResult.klinischeConclusie };
       }
 
       switch (opts.format) {

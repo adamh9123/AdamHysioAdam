@@ -8,10 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import type { PreIntakeSubmission } from '@/types/pre-intake';
-
-// Mock data store - In production, this would be a database
-const mockSubmissions: PreIntakeSubmission[] = [];
+import { getMockSubmissions } from '@/lib/utils/pre-intake-mock-store';
 
 /**
  * GET /api/pre-intake/submissions
@@ -31,7 +28,7 @@ export async function GET(request: NextRequest) {
     const offset = parseInt(searchParams.get('offset') || '0');
 
     // Filter submissions
-    let filteredSubmissions = [...mockSubmissions];
+    let filteredSubmissions = [...getMockSubmissions()];
 
     if (statusFilter) {
       filteredSubmissions = filteredSubmissions.filter(
@@ -82,19 +79,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-}
-
-/**
- * Helper function to add a submission to the mock store
- * This would be called by the submit endpoint
- */
-export function addMockSubmission(submission: PreIntakeSubmission) {
-  mockSubmissions.push(submission);
-}
-
-/**
- * Helper function to get submissions (for internal use)
- */
-export function getMockSubmissions(): PreIntakeSubmission[] {
-  return mockSubmissions;
 }
