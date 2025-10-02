@@ -92,7 +92,7 @@ Maak een gestructureerde voorbereiding met:
 
 6. **Rode vlag screening**: DTF-specifieke vragen voor de betreffende regio om ernstige pathologie uit te sluiten
 
-Houd rekening met Nederlandse fysiotherapie richtlijnen (KNGF) en gebruik professionele terminologie.
+Houd rekening met de erkende Nederlandse fysiotherapie-kwaliteitsstandaarden en gebruik professionele terminologie.
 
 Patiëntgegevens: {patientInfo}
 
@@ -170,7 +170,7 @@ Aanbevolen gevalideerde instrumenten voor voortgangsregistratie:
 - Regio-specifieke schalen (bijv. SPADI voor schouder)
 
 **Toelichting:**
-Baseer onderzoekskeuzes op actuele KNGF-richtlijnen, ZorgTopics en OrthoXpert protocollen.
+Baseer onderzoekskeuzes op actuele professionele richtlijnen, ZorgTopics en OrthoXpert protocollen.
 
 Anamnese bevindingen: {anamnesisData}
 Hoofdklacht: {chiefComplaint}
@@ -194,7 +194,7 @@ Maak een heldere, gefundeerde en transparante diagnostische conclusie met:
 - Redenen waarom deze minder waarschijnlijk zijn
 
 **3. Motivering vanuit Literatuur en Richtlijnen**
-- Verwijs naar KNGF-richtlijnen waar relevant
+- Verwijs naar de geldende professionele richtlijnen waar relevant
 - Noem ZorgTopics of OrthoXpert protocollen
 - Evidence-based literatuur (indien van toepassing)
 
@@ -261,7 +261,7 @@ Maak een complete conclusie volgens dit format:
 - Evaluatiemoment gepland na [aantal] behandelingen
 
 **📚 Onderbouwing en gebruikte richtlijnen**
-- KNGF-richtlijn [relevante richtlijn]
+- Professionele richtlijn [relevante richtlijn]
 - ZorgTopics [relevante informatie]
 - OrthoXpert-protocol [indien van toepassing]
 

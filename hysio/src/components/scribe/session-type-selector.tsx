@@ -151,7 +151,7 @@ const SessionTypeSelector: React.FC<SessionTypeSelectorProps> = ({
 
       <div className="mt-8 text-center">
         <p className="text-sm text-hysio-deep-green-900/60">
-          Alle gegenereerde content wordt ondersteund door AI en voldoet aan Nederlandse fysiotherapie richtlijnen (KNGF, DTF)
+          Alle gegenereerde content wordt ondersteund door AI en voldoet aan de erkende fysiotherapie-kwaliteitsstandaarden
         </p>
         <p className="text-xs text-hysio-deep-green-900/50 mt-2">
           <strong>Belangrijk:</strong> Altijd nazien door een bevoegd fysiotherapeut

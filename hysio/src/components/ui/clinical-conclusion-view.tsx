@@ -242,7 +242,7 @@ const ClinicalConclusionView: React.FC<ClinicalConclusionViewProps> = ({
         </p>
         <p className="text-xs text-hysio-deep-green-900/50">
           Rapport gegenereerd op {formatDate(intakeData.updatedAt)} • 
-          Voldoet aan Nederlandse fysiotherapie richtlijnen (KNGF, DTF) • 
+          Voldoet aan de erkende fysiotherapie-kwaliteitsstandaarden • 
           Alle AI-gegenereerde content moet worden geverifieerd door een bevoegd fysiotherapeut
         </p>
       </div>

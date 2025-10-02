@@ -18,7 +18,7 @@ const MarketingNavigation: React.FC<MarketingNavigationProps> = ({ className }) 
   const router = useRouter();
 
   const toolkitItems = [
-    { name: 'Hysio Scribe', href: '/scribe', description: 'AI-ondersteunde documentatie' },
+    { name: 'Hysio Scribe', href: '/scribe', description: 'Intelligente documentatie' },
     { name: 'Assistant', href: '/assistant', description: 'Intelligente fysiotherapie-assistent' },
     { name: 'SmartMail', href: '/smartmail', description: 'Geautomatiseerde communicatie' },
     { name: 'Diagnosecode', href: '/diagnosecode', description: 'Slimme diagnose herkenning' },

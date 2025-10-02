@@ -82,7 +82,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
             </h2>
 
             <p className="text-hysio-deep-green-900/80 mb-3 max-w-lg text-lg leading-relaxed">
-              Uw AI-copiloot en klinisch sparringpartner voor fysiotherapie.
+              Uw Hysio copiloot en klinisch sparringpartner voor fysiotherapie.
             </p>
 
             <p className="text-hysio-deep-green-900/70 mb-10 max-w-lg text-sm">

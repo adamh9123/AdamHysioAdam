@@ -386,7 +386,7 @@ export class EduPackPrivacyFilter {
 
     // Check for jargon that needs explanation
     const jargonTerms = [
-      /\b(?:ROM|ADL|SOEP|ICF|KNGF)\b/g,
+      /\b(?:ROM|ADL|SOEP|ICF)\b/g,
       /\b(?:mobilisatie|manipulatie|provocatie)\b/gi
     ];
 

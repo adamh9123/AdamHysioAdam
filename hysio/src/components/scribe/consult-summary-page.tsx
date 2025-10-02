@@ -610,7 +610,7 @@ const ConsultSummaryPage: React.FC<ConsultSummaryPageProps> = ({
           </p>
           <p className="text-xs text-[#003728]/60">
             Consult rapport gegenereerd op {formatDate(new Date().toISOString())} •
-            Voldoet aan Nederlandse fysiotherapie richtlijnen (KNGF, DTF) •
+            Voldoet aan de erkende fysiotherapie-kwaliteitsstandaarden •
             Alle AI-gegenereerde content moet worden geverifieerd door een bevoegd fysiotherapeut
           </p>
         </div>

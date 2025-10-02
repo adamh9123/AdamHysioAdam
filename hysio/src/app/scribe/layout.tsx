@@ -239,7 +239,7 @@ export default function ScribeLayout({
               Hysio Medical Scribe - AI-ondersteunde fysiotherapie documentatie
             </p>
             <p className="text-xs text-hysio-deep-green-900/50 mt-1">
-              Voldoet aan Nederlandse fysiotherapie richtlijnen (KNGF, DTF) -
+              Voldoet aan de erkende fysiotherapie-kwaliteitsstandaarden -
               Alle AI-content moet worden geverifieerd door een bevoegd fysiotherapeut
             </p>
           </div>

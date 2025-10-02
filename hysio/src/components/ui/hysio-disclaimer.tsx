@@ -17,7 +17,7 @@ interface HysioDisclaimerProps {
 const DISCLAIMER_TEXTS: Record<DisclaimerType, string> = {
   general: 'Let op: Deze informatie is door Hysio gegenereerd. Controleer de inhoud altijd zorgvuldig op klinische accuraatheid en volledigheid voordat u deze definitief vastlegt.',
   clinical: 'Klinische disclaimer: Deze door Hysio gegenereerde inhoud is bedoeld als ondersteuning. De eindverantwoordelijkheid voor klinische beslissingen ligt altijd bij de behandelend fysiotherapeut.',
-  'ai-generated': 'AI-gegenereerde inhoud: Deze tekst is automatisch gegenereerd door Hysio. Verificatie door een gekwalificeerde fysiotherapeut is vereist voordat deze informatie wordt gebruikt.',
+  'ai-generated': 'Automatisch gegenereerde inhoud: Deze tekst is automatisch gegenereerd door Hysio. Verificatie door een gekwalificeerde fysiotherapeut is vereist voordat deze informatie wordt gebruikt.',
   educational: 'Educatief materiaal: Deze door Hysio gegenereerde content is bedoeld voor educatieve doeleinden. Pas de informatie aan naar de specifieke situatie van uw patiënt.',
   legal: 'Juridische disclaimer: Hysio is een ondersteunend hulpmiddel. De gebruiker draagt volledige verantwoordelijkheid voor de accuraatheid en geschiktheid van alle gegenereerde content voor klinisch gebruik.'
 };

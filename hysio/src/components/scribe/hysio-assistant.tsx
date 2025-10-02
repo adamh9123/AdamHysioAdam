@@ -47,7 +47,7 @@ interface HysioAssistantProps {
  */
 const QUICK_START_QUESTIONS = [
   "Wat zijn de rode vlaggen bij lage rugpijn?",
-  "Geef mij de KNGF richtlijn voor schouderklachten",
+  "Geef mij de professionele richtlijn voor schouderklachten",
   "Help mij bij differentiaaldiagnose kniepijn"
 ] as const;
 
@@ -75,7 +75,7 @@ export const HysioAssistant: React.FC<HysioAssistantProps> = React.memo(({
       const welcomeMessage: Message = {
         id: 'welcome',
         role: 'assistant',
-        content: `Welkom bij Hysio Assistant v7.0! Ik ben jouw AI-copiloot en klinisch sparringpartner.\n\nIk help je met evidence-based fysiotherapeutische vragen. ${patientInfo ? `We werken aan ${getWorkflowDisplayName(workflowType, workflowStep)} voor patiënt ${patientInfo.initials}.` : ''}\n\nKies een snelstartvraag hieronder of stel je eigen vraag.`,
+        content: `Welkom bij Hysio Assistant v7.0! Ik ben jouw Hysio copiloot en klinisch sparringpartner.\n\nIk help je met evidence-based fysiotherapeutische vragen. ${patientInfo ? `We werken aan ${getWorkflowDisplayName(workflowType, workflowStep)} voor patiënt ${patientInfo.initials}.` : ''}\n\nKies een snelstartvraag hieronder of stel je eigen vraag.`,
         timestamp: Date.now()
       };
       setMessages([welcomeMessage]);
@@ -241,7 +241,7 @@ export const HysioAssistant: React.FC<HysioAssistantProps> = React.memo(({
               </div>
               <div>
                 <CardTitle className="text-sm font-semibold text-hysio-deep-green">Hysio Assistant v7.0</CardTitle>
-                <p className="text-xs text-hysio-deep-green-900/60">AI Sparringpartner</p>
+                <p className="text-xs text-hysio-deep-green-900/60">Hysio Sparringpartner</p>
               </div>
             </div>
             <div className="flex items-center gap-1">
@@ -275,7 +275,7 @@ export const HysioAssistant: React.FC<HysioAssistantProps> = React.memo(({
                 Hysio Assistant v7.0
               </CardTitle>
               <p className="text-xs text-hysio-deep-green-900/70 font-medium">
-                AI-Copiloot & Klinisch Sparringpartner • {getWorkflowDisplayName(workflowType, workflowStep)}
+                Hysio Copiloot & Klinisch Sparringpartner • {getWorkflowDisplayName(workflowType, workflowStep)}
               </p>
             </div>
           </div>
