@@ -12,7 +12,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SaveDraftRequestSchema } from '@/lib/pre-intake/validation';
 import { validatePartialQuestionnaire } from '@/lib/pre-intake/validation';
-import type { z } from 'zod';
 
 // ============================================================================
 // IN-MEMORY DRAFT STORAGE

@@ -2,7 +2,7 @@
 
 import { MarketingNavigation } from '@/components/ui/marketing-navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Users, Target, Heart, Award, Shield, Lightbulb, TrendingUp,
   CheckCircle, Zap, Brain, Clock, Star, ArrowRight, Building2,

@@ -7,23 +7,23 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getMockSubmissions } from '../route';
+import { getMockSubmissions } from '@/lib/utils/pre-intake-mock-store';
 
 interface RouteContext {
-  params: {
+  params: Promise<{
     submissionId: string;
-  };
+  }>;
 }
 
 /**
  * GET /api/pre-intake/submissions/[submissionId]
  */
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   context: RouteContext
 ) {
   try {
-    const { submissionId } = context.params;
+    const { submissionId } = await context.params;
 
     if (!submissionId) {
       return NextResponse.json(

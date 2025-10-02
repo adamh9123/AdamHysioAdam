@@ -176,12 +176,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Step 1: Detect red flags
     console.log('   1/3 Detecting red flags...');
-    const redFlags = detectRedFlags(validatedData);
+    const redFlags = detectRedFlags(validatedData as any);
     console.log(`   ✓ Detected ${redFlags.length} red flags`);
 
     // Step 2: Map to HHSB structure
     console.log('   2/3 Mapping to HHSB structure...');
-    const hhsbData = mapToHHSBWithMetadata(validatedData, redFlags);
+    const hhsbData = mapToHHSBWithMetadata(validatedData as any, redFlags);
     console.log('   ✓ HHSB structure created');
 
     // Step 3: Create submission record
