@@ -468,13 +468,13 @@ async function generateCompleteIntakeAnalysis(
     });
 
     const completion = await openaiClient().chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: 'gpt-4o-mini', // Best mini model available (no gpt-4.1-mini exists)
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
       ],
       temperature: 0.2, // Lower for more consistent, focused output
-      max_tokens: 16000, // Doubled for complete, detailed intake processing
+      max_tokens: 20000, // Maximum for complete intake coverage (60min audio)
       response_format: { type: 'json_object' }, // Ensure JSON output
     });
 
