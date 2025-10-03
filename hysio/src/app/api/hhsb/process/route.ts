@@ -461,20 +461,20 @@ async function generateCompleteIntakeAnalysis(
     );
 
     console.log('🤖 Hysio: Preparing OpenAI API call:', {
-      model: 'gpt-4o',
+      model: 'gpt-4o-mini',
       systemPromptLength: systemPrompt.length,
       userPromptLength: userPrompt.length,
       timestamp: new Date().toISOString(),
     });
 
     const completion = await openaiClient().chat.completions.create({
-      model: 'gpt-4o',
+      model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
       ],
-      temperature: 0.3, // Balanced for clinical accuracy
-      max_tokens: 8000, // Enough for complete intake
+      temperature: 0.2, // Lower for more consistent, focused output
+      max_tokens: 16000, // Doubled for complete, detailed intake processing
       response_format: { type: 'json_object' }, // Ensure JSON output
     });
 
