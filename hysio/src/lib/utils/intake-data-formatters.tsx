@@ -591,26 +591,40 @@ export function formatConclusie(conclusie: any) {
       {prognose && (
         <div>
           <h5 className="font-semibold text-hysio-deep-green mb-2">Prognose</h5>
-          <p className="mb-2 ml-2">{prognose.expected || prognose}</p>
-          {prognose.factorsPositive && prognose.factorsPositive.length > 0 && (
-            <div className="mb-2 ml-2">
-              <p className="font-medium text-green-700">Positieve factoren:</p>
-              <ul className="list-disc list-inside pl-4">
-                {prognose.factorsPositive.map((f: string, idx: number) => (
-                  <li key={idx}>✓ {f}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {prognose.factorsNegative && prognose.factorsNegative.length > 0 && (
-            <div className="ml-2">
-              <p className="font-medium text-orange-700">Belemmerende factoren:</p>
-              <ul className="list-disc list-inside pl-4">
-                {prognose.factorsNegative.map((f: string, idx: number) => (
-                  <li key={idx}>⚠️ {f}</li>
-                ))}
-              </ul>
-            </div>
+          {typeof prognose === 'string' ? (
+            <p className="mb-2 ml-2">{prognose}</p>
+          ) : (
+            <>
+              {prognose.expected && (
+                <p className="mb-2 ml-2">{prognose.expected}</p>
+              )}
+              {prognose.verwachting && (
+                <p className="mb-2 ml-2"><strong>Verwachting:</strong> {prognose.verwachting}</p>
+              )}
+              {prognose.overwegingen && (
+                <p className="mb-2 ml-2"><strong>Overwegingen:</strong> {prognose.overwegingen}</p>
+              )}
+              {prognose.factorsPositive && prognose.factorsPositive.length > 0 && (
+                <div className="mb-2 ml-2">
+                  <p className="font-medium text-green-700">Positieve factoren:</p>
+                  <ul className="list-disc list-inside pl-4">
+                    {prognose.factorsPositive.map((f: string, idx: number) => (
+                      <li key={idx}>✓ {f}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {prognose.factorsNegative && prognose.factorsNegative.length > 0 && (
+                <div className="ml-2">
+                  <p className="font-medium text-orange-700">Belemmerende factoren:</p>
+                  <ul className="list-disc list-inside pl-4">
+                    {prognose.factorsNegative.map((f: string, idx: number) => (
+                      <li key={idx}>⚠️ {f}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </>
           )}
         </div>
       )}
