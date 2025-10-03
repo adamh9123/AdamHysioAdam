@@ -252,37 +252,45 @@ function parseSOEPAnalysis(analysisText: string): SOEPStructure {
       console.log('🔍 DEBUG - Evaluatie extracted:', result.evaluatie.substring(0, 100));
     }
 
-    // Extract Plan - Updated regex to STOP before Samenvatting Consult
-    const planMatch = analysisText.match(/P:\s*Plan[\s\r\n]*([\s\S]*?)(?=\*\*Samenvatting|---|⚙️|$)/i);
+    // Extract Plan - STOP before Samenvatting van Consult section (with emoji or separator lines)
+    const planMatch = analysisText.match(/P:\s*Plan[\s\r\n]*([\s\S]*?)(?=📋\s*Samenvatting|═+\s*\r?\n?📋|═+\s*\r?\n?\s*Samenvatting|\*\*Samenvatting|---|⚙️|$)/i);
     if (planMatch) {
       result.plan = planMatch[1].trim();
       console.log('🔍 DEBUG - Plan extracted:', result.plan.substring(0, 100));
     }
 
-    // Extract EPD Summary from the template section
-    const epdTemplateMatch = analysisText.match(/⚙️\s*Template\s*Klaar\s*voor\s*EPD-invoer[\s\S]*?SOEP-verslag[\s\S]*?([\s\S]*?)$/i);
-    if (epdTemplateMatch) {
-      // Extract the short summary format from EPD template
-      const templateContent = epdTemplateMatch[1].trim();
+    // Extract Consult Summary from dedicated section (📋 Samenvatting van Consult)
+    const consultSummaryMatch = analysisText.match(/📋\s*Samenvatting\s+van\s+Consult[\s\r\n]*═*[\s\r\n]*([\s\S]*?)(?=═+\s*\r?\n?\s*⚙️|⚙️|═+\s*$|$)/i);
+    if (consultSummaryMatch) {
+      result.consultSummary = consultSummaryMatch[1].trim();
+      console.log('🔍 DEBUG - Consult Summary extracted from dedicated section:', result.consultSummary.substring(0, 100));
+    }
 
-      // Try to get the summary from S:, O:, E:, P: in template
-      const templateSMatch = templateContent.match(/S:\s*([^\r\n]*(?:\r?\n(?!\s*[OEP]:)[^\r\n]*)*)/i);
-      const templateOMatch = templateContent.match(/O:\s*([^\r\n]*(?:\r?\n(?!\s*[EP]:)[^\r\n]*)*)/i);
-      const templateEMatch = templateContent.match(/E:\s*([^\r\n]*(?:\r?\n(?!\s*P:)[^\r\n]*)*)/i);
-      const templatePMatch = templateContent.match(/P:\s*([\s\S]*)/i);
+    // Fallback: Extract EPD Summary from the template section
+    if (!result.consultSummary) {
+      const epdTemplateMatch = analysisText.match(/⚙️\s*(?:Template\s*Klaar\s*voor\s*)?EPD[-\s](?:KLAAR|klaar)\s+(?:VERSLAG|Verslag)[\s\S]*?SOEP-verslag[\s\S]*?([\s\S]*?)$/i);
+      if (epdTemplateMatch) {
+        const templateContent = epdTemplateMatch[1].trim();
 
-      if (templateSMatch && templateOMatch && templateEMatch && templatePMatch) {
-        result.consultSummary = [
-          `S: ${templateSMatch[1].trim()}`,
-          `O: ${templateOMatch[1].trim()}`,
-          `E: ${templateEMatch[1].trim()}`,
-          `P: ${templatePMatch[1].trim()}`
-        ].join('\n\n');
-        console.log('🔍 DEBUG - Consult Summary extracted from EPD template:', result.consultSummary.substring(0, 100));
+        // Try to get the summary from S:, O:, E:, P: in template
+        const templateSMatch = templateContent.match(/S:\s*([^\r\n]*(?:\r?\n(?!\s*[OEP]:)[^\r\n]*)*)/i);
+        const templateOMatch = templateContent.match(/O:\s*([^\r\n]*(?:\r?\n(?!\s*[EP]:)[^\r\n]*)*)/i);
+        const templateEMatch = templateContent.match(/E:\s*([^\r\n]*(?:\r?\n(?!\s*P:)[^\r\n]*)*)/i);
+        const templatePMatch = templateContent.match(/P:\s*([\s\S]*)/i);
+
+        if (templateSMatch && templateOMatch && templateEMatch && templatePMatch) {
+          result.consultSummary = [
+            `S: ${templateSMatch[1].trim()}`,
+            `O: ${templateOMatch[1].trim()}`,
+            `E: ${templateEMatch[1].trim()}`,
+            `P: ${templatePMatch[1].trim()}`
+          ].join('\n\n');
+          console.log('🔍 DEBUG - Consult Summary extracted from EPD template:', result.consultSummary.substring(0, 100));
+        }
       }
     }
 
-    // Extract the new brief consult summary (10-15 words)
+    // Final fallback: Brief summary with ** markers
     if (!result.consultSummary) {
       const briefSummaryMatch = analysisText.match(/\*\*Samenvatting\s*Consult:?\*\*\s*([^\r\n]+)/i);
       if (briefSummaryMatch) {
@@ -291,9 +299,9 @@ function parseSOEPAnalysis(analysisText: string): SOEPStructure {
       }
     }
 
-    // Fallback: try to extract general summary
+    // Last resort: try to extract any general summary
     if (!result.consultSummary) {
-      const summaryMatch = analysisText.match(/\*\*Samenvatting\s*(?:Consult)?:?\*\*\s*([\s\S]*?)$/i);
+      const summaryMatch = analysisText.match(/\*\*Samenvatting\s*(?:Consult)?:?\*\*\s*([\s\S]*?)(?=---|⚙️|$)/i);
       if (summaryMatch) {
         result.consultSummary = summaryMatch[1].trim();
       }
