@@ -474,7 +474,7 @@ async function generateCompleteIntakeAnalysis(
         { role: 'user', content: userPrompt }
       ],
       temperature: 0.2, // Lower for more consistent, focused output
-      max_tokens: 20000, // Maximum for complete intake coverage (60min audio)
+      max_tokens: 16384, // Maximum supported by gpt-4o-mini (complete intake coverage)
       response_format: { type: 'json_object' }, // Ensure JSON output
     });
 
