@@ -108,7 +108,6 @@ export default function AutomatedIntakePage() {
           workflowType: 'intake-automatisch',
           step: 'preparation',
           patientInfo,
-          previousStepData: contextDocumentContent,
         }),
       });
 

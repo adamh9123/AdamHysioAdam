@@ -272,18 +272,37 @@ export function formatOnderzoek(onderzoek: any) {
       {onderzoek.observatie && (
         <div>
           <h5 className="font-semibold text-hysio-deep-green mb-2">Observatie</h5>
-          <p className="ml-2">{onderzoek.observatie.algemenelndruk || onderzoek.observatie}</p>
-          {onderzoek.observatie.houding && <p className="ml-2"><strong>Houding:</strong> {onderzoek.observatie.houding.staand}</p>}
-          {onderzoek.observatie.gang && onderzoek.observatie.gang.patroon && (
-            <p className="ml-2"><strong>Gang:</strong> {onderzoek.observatie.gang.patroon}</p>
-          )}
-          {onderzoek.observatie.afwijkingen && onderzoek.observatie.afwijkingen.length > 0 && (
-            <ul className="list-disc list-inside ml-4">
-              {onderzoek.observatie.afwijkingen.map((afw: string, idx: number) => (
-                <li key={idx}>{afw}</li>
-              ))}
-            </ul>
-          )}
+          <ul className="list-disc list-inside space-y-1 ml-2">
+            {onderzoek.observatie.algemeneIndruk && (
+              <li><strong>Algemene indruk:</strong> {onderzoek.observatie.algemeneIndruk}</li>
+            )}
+            {onderzoek.observatie.houding && (
+              <li>
+                <strong>Houding:</strong>{' '}
+                {typeof onderzoek.observatie.houding === 'string'
+                  ? onderzoek.observatie.houding
+                  : onderzoek.observatie.houding.staand || JSON.stringify(onderzoek.observatie.houding)}
+              </li>
+            )}
+            {onderzoek.observatie.gang && (
+              <li>
+                <strong>Gang:</strong>{' '}
+                {typeof onderzoek.observatie.gang === 'string'
+                  ? onderzoek.observatie.gang
+                  : onderzoek.observatie.gang.patroon || JSON.stringify(onderzoek.observatie.gang)}
+              </li>
+            )}
+            {onderzoek.observatie.afwijkingen && onderzoek.observatie.afwijkingen.length > 0 && (
+              <>
+                <li><strong>Afwijkingen:</strong></li>
+                <ul className="list-disc list-inside ml-4">
+                  {onderzoek.observatie.afwijkingen.map((afw: string, idx: number) => (
+                    <li key={idx}>{afw}</li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </ul>
         </div>
       )}
 
