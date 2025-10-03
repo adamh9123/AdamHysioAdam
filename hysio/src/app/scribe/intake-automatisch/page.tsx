@@ -671,7 +671,7 @@ export default function AutomatedIntakePage() {
                 <p className="text-xs text-hysio-deep-green-900/60 text-center mt-2">
                   {state.isTranscribing
                     ? '🎤 Audio wordt getranscribeerd...'
-                    : '🤖 AI analyseert intake gegevens...'}
+                    : '⚡ Hysio analyseert intake gegevens...'}
                 </p>
               )}
               {!canProcess() && !state.isProcessing && (
