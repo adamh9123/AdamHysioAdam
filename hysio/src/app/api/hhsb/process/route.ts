@@ -446,53 +446,58 @@ async function generateCompleteIntakeAnalysis(
   });
 
   // ============================================================================
-  // NEW: Use Semantic Intelligence Processor v8.0
+  // Simple One-Shot Processing v7.1
   // ============================================================================
-  console.log('🧠 Using Semantic Intelligence Processor v8.0...');
+  console.log('⚡ Using Hysio Simple One-Shot Processing v7.1...');
 
   try {
-    const semanticResult = await processIntakeWithSemanticIntelligence(
-      { ...patientInfo, age, genderText },
+    // Import the new prompt function
+    const { createVolledigeIntakePrompt } = await import('@/lib/prompts/intake-automatisch/volledige-intake-v7.1');
+
+    const { systemPrompt, userPrompt } = createVolledigeIntakePrompt(
+      { initials, age, genderText, chiefComplaint },
       transcript,
       preparation
     );
 
-    console.log('✅ Semantic Intelligence: Processing complete', {
-      confidence: semanticResult.confidence.overall,
-      transcriptCoverage: semanticResult.validationReport.transcriptCoverage,
-      passesCompleted: semanticResult.processingMetadata.passesCompleted,
+    console.log('🤖 Hysio: Preparing OpenAI API call:', {
+      model: 'gpt-4o',
+      systemPromptLength: systemPrompt.length,
+      userPromptLength: userPrompt.length,
+      timestamp: new Date().toISOString(),
     });
 
-    // Generate beautiful formatted markdown
-    const formattedMarkdown = formatIntakeToMarkdown(semanticResult, {
-      initials,
-      age,
-      gender: genderText,
-      chiefComplaint,
+    const completion = await openaiClient().chat.completions.create({
+      model: 'gpt-4o',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      temperature: 0.3, // Balanced for clinical accuracy
+      max_tokens: 8000, // Enough for complete intake
+      response_format: { type: 'json_object' }, // Ensure JSON output
     });
 
-    console.log('✅ Clinical Document Formatter: Generated professional markdown', {
-      markdownLength: formattedMarkdown.length,
+    const content = completion.choices[0]?.message?.content;
+    if (!content) throw new Error('No response from OpenAI');
+
+    console.log('✅ Hysio: OpenAI API call successful:', {
+      model: completion.model,
+      usage: completion.usage,
+      hasContent: !!content,
+      contentLength: content.length
     });
+
+    const result = JSON.parse(content);
+
+    console.log('✅ Hysio: Processing complete - All 3 sections generated');
 
     // Return in format compatible with existing frontend
-    // This ensures backward compatibility while providing enhanced data
     return {
-      // Main structured data (new enhanced format)
-      hhsbAnamneseCard: semanticResult.hhsbAnamneseCard,
-      onderzoeksBevindingen: semanticResult.onderzoeksBevindingen,
-      klinischeConclusie: semanticResult.klinischeConclusie,
-      samenvatting: semanticResult.samenvatting, // NEW: Comprehensive intake summary
-
-      // Validation and confidence
-      validationReport: semanticResult.validationReport,
-      confidence: semanticResult.confidence,
-      redFlags: semanticResult.redFlags.map(rf => rf.description),
-      redFlagsDetailed: semanticResult.redFlags,
-
-      // Formatted outputs for different use cases
-      formattedMarkdown, // NEW: Professional markdown for display/export
-      fullStructuredText: formattedMarkdown, // For backward compatibility
+      // Main structured data
+      hhsbAnamneseCard: result.hhsbAnamneseCard,
+      onderzoeksBevindingen: result.onderzoeksBevindingen,
+      klinischeConclusie: result.klinischeConclusie,
 
       // Metadata
       transcript,
@@ -504,16 +509,11 @@ async function generateCompleteIntakeAnalysis(
         gender: genderText,
         chiefComplaint,
       },
-      processingMetadata: semanticResult.processingMetadata,
-      semanticIntelligenceVersion: '8.0.0',
     };
 
   } catch (error) {
-    console.error('❌ Semantic Intelligence Processing Failed:', error);
-    console.log('⚠️ Falling back to legacy processing method...');
-
-    // FALLBACK: Use legacy method if semantic intelligence fails
-    return await generateCompleteIntakeAnalysisLegacy(patientInfo, preparation, transcript);
+    console.error('❌ Hysio Processing Failed:', error);
+    throw error; // No fallback - fix the error directly
   }
 }
 

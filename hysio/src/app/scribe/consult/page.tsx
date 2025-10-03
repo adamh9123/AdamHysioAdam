@@ -670,7 +670,7 @@ export default function ConsultPage() {
                 <p className="text-xs text-hysio-deep-green-900/60 text-center mt-2">
                   {state.isTranscribing
                     ? '🎤 Audio wordt getranscribeerd...'
-                    : '🤖 AI analyseert consult gegevens...'}
+                    : '⚡ Hysio analyseert consult gegevens...'}
                 </p>
               )}
               {!canProcess() && !state.isProcessing && (
