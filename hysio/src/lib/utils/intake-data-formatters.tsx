@@ -415,7 +415,45 @@ export function formatOnderzoek(onderzoek: any) {
       {onderzoek.samenvattingOnderzoek && (
         <div>
           <h5 className="font-semibold text-hysio-deep-green mb-2">Samenvatting Onderzoek</h5>
-          <p className="ml-2">{onderzoek.samenvattingOnderzoek.klinischeIndruk || onderzoek.samenvattingOnderzoek}</p>
+          {typeof onderzoek.samenvattingOnderzoek === 'string' ? (
+            <p className="ml-2">{onderzoek.samenvattingOnderzoek}</p>
+          ) : (
+            <ul className="list-disc list-inside space-y-1 ml-2">
+              {onderzoek.samenvattingOnderzoek.klinischeIndruk && (
+                <li><strong>Klinische indruk:</strong> {onderzoek.samenvattingOnderzoek.klinischeIndruk}</li>
+              )}
+              {onderzoek.samenvattingOnderzoek.hoofdbevindingen && onderzoek.samenvattingOnderzoek.hoofdbevindingen.length > 0 && (
+                <>
+                  <li><strong>Hoofdbevindingen:</strong></li>
+                  <ul className="list-disc list-inside ml-4">
+                    {onderzoek.samenvattingOnderzoek.hoofdbevindingen.map((finding: string, idx: number) => (
+                      <li key={idx}>{finding}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
+              {onderzoek.samenvattingOnderzoek.beperkingen && onderzoek.samenvattingOnderzoek.beperkingen.length > 0 && (
+                <>
+                  <li><strong>Beperkingen:</strong></li>
+                  <ul className="list-disc list-inside ml-4">
+                    {onderzoek.samenvattingOnderzoek.beperkingen.map((limitation: string, idx: number) => (
+                      <li key={idx}>{limitation}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
+              {onderzoek.samenvattingOnderzoek.werkdiagnoseHypotheses && onderzoek.samenvattingOnderzoek.werkdiagnoseHypotheses.length > 0 && (
+                <>
+                  <li><strong>Werkdiagnose hypotheses:</strong></li>
+                  <ul className="list-disc list-inside ml-4">
+                    {onderzoek.samenvattingOnderzoek.werkdiagnoseHypotheses.map((hypothesis: string, idx: number) => (
+                      <li key={idx}>{hypothesis}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </ul>
+          )}
         </div>
       )}
     </div>

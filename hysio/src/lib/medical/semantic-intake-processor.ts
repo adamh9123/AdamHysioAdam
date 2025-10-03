@@ -242,7 +242,9 @@ ${this.preparation ? `VOORBEREIDING:\n${this.preparation}\n\n` : ''}
 TRANSCRIPT INTAKE GESPREK:
 ${this.transcript}
 
-OPDRACHT: Extraheer ALLEEN de informatie die EXPLICIET in het transcript staat. Gebruik de exacte structuur uit de systeemprompt. Bij twijfel of onduidelijkheid: markeer als "Niet besproken" of "Onduidelijk".`;
+OPDRACHT: Extraheer ALLEEN de informatie die EXPLICIET in het transcript staat. Gebruik de exacte structuur uit de systeemprompt. Bij twijfel of onduidelijkheid: markeer als "Niet besproken" of "Onduidelijk".
+
+BELANGRIJK: Lever je antwoord in JSON formaat volgens de structuur uit de systeemprompt.`;
 
     const completion = await openaiClient().chat.completions.create({
       model: 'gpt-4o',
