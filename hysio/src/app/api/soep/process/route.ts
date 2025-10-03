@@ -252,8 +252,8 @@ function parseSOEPAnalysis(analysisText: string): SOEPStructure {
       console.log('🔍 DEBUG - Evaluatie extracted:', result.evaluatie.substring(0, 100));
     }
 
-    // Extract Plan - Updated regex
-    const planMatch = analysisText.match(/P:\s*Plan[\s\r\n]*([\s\S]*?)(?=---|⚙️|$)/i);
+    // Extract Plan - Updated regex to STOP before Samenvatting Consult
+    const planMatch = analysisText.match(/P:\s*Plan[\s\r\n]*([\s\S]*?)(?=\*\*Samenvatting|---|⚙️|$)/i);
     if (planMatch) {
       result.plan = planMatch[1].trim();
       console.log('🔍 DEBUG - Plan extracted:', result.plan.substring(0, 100));
