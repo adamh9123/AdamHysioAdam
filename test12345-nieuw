@@ -1,1 +1,12 @@
 als ik deze in github repo zie dan klopt het en is dit de nieuweste map - adam 1-10-2025
+
+en nu voor de v9 op 4-10-2025
+
+dingen waar ik onzeker over ben:
+
+- De layout altijd getest op 80% zoom, wil dus wat uitzoomen overal maar wil niet hele codebase veranderen bang voor errors
+- Gebruikersbeheer + profiel enzo
+- Betaling dingen
+- Geschiedenis onthouden van dingen
+- Database dingen
+- Sneller maken van de webapp
