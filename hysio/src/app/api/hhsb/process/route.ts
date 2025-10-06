@@ -20,8 +20,8 @@ import {
   createZorgplanUserPrompt,
   parseZorgplanAnalysis
 } from '@/lib/medical/zorgplan-generation';
-import { processIntakeWithSemanticIntelligence } from '@/lib/medical/semantic-intake-processor';
-import { formatIntakeToMarkdown } from '@/lib/medical/clinical-document-formatter';
+// import { processIntakeWithSemanticIntelligence } from '@/lib/medical/semantic-intake-processor';
+// import { formatIntakeToMarkdown } from '@/lib/medical/clinical-document-formatter';
 
 export async function POST(request: NextRequest) {
   let workflowType: string | undefined;
