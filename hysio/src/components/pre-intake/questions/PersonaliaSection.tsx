@@ -69,10 +69,14 @@ export default function PersonaliaSection({ onValidationChange }: PersonaliaSect
         }
         return null;
 
-      case 'insurance':
-        if (!value || value.trim().length === 0) {
-          return 'Zorgverzekeraar is verplicht';
+      case 'gender':
+        if (!value || (value !== 'man' && value !== 'vrouw')) {
+          return 'Selecteer uw geslacht';
         }
+        return null;
+
+      case 'insurance':
+        // Insurance is now optional - no validation needed
         return null;
 
       default:
@@ -88,14 +92,14 @@ export default function PersonaliaSection({ onValidationChange }: PersonaliaSect
       setErrors({ ...errors, [field]: error });
     }
 
-    // Check overall validity
+    // Check overall validity (insurance is now optional)
     if (onValidationChange) {
       const isValid = !error &&
         personalia?.fullName &&
+        personalia?.gender &&
         personalia?.birthDate &&
         personalia?.phone &&
-        personalia?.email &&
-        personalia?.insurance;
+        personalia?.email;
       onValidationChange(!!isValid);
     }
   };
@@ -125,6 +129,44 @@ export default function PersonaliaSection({ onValidationChange }: PersonaliaSect
         />
         {errors.fullName && (
           <p className="mt-1 text-sm text-red-600">{errors.fullName}</p>
+        )}
+      </div>
+
+      {/* Gender */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-3">
+          Geslacht <span className="text-red-500">*</span>
+        </label>
+        <div className="flex gap-4">
+          <label className="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:bg-green-50 transition-colors flex-1">
+            <input
+              type="radio"
+              name="gender"
+              value="man"
+              checked={personalia?.gender === 'man'}
+              onChange={(e) => handleChange('gender', e.target.value)}
+              onBlur={() => handleBlur('gender')}
+              className="w-4 h-4 text-green-600 focus:ring-green-500"
+              required
+            />
+            <span className="ml-3 text-gray-700">Man</span>
+          </label>
+          <label className="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:bg-green-50 transition-colors flex-1">
+            <input
+              type="radio"
+              name="gender"
+              value="vrouw"
+              checked={personalia?.gender === 'vrouw'}
+              onChange={(e) => handleChange('gender', e.target.value)}
+              onBlur={() => handleBlur('gender')}
+              className="w-4 h-4 text-green-600 focus:ring-green-500"
+              required
+            />
+            <span className="ml-3 text-gray-700">Vrouw</span>
+          </label>
+        </div>
+        {errors.gender && (
+          <p className="mt-1 text-sm text-red-600">{errors.gender}</p>
         )}
       </div>
 
@@ -209,7 +251,7 @@ export default function PersonaliaSection({ onValidationChange }: PersonaliaSect
       {/* Insurance */}
       <div>
         <label htmlFor="insurance" className="block text-sm font-medium text-gray-700 mb-2">
-          Zorgverzekeraar <span className="text-red-500">*</span>
+          Zorgverzekeraar <span className="text-gray-500 text-xs">(optioneel)</span>
         </label>
         <input
           type="text"
@@ -218,17 +260,11 @@ export default function PersonaliaSection({ onValidationChange }: PersonaliaSect
           onChange={(e) => handleChange('insurance', e.target.value)}
           onBlur={() => handleBlur('insurance')}
           placeholder="Bijv. Zilveren Kruis, VGZ, CZ"
-          className={`
-            w-full px-4 py-3 rounded-lg border
-            ${errors.insurance ? 'border-red-500' : 'border-gray-300'}
-            focus:ring-2 focus:ring-green-500 focus:border-transparent
-            transition-colors
-          `}
-          required
+          className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
         />
-        {errors.insurance && (
-          <p className="mt-1 text-sm text-red-600">{errors.insurance}</p>
-        )}
+        <p className="mt-1 text-xs text-gray-500">
+          Indien bekend - helpt bij de administratie
+        </p>
       </div>
 
       {/* Insurance Number (Optional) */}

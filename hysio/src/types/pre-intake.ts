@@ -19,14 +19,16 @@ import type { PatientInfo, HHSBStructure } from './api';
 export interface PersonaliaData {
   /** Patient's full name */
   fullName: string;
+  /** Patient's gender */
+  gender: 'man' | 'vrouw';
   /** Date of birth in ISO 8601 format (YYYY-MM-DD) */
   birthDate: string;
   /** Contact phone number */
   phone: string;
   /** Email address */
   email: string;
-  /** Insurance provider name */
-  insurance: string;
+  /** Insurance provider name (optional) */
+  insurance?: string;
   /** Optional insurance number */
   insuranceNumber?: string;
 }
@@ -72,8 +74,8 @@ export type BodyRegion =
 export interface ComplaintData {
   /** L - Selected body regions where pain/complaint is located */
   locations: BodyRegion[];
-  /** O - How the complaint started/occurred */
-  onset: string;
+  /** O - Main complaint description (can include voice transcription) */
+  mainComplaint: string;
   /** F - How often the complaint occurs */
   frequency: 'constant' | 'daily' | 'weekly' | 'occasionally';
   /** T - How long the complaint has been present */
@@ -151,8 +153,10 @@ export interface FunctionalLimitationsData {
   limitedActivityCategories: Array<
     'work' | 'sports' | 'household' | 'driving' | 'sleeping' | 'hobbies' | 'social' | 'other'
   >;
-  /** Custom activity description (if 'other' is selected) */
+  /** Custom activity description (if 'other' is selected) - LEGACY, kept for backwards compatibility */
   customActivity?: string;
+  /** Multiple custom activities (new approach supporting multiple "other" entries) */
+  customActivities?: Record<string, string>; // key: unique ID, value: activity name
   /** Severity of limitation for each selected activity (0-10 scale) */
   severityScores: Record<string, number>;
 }
@@ -402,7 +406,8 @@ export type QuestionnaireStep =
   | 'goals'
   | 'functionalLimitations'
   | 'review'
-  | 'consent';
+  | 'consent'
+  | 'export';
 
 /**
  * Pre-intake store state
@@ -448,7 +453,7 @@ export interface PreIntakeStoreActions {
 /**
  * Pre-intake export format options
  */
-export type PreIntakeExportFormat = 'pdf' | 'txt' | 'json';
+export type PreIntakeExportFormat = 'pdf' | 'docx' | 'html' | 'txt' | 'json';
 
 /**
  * Pre-intake export options

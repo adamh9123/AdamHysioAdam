@@ -23,6 +23,10 @@ import RedFlagsSection from './questions/RedFlagsSection';
 import MedicalHistorySection from './questions/MedicalHistorySection';
 import GoalsSection from './questions/GoalsSection';
 import FunctionalLimitationsSection from './questions/FunctionalLimitationsSection';
+import ComprehensiveReviewScreen from './ComprehensiveReviewScreen';
+import ExportScreen from './ExportScreen';
+import LanguageSwitcher from './LanguageSwitcher';
+import { ToastProvider, useToast } from './Toast';
 import {
   QUESTIONNAIRE_STEPS,
   STEP_LABELS,
@@ -32,6 +36,7 @@ import {
   AUTO_SAVE_DELAY_MS,
 } from '@/lib/pre-intake/constants';
 import { validateStep } from '@/lib/pre-intake/validation';
+import { getTranslations } from '@/lib/pre-intake/translations';
 import type { QuestionnaireStep } from '@/types/pre-intake';
 
 interface QuestionnaireFlowProps {
@@ -39,8 +44,10 @@ interface QuestionnaireFlowProps {
   onComplete?: () => void;
 }
 
-export default function QuestionnaireFlow({ sessionId, onComplete }: QuestionnaireFlowProps) {
+// Inner component with toast access
+function QuestionnaireFlowContent({ sessionId, onComplete }: QuestionnaireFlowProps) {
   const router = useRouter();
+  const toast = useToast(); // Now we can use toast!
   const currentStep = usePreIntakeStore((state) => state.currentStep);
   const completedSteps = usePreIntakeStore((state) => state.completedSteps);
   const questionnaireData = usePreIntakeStore((state) => state.questionnaireData);
@@ -53,8 +60,11 @@ export default function QuestionnaireFlow({ sessionId, onComplete }: Questionnai
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submissionId, setSubmissionId] = useState<string>('');
   const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [consentChecked, setConsentChecked] = useState(false);
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [resumeLink, setResumeLink] = useState<string>('');
 
   // Auto-save functionality
   useEffect(() => {
@@ -91,6 +101,21 @@ export default function QuestionnaireFlow({ sessionId, onComplete }: Questionnai
     return () => clearTimeout(timer);
   }, [sessionId, questionnaireData, currentStep, completedSteps]);
 
+  // Prevent accidental page close/refresh
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      // Don't warn on welcome or after successful submission
+      if (currentStep !== 'welcome' && !submitSuccess && currentStep !== 'export') {
+        e.preventDefault();
+        e.returnValue = '';
+        return '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [currentStep, submitSuccess]);
+
   const handleNext = async () => {
     setValidationErrors([]);
 
@@ -108,7 +133,7 @@ export default function QuestionnaireFlow({ sessionId, onComplete }: Questionnai
 
     // Navigate to next step
     if (currentStep === 'consent') {
-      // Submit the questionnaire
+      // Submit the questionnaire and navigate to export
       await handleSubmit();
     } else {
       goToNextStep();
@@ -121,6 +146,39 @@ export default function QuestionnaireFlow({ sessionId, onComplete }: Questionnai
     setValidationErrors([]);
     goToPreviousStep();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSaveAndExit = async () => {
+    try {
+      setAutoSaveStatus('saving');
+
+      const response = await fetch('/api/pre-intake/save-draft', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId,
+          questionnaireData,
+          currentStep,
+          completedSteps,
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        // Generate resume link
+        const link = `${window.location.origin}/pre-intake?session=${sessionId}`;
+        setResumeLink(link);
+        setShowExitConfirm(true);
+        setAutoSaveStatus('saved');
+      } else {
+        setAutoSaveStatus('error');
+        toast.error('Fout bij opslaan. Probeer het opnieuw.');
+      }
+    } catch (error) {
+      console.error('Save and exit error:', error);
+      setAutoSaveStatus('error');
+      toast.error('Fout bij opslaan. Probeer het opnieuw.');
+    }
   };
 
   const handleSubmit = async () => {
@@ -139,14 +197,17 @@ export default function QuestionnaireFlow({ sessionId, onComplete }: Questionnai
         body: JSON.stringify({
           sessionId,
           questionnaireData,
+          consentGiven: true, // CRITICAL FIX: Include consent flag
         }),
       });
 
       if (response.ok) {
+        const result = await response.json();
+        setSubmissionId(result.submissionId || `HYSIO-${Date.now()}`);
         setSubmitSuccess(true);
-        if (onComplete) {
-          onComplete();
-        }
+        // Navigate to export step instead of showing success screen
+        goToNextStep();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         const error = await response.json();
         setValidationErrors([error.message || UI_MESSAGES.submitFailed]);
@@ -176,7 +237,7 @@ export default function QuestionnaireFlow({ sessionId, onComplete }: Questionnai
       case 'functionalLimitations':
         return <FunctionalLimitationsSection />;
       case 'review':
-        return <ReviewScreen data={questionnaireData} />;
+        return <ComprehensiveReviewScreen data={questionnaireData} />;
       case 'consent':
         return (
           <ConsentScreen
@@ -184,6 +245,8 @@ export default function QuestionnaireFlow({ sessionId, onComplete }: Questionnai
             onConsentChange={setConsentChecked}
           />
         );
+      case 'export':
+        return <ExportScreen data={questionnaireData} submissionId={submissionId} />;
       default:
         return <div>Onbekende stap</div>;
     }
@@ -192,44 +255,6 @@ export default function QuestionnaireFlow({ sessionId, onComplete }: Questionnai
   const currentIndex = QUESTIONNAIRE_STEPS.indexOf(currentStep);
   const isFirstStep = currentIndex === 0;
   const isLastStep = currentIndex === QUESTIONNAIRE_STEPS.length - 1;
-
-  // Show success screen after submission
-  if (submitSuccess) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50 p-4">
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg
-              className="w-10 h-10 text-green-600"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-3">
-            Bedankt voor uw inzending!
-          </h2>
-          <p className="text-gray-600 mb-6">
-            {UI_MESSAGES.submitSuccess} Uw fysiotherapeut ontvangt uw informatie en zal zich
-            voorbereiden op uw eerste afspraak.
-          </p>
-          <button
-            onClick={() => router.push('/scribe')}
-            className="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
-          >
-            Terug naar Dashboard
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
@@ -302,47 +327,137 @@ export default function QuestionnaireFlow({ sessionId, onComplete }: Questionnai
           {renderStepContent()}
         </div>
 
-        {/* Navigation Buttons */}
-        <div className="flex justify-between items-center">
-          <button
-            onClick={handlePrevious}
-            disabled={isFirstStep || isSubmitting}
-            className={`
-              px-6 py-3 rounded-lg font-medium transition-colors
-              ${
-                isFirstStep || isSubmitting
-                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-green-500 hover:text-green-600'
-              }
-            `}
-          >
-            ← Vorige
-          </button>
+        {/* Navigation Buttons - Hidden on export step */}
+        {/* Sticky on mobile for better UX */}
+        {currentStep !== 'export' && (
+          <div className="flex flex-col gap-4 md:relative md:bottom-auto sticky bottom-0 left-0 right-0 bg-gradient-to-br from-green-50 to-blue-50 md:bg-transparent p-4 md:p-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] md:shadow-none z-10">
+            <div className="flex justify-between items-center gap-3">
+              <button
+                onClick={handlePrevious}
+                disabled={isFirstStep || isSubmitting}
+                className={`
+                  flex-1 md:flex-none px-4 md:px-6 py-3 rounded-lg font-medium transition-colors
+                  ${
+                    isFirstStep || isSubmitting
+                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-green-500 hover:text-green-600 shadow-sm'
+                  }
+                `}
+              >
+                <span className="md:inline">← </span>
+                <span className="hidden sm:inline">Vorige</span>
+              </button>
 
-          <button
-            onClick={handleNext}
-            disabled={isSubmitting}
-            className={`
-              px-8 py-3 rounded-lg font-medium transition-colors
-              ${
-                isSubmitting
-                  ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
-                  : 'bg-green-600 text-white hover:bg-green-700'
-              }
-            `}
-          >
-            {isSubmitting ? (
-              <>
-                <span className="inline-block animate-spin mr-2">⟳</span>
-                {UI_MESSAGES.submitting}
-              </>
-            ) : isLastStep ? (
-              'Verzenden'
-            ) : (
-              'Volgende →'
+              <button
+                onClick={handleNext}
+                disabled={isSubmitting || (currentStep === 'consent' && !consentChecked)}
+                className={`
+                  flex-1 md:flex-none px-6 md:px-8 py-3 rounded-lg font-medium transition-colors shadow-md
+                  ${
+                    isSubmitting || (currentStep === 'consent' && !consentChecked)
+                      ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                      : 'bg-green-600 text-white hover:bg-green-700'
+                  }
+                `}
+              >
+                {isSubmitting ? (
+                  <>
+                    <span className="inline-block animate-spin mr-2">⟳</span>
+                    <span className="hidden sm:inline">{UI_MESSAGES.submitting}</span>
+                    <span className="sm:hidden">...</span>
+                  </>
+                ) : currentStep === 'consent' ? (
+                  'Verzenden'
+                ) : (
+                  <>
+                    <span className="hidden sm:inline">Volgende</span>
+                    <span className="sm:hidden">→</span>
+                    <span className="md:inline"> →</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* Save & Exit Button - Only show if not on welcome or consent */}
+            {currentStep !== 'welcome' && currentStep !== 'consent' && (
+              <div className="text-center">
+                <button
+                  onClick={handleSaveAndExit}
+                  disabled={isSubmitting || autoSaveStatus === 'saving'}
+                  className="text-sm text-gray-600 hover:text-green-600 underline transition-colors"
+                >
+                  💾 <span className="hidden sm:inline">Opslaan en later verder gaan</span>
+                  <span className="sm:hidden">Opslaan</span>
+                </button>
+              </div>
             )}
-          </button>
-        </div>
+          </div>
+        )}
+
+        {/* Save & Exit Confirmation Modal */}
+        {showExitConfirm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg
+                    className="w-10 h-10 text-green-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  Voortgang opgeslagen!
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Uw ingevulde gegevens zijn veilig opgeslagen. U kunt op elk moment verder gaan waar u gebleven bent.
+                </p>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                <p className="text-sm font-medium text-blue-900 mb-2">
+                  Gebruik deze link om later verder te gaan:
+                </p>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={resumeLink}
+                    readOnly
+                    className="flex-1 px-3 py-2 text-sm border border-blue-300 rounded bg-white"
+                    onClick={(e) => (e.target as HTMLInputElement).select()}
+                  />
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(resumeLink);
+                      toast.success('Link gekopieerd!');
+                    }}
+                    className="px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
+                  >
+                    Kopieer
+                  </button>
+                </div>
+                <p className="text-xs text-blue-700 mt-2">
+                  💡 Tip: Bewaar deze link of stuur hem naar uzelf per email
+                </p>
+              </div>
+
+              <button
+                onClick={() => router.push('/scribe')}
+                className="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+              >
+                Afsluiten
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -353,8 +468,15 @@ export default function QuestionnaireFlow({ sessionId, onComplete }: Questionnai
 // ============================================================================
 
 function WelcomeScreen() {
+  const language = usePreIntakeStore((state) => state.language);
+  const t = getTranslations(language);
+
   return (
     <div className="space-y-6">
+      {/* Language Switcher */}
+      <LanguageSwitcher />
+
+      {/* Icon and Title - Centered */}
       <div className="text-center mb-8">
         <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <svg
@@ -371,17 +493,22 @@ function WelcomeScreen() {
             />
           </svg>
         </div>
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">{WELCOME_TEXT.title}</h2>
+        <h2 className="text-3xl font-bold text-gray-900 mb-4">{t.welcomeTitle}</h2>
       </div>
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-        <p className="text-gray-700 whitespace-pre-line leading-relaxed">
-          {WELCOME_TEXT.intro}
+      {/* Introduction Text - Centered */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+        <p className="text-gray-700 leading-relaxed mb-4">
+          {t.welcomeDescription}
+        </p>
+        <p className="text-gray-600 text-sm">
+          {t.welcomeIntro}
         </p>
       </div>
 
+      {/* Privacy Notice - Centered */}
       <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-        <div className="flex items-start">
+        <div className="flex items-start justify-center">
           <svg
             className="w-6 h-6 text-green-600 mt-0.5 mr-3 flex-shrink-0"
             fill="currentColor"
@@ -393,13 +520,14 @@ function WelcomeScreen() {
               clipRule="evenodd"
             />
           </svg>
-          <div className="flex-1">
+          <div className="flex-1 text-center">
             <h3 className="text-sm font-semibold text-green-900 mb-2">Privacy & Veiligheid</h3>
             <p className="text-sm text-green-800">{WELCOME_TEXT.privacyNotice}</p>
           </div>
         </div>
       </div>
 
+      {/* Features Grid - Centered */}
       <div className="grid md:grid-cols-3 gap-4 mt-8">
         <div className="text-center p-4">
           <div className="text-3xl mb-2">📝</div>
@@ -419,80 +547,6 @@ function WelcomeScreen() {
 }
 
 // ============================================================================
-// REVIEW SCREEN
-// ============================================================================
-
-function ReviewScreen({ data }: { data: any }) {
-  return (
-    <div className="space-y-6">
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-        <h3 className="text-sm font-medium text-blue-900 mb-2">Controleer uw gegevens</h3>
-        <p className="text-sm text-blue-800">
-          Controleer of alle informatie correct is voordat u verder gaat.
-        </p>
-      </div>
-
-      {/* Personalia */}
-      {data.personalia && (
-        <div className="border border-gray-300 rounded-lg p-4">
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">Persoonlijke Gegevens</h3>
-          <dl className="space-y-2">
-            <div className="flex">
-              <dt className="w-1/3 text-sm font-medium text-gray-600">Naam:</dt>
-              <dd className="w-2/3 text-sm text-gray-900">
-                {data.personalia.firstName} {data.personalia.lastName}
-              </dd>
-            </div>
-            <div className="flex">
-              <dt className="w-1/3 text-sm font-medium text-gray-600">Email:</dt>
-              <dd className="w-2/3 text-sm text-gray-900">{data.personalia.email}</dd>
-            </div>
-            <div className="flex">
-              <dt className="w-1/3 text-sm font-medium text-gray-600">Telefoon:</dt>
-              <dd className="w-2/3 text-sm text-gray-900">{data.personalia.phone}</dd>
-            </div>
-          </dl>
-        </div>
-      )}
-
-      {/* Complaint Summary */}
-      {data.complaint && (
-        <div className="border border-gray-300 rounded-lg p-4">
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">Uw Klacht</h3>
-          <dl className="space-y-2">
-            <div className="flex">
-              <dt className="w-1/3 text-sm font-medium text-gray-600">Pijnintensiteit:</dt>
-              <dd className="w-2/3 text-sm text-gray-900">{data.complaint.intensity}/10</dd>
-            </div>
-            <div className="flex">
-              <dt className="w-1/3 text-sm font-medium text-gray-600">Locatie:</dt>
-              <dd className="w-2/3 text-sm text-gray-900">
-                {data.complaint.bodyRegions?.length || 0} regio(s) geselecteerd
-              </dd>
-            </div>
-          </dl>
-        </div>
-      )}
-
-      {/* Goals */}
-      {data.goals && (
-        <div className="border border-gray-300 rounded-lg p-4">
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">Uw Doelen</h3>
-          <p className="text-sm text-gray-700 line-clamp-3">{data.goals.treatmentGoals}</p>
-        </div>
-      )}
-
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-        <p className="text-sm text-gray-600">
-          <strong>Let op:</strong> Na deze stap kunt u uw gegevens nog bewerken door terug te
-          gaan. Daarna wordt de vragenlijst verzonden naar uw fysiotherapeut.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-// ============================================================================
 // CONSENT SCREEN
 // ============================================================================
 
@@ -502,6 +556,9 @@ interface ConsentScreenProps {
 }
 
 function ConsentScreen({ consentChecked, onConsentChange }: ConsentScreenProps) {
+  const language = usePreIntakeStore((state) => state.language);
+  const t = getTranslations(language);
+
   return (
     <div className="space-y-6">
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -516,6 +573,18 @@ function ConsentScreen({ consentChecked, onConsentChange }: ConsentScreenProps) 
         <div className="text-sm text-gray-700 whitespace-pre-line leading-relaxed">
           {CONSENT_TEXT}
         </div>
+        <p className="text-sm text-gray-600 mt-4">
+          Voor meer informatie, zie ons{' '}
+          <a
+            href="/privacybeleid"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-green-600 hover:text-green-700 underline font-medium"
+          >
+            {t.consentPrivacyPolicy || 'privacybeleid'}
+          </a>
+          .
+        </p>
       </div>
 
       <label className="flex items-start p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-green-50 transition-colors">
@@ -539,5 +608,14 @@ function ConsentScreen({ consentChecked, onConsentChange }: ConsentScreenProps) 
         </p>
       </div>
     </div>
+  );
+}
+
+// Wrapper component with ToastProvider
+export default function QuestionnaireFlow(props: QuestionnaireFlowProps) {
+  return (
+    <ToastProvider>
+      <QuestionnaireFlowContent {...props} />
+    </ToastProvider>
   );
 }

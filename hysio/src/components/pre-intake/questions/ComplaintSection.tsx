@@ -17,12 +17,17 @@
 import React from 'react';
 import type { ComplaintData, BodyRegion } from '@/types/pre-intake';
 import { usePreIntakeStore } from '@/lib/state/pre-intake-store';
+import { getTranslations } from '@/lib/pre-intake/translations';
 import BodyMap from '../BodyMap';
+import VoiceTextInput from '../VoiceTextInput';
+import LOFTIGPrompts from '../LOFTIGPrompts';
 import { FREQUENCY_OPTIONS, DURATION_OPTIONS } from '@/lib/pre-intake/constants';
 
 export default function ComplaintSection() {
   const complaint = usePreIntakeStore((state) => state.questionnaireData.complaint);
   const setComplaint = usePreIntakeStore((state) => state.setComplaint);
+  const language = usePreIntakeStore((state) => state.language);
+  const t = getTranslations(language);
 
   const handleBodyMapChange = (regions: BodyRegion[]) => {
     setComplaint({ locations: regions });
@@ -49,22 +54,26 @@ export default function ComplaintSection() {
         />
       </div>
 
-      {/* O - Ontstaan (Onset) */}
+      {/* O - Hoofdklacht (Main Complaint) */}
       <div>
-        <label htmlFor="onset" className="block text-lg font-semibold text-gray-900 mb-3">
-          Hoe is de klacht ontstaan? <span className="text-red-500">*</span>
+        <label htmlFor="mainComplaint" className="block text-lg font-semibold text-gray-900 mb-3">
+          {t.mainComplaint} <span className="text-red-500">*</span>
         </label>
-        <p className="text-sm text-gray-600 mb-3">
-          Beschrijf zo uitgebreid mogelijk hoe de klacht is begonnen
+        <p className="text-sm text-gray-600 mb-4">
+          {t.mainComplaintSubtitle}
         </p>
-        <textarea
-          id="onset"
-          value={complaint?.onset || ''}
-          onChange={(e) => handleChange('onset', e.target.value)}
+
+        {/* LOFTIG Memory Prompts */}
+        <div className="mb-4">
+          <LOFTIGPrompts />
+        </div>
+
+        {/* Voice Input with Text Display */}
+        <VoiceTextInput
+          value={complaint?.mainComplaint || ''}
+          onChange={(value) => handleChange('mainComplaint', value)}
           placeholder="Bijvoorbeeld: De pijn is ontstaan na het tillen van een zware doos op mijn werk. Ik voelde meteen een scherpe pijn in mijn onderrug..."
-          rows={5}
-          className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors resize-none"
-          required
+          maxDuration={300}
         />
         <p className="mt-1 text-xs text-gray-500">
           Minimaal 10 tekens

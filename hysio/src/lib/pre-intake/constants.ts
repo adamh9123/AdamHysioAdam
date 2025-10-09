@@ -26,6 +26,7 @@ export const QUESTIONNAIRE_STEPS: QuestionnaireStep[] = [
   'functionalLimitations',
   'review',
   'consent',
+  'export',
 ];
 
 /**
@@ -35,12 +36,13 @@ export const STEP_LABELS: Record<QuestionnaireStep, string> = {
   welcome: 'Welkom',
   personalia: 'Persoonlijke Gegevens',
   complaint: 'Uw Klacht',
-  redFlags: 'Belangrijke Vragen',
+  redFlags: 'Screeningsvragen',
   medicalHistory: 'Medische Achtergrond',
   goals: 'Uw Doelen',
-  functionalLimitations: 'Wat Kunt U Niet Meer',
+  functionalLimitations: 'Patiënt Specifieke Klachtenlijst (PSK)',
   review: 'Controleren',
   consent: 'Toestemming',
+  export: 'Verzenden & Exporteren',
 };
 
 /**
@@ -396,12 +398,9 @@ export const UI_MESSAGES = {
  * Welcome screen text
  */
 export const WELCOME_TEXT = {
-  title: 'Welkom bij de Pre-intake Vragenlijst',
-  intro: `
-    Vul rustig thuis deze vragenlijst in. Uw fysiotherapeut bereidt zich zo beter voor op uw eerste afspraak.
-
-    De vragenlijst duurt ongeveer 10-15 minuten. U kunt de vragenlijst op elk moment opslaan en later verder gaan.
-  `.trim(),
+  title: 'Welkom bij Hysio pre-intake',
+  intro: 'Om u zo efficiënt en persoonlijk mogelijk te helpen, vragen we u deze intake alvast in te vullen. Zo hebben we tijdens uw eerste afspraak alle tijd voor u en uw klacht.',
+  duration: 'De vragenlijst duurt ongeveer 10-15 minuten. U kunt de vragenlijst op elk moment opslaan en later verder gaan.',
   privacyNotice: 'Uw gegevens worden veilig opgeslagen en alleen gedeeld met uw fysiotherapeut.',
   startButton: 'Begin met de vragenlijst',
 } as const;

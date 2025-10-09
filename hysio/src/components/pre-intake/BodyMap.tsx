@@ -74,7 +74,7 @@ export default function BodyMap({
         viewBox="0 0 400 600"
         className="w-full h-auto"
         role="img"
-        aria-label="Interactieve lichaamskaart voor selectie van klachtlocaties"
+        aria-label="Interactieve lichaamskaart voor selectie van klachtlocaties - vooraanzicht"
       >
         {/* Head */}
         <ellipse
@@ -93,6 +93,33 @@ export default function BodyMap({
           onKeyDown={(e) => handleKeyDown(e, 'head')}
           role="button"
           aria-label={`Hoofd ${isSelected('head') ? '(geselecteerd)' : ''}`}
+        />
+
+        {/* Face - Smiley to indicate front view */}
+        {/* Left Eye */}
+        <circle
+          cx="185"
+          cy="45"
+          r="4"
+          fill="#374151"
+          pointerEvents="none"
+        />
+        {/* Right Eye */}
+        <circle
+          cx="215"
+          cy="45"
+          r="4"
+          fill="#374151"
+          pointerEvents="none"
+        />
+        {/* Mouth - Simple smile */}
+        <path
+          d="M 185 58 Q 200 65 215 58"
+          stroke="#374151"
+          strokeWidth="2"
+          fill="none"
+          strokeLinecap="round"
+          pointerEvents="none"
         />
 
         {/* Neck */}
@@ -114,25 +141,9 @@ export default function BodyMap({
           aria-label={`Nek ${isSelected('neck') ? '(geselecteerd)' : ''}`}
         />
 
-        {/* Shoulders */}
+        {/* Shoulders - CORRECTED: Left on canvas = Right anatomically (viewing from front) */}
         <circle
           cx="140"
-          cy="135"
-          r="30"
-          fill={getRegionColor('shoulder-left')}
-          stroke={getRegionStroke('shoulder-left')}
-          strokeWidth="2"
-          className="cursor-pointer transition-colors duration-200"
-          onClick={() => handleRegionClick('shoulder-left')}
-          onMouseEnter={() => setHoveredRegion('shoulder-left')}
-          onMouseLeave={() => setHoveredRegion(null)}
-          tabIndex={disabled ? -1 : 0}
-          onKeyDown={(e) => handleKeyDown(e, 'shoulder-left')}
-          role="button"
-          aria-label={`Schouder Links ${isSelected('shoulder-left') ? '(geselecteerd)' : ''}`}
-        />
-        <circle
-          cx="260"
           cy="135"
           r="30"
           fill={getRegionColor('shoulder-right')}
@@ -146,6 +157,22 @@ export default function BodyMap({
           onKeyDown={(e) => handleKeyDown(e, 'shoulder-right')}
           role="button"
           aria-label={`Schouder Rechts ${isSelected('shoulder-right') ? '(geselecteerd)' : ''}`}
+        />
+        <circle
+          cx="260"
+          cy="135"
+          r="30"
+          fill={getRegionColor('shoulder-left')}
+          stroke={getRegionStroke('shoulder-left')}
+          strokeWidth="2"
+          className="cursor-pointer transition-colors duration-200"
+          onClick={() => handleRegionClick('shoulder-left')}
+          onMouseEnter={() => setHoveredRegion('shoulder-left')}
+          onMouseLeave={() => setHoveredRegion(null)}
+          tabIndex={disabled ? -1 : 0}
+          onKeyDown={(e) => handleKeyDown(e, 'shoulder-left')}
+          role="button"
+          aria-label={`Schouder Links ${isSelected('shoulder-left') ? '(geselecteerd)' : ''}`}
         />
 
         {/* Upper Back & Chest */}
@@ -189,9 +216,27 @@ export default function BodyMap({
           aria-label={`Borst ${isSelected('chest') ? '(geselecteerd)' : ''}`}
         />
 
-        {/* Arms */}
+        {/* Arms - CORRECTED: anatomical perspective */}
         <rect
           x="100"
+          y="150"
+          width="30"
+          height="100"
+          rx="15"
+          fill={getRegionColor('arm-right')}
+          stroke={getRegionStroke('arm-right')}
+          strokeWidth="2"
+          className="cursor-pointer transition-colors duration-200"
+          onClick={() => handleRegionClick('arm-right')}
+          onMouseEnter={() => setHoveredRegion('arm-right')}
+          onMouseLeave={() => setHoveredRegion(null)}
+          tabIndex={disabled ? -1 : 0}
+          onKeyDown={(e) => handleKeyDown(e, 'arm-right')}
+          role="button"
+          aria-label={`Arm Rechts ${isSelected('arm-right') ? '(geselecteerd)' : ''}`}
+        />
+        <rect
+          x="270"
           y="150"
           width="30"
           height="100"
@@ -207,24 +252,6 @@ export default function BodyMap({
           onKeyDown={(e) => handleKeyDown(e, 'arm-left')}
           role="button"
           aria-label={`Arm Links ${isSelected('arm-left') ? '(geselecteerd)' : ''}`}
-        />
-        <rect
-          x="270"
-          cy="150"
-          width="30"
-          height="100"
-          rx="15"
-          fill={getRegionColor('arm-right')}
-          stroke={getRegionStroke('arm-right')}
-          strokeWidth="2"
-          className="cursor-pointer transition-colors duration-200"
-          onClick={() => handleRegionClick('arm-right')}
-          onMouseEnter={() => setHoveredRegion('arm-right')}
-          onMouseLeave={() => setHoveredRegion(null)}
-          tabIndex={disabled ? -1 : 0}
-          onKeyDown={(e) => handleKeyDown(e, 'arm-right')}
-          role="button"
-          aria-label={`Arm Rechts ${isSelected('arm-right') ? '(geselecteerd)' : ''}`}
         />
 
         {/* Lower Back */}
@@ -268,25 +295,9 @@ export default function BodyMap({
           aria-label={`Buik ${isSelected('abdomen') ? '(geselecteerd)' : ''}`}
         />
 
-        {/* Hips */}
+        {/* Hips - CORRECTED: anatomical perspective */}
         <circle
           cx="165"
-          cy="300"
-          r="30"
-          fill={getRegionColor('hip-left')}
-          stroke={getRegionStroke('hip-left')}
-          strokeWidth="2"
-          className="cursor-pointer transition-colors duration-200"
-          onClick={() => handleRegionClick('hip-left')}
-          onMouseEnter={() => setHoveredRegion('hip-left')}
-          onMouseLeave={() => setHoveredRegion(null)}
-          tabIndex={disabled ? -1 : 0}
-          onKeyDown={(e) => handleKeyDown(e, 'hip-left')}
-          role="button"
-          aria-label={`Heup Links ${isSelected('hip-left') ? '(geselecteerd)' : ''}`}
-        />
-        <circle
-          cx="235"
           cy="300"
           r="30"
           fill={getRegionColor('hip-right')}
@@ -301,28 +312,26 @@ export default function BodyMap({
           role="button"
           aria-label={`Heup Rechts ${isSelected('hip-right') ? '(geselecteerd)' : ''}`}
         />
-
-        {/* Legs */}
-        <rect
-          x="145"
-          y="340"
-          width="35"
-          height="120"
-          rx="17"
-          fill={getRegionColor('leg-left')}
-          stroke={getRegionStroke('leg-left')}
+        <circle
+          cx="235"
+          cy="300"
+          r="30"
+          fill={getRegionColor('hip-left')}
+          stroke={getRegionStroke('hip-left')}
           strokeWidth="2"
           className="cursor-pointer transition-colors duration-200"
-          onClick={() => handleRegionClick('leg-left')}
-          onMouseEnter={() => setHoveredRegion('leg-left')}
+          onClick={() => handleRegionClick('hip-left')}
+          onMouseEnter={() => setHoveredRegion('hip-left')}
           onMouseLeave={() => setHoveredRegion(null)}
           tabIndex={disabled ? -1 : 0}
-          onKeyDown={(e) => handleKeyDown(e, 'leg-left')}
+          onKeyDown={(e) => handleKeyDown(e, 'hip-left')}
           role="button"
-          aria-label={`Been Links ${isSelected('leg-left') ? '(geselecteerd)' : ''}`}
+          aria-label={`Heup Links ${isSelected('hip-left') ? '(geselecteerd)' : ''}`}
         />
+
+        {/* Legs - CORRECTED: anatomical perspective */}
         <rect
-          x="220"
+          x="145"
           y="340"
           width="35"
           height="120"
@@ -339,26 +348,28 @@ export default function BodyMap({
           role="button"
           aria-label={`Been Rechts ${isSelected('leg-right') ? '(geselecteerd)' : ''}`}
         />
-
-        {/* Knees */}
-        <circle
-          cx="162"
-          cy="410"
-          r="20"
-          fill={getRegionColor('knee-left')}
-          stroke={getRegionStroke('knee-left')}
+        <rect
+          x="220"
+          y="340"
+          width="35"
+          height="120"
+          rx="17"
+          fill={getRegionColor('leg-left')}
+          stroke={getRegionStroke('leg-left')}
           strokeWidth="2"
           className="cursor-pointer transition-colors duration-200"
-          onClick={() => handleRegionClick('knee-left')}
-          onMouseEnter={() => setHoveredRegion('knee-left')}
+          onClick={() => handleRegionClick('leg-left')}
+          onMouseEnter={() => setHoveredRegion('leg-left')}
           onMouseLeave={() => setHoveredRegion(null)}
           tabIndex={disabled ? -1 : 0}
-          onKeyDown={(e) => handleKeyDown(e, 'knee-left')}
+          onKeyDown={(e) => handleKeyDown(e, 'leg-left')}
           role="button"
-          aria-label={`Knie Links ${isSelected('knee-left') ? '(geselecteerd)' : ''}`}
+          aria-label={`Been Links ${isSelected('leg-left') ? '(geselecteerd)' : ''}`}
         />
+
+        {/* Knees - CORRECTED: anatomical perspective */}
         <circle
-          cx="238"
+          cx="162"
           cy="410"
           r="20"
           fill={getRegionColor('knee-right')}
@@ -372,6 +383,22 @@ export default function BodyMap({
           onKeyDown={(e) => handleKeyDown(e, 'knee-right')}
           role="button"
           aria-label={`Knie Rechts ${isSelected('knee-right') ? '(geselecteerd)' : ''}`}
+        />
+        <circle
+          cx="238"
+          cy="410"
+          r="20"
+          fill={getRegionColor('knee-left')}
+          stroke={getRegionStroke('knee-left')}
+          strokeWidth="2"
+          className="cursor-pointer transition-colors duration-200"
+          onClick={() => handleRegionClick('knee-left')}
+          onMouseEnter={() => setHoveredRegion('knee-left')}
+          onMouseLeave={() => setHoveredRegion(null)}
+          tabIndex={disabled ? -1 : 0}
+          onKeyDown={(e) => handleKeyDown(e, 'knee-left')}
+          role="button"
+          aria-label={`Knie Links ${isSelected('knee-left') ? '(geselecteerd)' : ''}`}
         />
       </svg>
 

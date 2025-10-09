@@ -163,3 +163,103 @@ h3 {
   background-color: white;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
+
+/* ============================================================================
+   Print-Friendly Styles for Pre-intake Review
+   ============================================================================ */
+
+@media print {
+  /* Hide non-essential elements */
+  nav,
+  button,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Reset page layout */
+  body {
+    background: white !important;
+    margin: 0;
+    padding: 20px;
+  }
+
+  /* Expand all cards and remove interactive elements */
+  [data-print-section] {
+    page-break-inside: avoid;
+    margin-bottom: 20px;
+    border: 1px solid #ddd !important;
+    box-shadow: none !important;
+  }
+
+  /* Remove gradients and use solid colors for better b/w printing */
+  * {
+    background-image: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Ensure all content is visible */
+  details,
+  summary {
+    display: block !important;
+  }
+
+  details > *:not(summary) {
+    display: block !important;
+  }
+
+  /* Optimize text for printing */
+  body,
+  p,
+  li,
+  td,
+  th {
+    color: #000 !important;
+    font-size: 11pt !important;
+    line-height: 1.4 !important;
+  }
+
+  h1 {
+    font-size: 18pt !important;
+  }
+  h2 {
+    font-size: 16pt !important;
+  }
+  h3 {
+    font-size: 14pt !important;
+  }
+  h4 {
+    font-size: 12pt !important;
+  }
+
+  /* Add page margins */
+  @page {
+    margin: 1.5cm;
+  }
+
+  /* Avoid breaking inside important elements */
+  dl,
+  ul,
+  ol,
+  table {
+    page-break-inside: avoid;
+  }
+
+  /* Clean borders for tables and data rows */
+  dl dt,
+  dl dd {
+    border-color: #ddd !important;
+  }
+
+  /* Ensure print utility classes work */
+  .print\:hidden {
+    display: none !important;
+  }
+
+  .print\:block {
+    display: block !important;
+  }
+
+  .print\:flex {
+    display: flex !important;
+  }
+}

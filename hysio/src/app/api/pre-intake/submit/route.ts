@@ -144,10 +144,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const requestValidation = SubmitPreIntakeRequestSchema.safeParse(body);
 
     if (!requestValidation.success) {
+      console.error('❌ Request validation failed:', requestValidation.error.errors);
       return NextResponse.json(
         {
           success: false,
           error: 'Invalid request data',
+          message: 'Controleer de volgende velden:\n' + requestValidation.error.errors.map(e => `- ${e.path.join('.')}: ${e.message}`).join('\n'),
           details: requestValidation.error.errors,
         },
         { status: 400 }
@@ -160,10 +162,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const dataValidation = validateQuestionnaire(questionnaireData);
 
     if (!dataValidation.success) {
+      console.error('❌ Questionnaire validation failed:', dataValidation.error.errors);
+      const errorMessages = dataValidation.error.errors.map(e => {
+        const path = e.path.join(' → ');
+        return `${path}: ${e.message}`;
+      });
+
       return NextResponse.json(
         {
           success: false,
           error: 'Incomplete or invalid questionnaire data',
+          message: 'Controleer de volgende velden:\n' + errorMessages.join('\n'),
           details: dataValidation.error.errors,
         },
         { status: 400 }

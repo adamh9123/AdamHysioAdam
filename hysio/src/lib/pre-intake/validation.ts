@@ -82,10 +82,13 @@ export const PersonaliaSchema = z.object({
     .string()
     .min(2, 'Naam moet minimaal 2 tekens bevatten')
     .max(MAX_LENGTHS.name, UI_MESSAGES.maxLengthExceeded(MAX_LENGTHS.name)),
+  gender: z.enum(['man', 'vrouw'], {
+    errorMap: () => ({ message: 'Selecteer uw geslacht' }),
+  }),
   birthDate: birthDateSchema,
   phone: phoneSchema,
   email: emailSchema,
-  insurance: z.string().min(1, UI_MESSAGES.requiredField),
+  insurance: z.string().optional(),
   insuranceNumber: z.string().optional(),
 });
 
@@ -97,10 +100,10 @@ export const ComplaintSchema = z.object({
     .array(bodyRegionSchema)
     .min(1, 'Selecteer minimaal 1 locatie op de lichaamskaart')
     .max(10, 'Selecteer maximaal 10 locaties'),
-  onset: z
+  mainComplaint: z
     .string()
-    .min(10, 'Beschrijf hoe de klacht is ontstaan (minimaal 10 tekens)')
-    .max(MAX_LENGTHS.mediumText, UI_MESSAGES.maxLengthExceeded(MAX_LENGTHS.mediumText)),
+    .min(10, 'Beschrijf uw hoofdklacht (minimaal 10 tekens)')
+    .max(MAX_LENGTHS.longText, UI_MESSAGES.maxLengthExceeded(MAX_LENGTHS.longText)),
   frequency: z.enum(['constant', 'daily', 'weekly', 'occasionally']),
   duration: z.enum(['<1week', '1-4weeks', '1-3months', '>3months']),
   intensity: z
@@ -166,19 +169,39 @@ export const GoalsSchema = z.object({
 });
 
 /**
- * Functional limitations section validation
+ * Functional limitations section validation (base schema without refine)
  */
-export const FunctionalLimitationsSchema = z.object({
+const FunctionalLimitationsBaseSchema = z.object({
   limitedActivityCategories: z
     .array(z.enum(['work', 'sports', 'household', 'driving', 'sleeping', 'hobbies', 'social', 'other']))
     .min(1, 'Selecteer minimaal 1 beperkte activiteit')
     .max(8, 'Selecteer maximaal 8 activiteiten'),
-  customActivity: z.string().max(100, 'Aangepaste activiteit te lang').optional(),
+  customActivity: z.string().max(100, 'Aangepaste activiteit te lang').optional(), // Legacy support
+  customActivities: z.record(z.string(), z.string().max(100, 'Aangepaste activiteit te lang')).optional(), // New: multiple custom activities
   severityScores: z.record(
     z.string(),
     z.number().min(0, 'Score moet minimaal 0 zijn').max(10, 'Score moet maximaal 10 zijn').int('Score moet een geheel getal zijn')
   ),
 });
+
+/**
+ * Functional limitations section validation (with refinements for submission)
+ */
+export const FunctionalLimitationsSchema = FunctionalLimitationsBaseSchema.refine(
+  (data) => {
+    // If 'other' is selected, validate that at least one custom activity is provided
+    if (data.limitedActivityCategories.includes('other')) {
+      const hasLegacyCustom = data.customActivity && data.customActivity.trim().length > 0;
+      const hasNewCustom = data.customActivities && Object.keys(data.customActivities).length > 0;
+      return hasLegacyCustom || hasNewCustom;
+    }
+    return true;
+  },
+  {
+    message: 'Voeg minimaal één aangepaste activiteit toe als u "Anders" selecteert',
+    path: ['customActivities'],
+  }
+);
 
 // ============================================================================
 // COMPLETE QUESTIONNAIRE SCHEMA
@@ -205,7 +228,7 @@ export const PartialPreIntakeQuestionnaireSchema = z.object({
   redFlags: RedFlagsSchema.partial().optional(),
   medicalHistory: MedicalHistorySchema.partial().optional(),
   goals: GoalsSchema.partial().optional(),
-  functionalLimitations: FunctionalLimitationsSchema.partial().optional(),
+  functionalLimitations: FunctionalLimitationsBaseSchema.partial().optional(), // Use base schema without refine
 });
 
 // ============================================================================
